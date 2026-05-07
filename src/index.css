@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Główne kolory tła z Twojego PDF */
+  --bg-main: #0B0E14;       /* Bardzo ciemne tło strony */
+  --bg-sidebar: #11141B;    /* Nieco jaśniejszy pasek boczny */
+  --bg-card: #161A23;       /* Kolor kart zadań i widgetów */
+  
+  /* Kolory akcentowe */
+  --primary: #3B82F6;       /* Główny niebieski (przyciski, aktywne ikony) */
+  --accent-mint: #10B981;   /* Zielony dla "Completed" i statystyk */
+  --accent-red: #EF4444;    /* Czerwony dla zadań "Critical" */
+  
+  /* Tekst */
+  --text-main: #F8FAF7;     /* Prawie biały tekst */
+  --text-muted: #94A3B8;    /* Szary tekst dla opisów i dat */
+  
+  --border: #232936;        /* Subtelne obramowania kart */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Stylizacja scrollbara */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #2D3441;
+  border-radius: 10px;
+}
+/* --- UKŁAD GŁÓWNY --- */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-area {
+  flex: 1; /* Wypełnia całą resztę ekranu po prawej od nawigacji */
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- LEWA KOLUMNA (SIDEBAR) --- */
+.left-sidebar {
+  width: 260px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- WIDOK DASHBOARDU (ŚRODEK + PRAWO) --- */
+.dashboard-layout {
+  display: flex;
+  flex: 1;
+  height: 100%;
+}
+
+.center-content {
+  flex: 1; /* Największa część */
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-sidebar {
+  width: 320px; /* Stała szerokość panelu analitycznego */
+  background-color: var(--bg-card);
+  border-left: 1px solid var(--border);
+  padding: 40px 24px;
+}
+
+/* --- TYPOGRAFIA I DETALE --- */
+.header-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+h1 {
+  font-size: 28px;
+  margin: 0 0 8px 0;
+}
+
+.date-subtitle, .subtitle {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+}
