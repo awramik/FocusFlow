@@ -1,7 +1,7 @@
-export default function Settings() {
+export default function AllTasks() {
   return (
     <div className="center-content">
-      <h1>Settings</h1>
+      <h1>All Tasks</h1>
     </div>
   );
 }

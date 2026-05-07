@@ -1,7 +1,7 @@
-export default function Analytics() {
+export default function Analitics() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Analytics</h1>
+    <div className="center-content">
+      <h1>Analitics</h1>
     </div>
   );
 }
