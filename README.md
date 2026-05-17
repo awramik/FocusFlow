@@ -20,3 +20,9 @@ The project follows a "Technical Dark Mode" aesthetic based on the Figma design.
     ```bash
     npm run dev
 
+*If 'vite' is not recognized as an internal or external command,
+operable program or batch file.
+
+```
+npm install
+```
