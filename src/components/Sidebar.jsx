@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { 
   Zap, 
   LayoutDashboard, 
@@ -10,7 +11,29 @@ import {
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
+// Importujemy 5 faz wzrostu Pana Ferdynanda
+import ferdynand1 from '../assets/egg.png';
+import ferdynand2 from '../assets/baby.png';
+import ferdynand3 from '../assets/with_book.png';
+import ferdynand4 from '../assets/graduate.png';
+import ferdynand5 from '../assets/adult.png';
+
 export default function Sidebar() {
+
+// Stan przechowujący aktualną fazę (od 1 do 5)
+  const [faza, setFaza] = useState(1);
+
+  // Tablica z zaimportowanymi obrazkami dla łatwiejszego mapowania
+  const ferdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
+
+  // Funkcja zmieniająca fazę po kliknięciu
+  const handleFerdynandClick = () => {
+    setFaza((prevFaza) => {
+      if (prevFaza === 5) return 1;
+      return prevFaza + 1;
+    });
+  };
+
   return (
     <nav className="left-sidebar">
       
@@ -50,10 +73,21 @@ export default function Sidebar() {
         </ul>
       </div>
 
-      {/* SEKCJA 2: Miejsce na Ferdynanda */}
+      {/* SEKCJA 2: Pan Ferdynand */}
       <div className="sidebar-middle">
-        <div className="bubble-placeholder">
-          <span className="bubble-text">PAN FERDYNAND</span>
+        <div 
+          className="ferdynand-container" 
+          onClick={handleFerdynandClick}
+          title="Click to evolve Ferdinand!"
+        >
+          <img 
+            src={ferdynandStages[faza - 1]} 
+            alt={`Mr Ferdynand - Phase ${faza}`} 
+            className="ferdynand-img"
+          />
+          <div className="ferdynand-badge">
+            STAGE {faza}
+          </div>
         </div>
       </div>
 
