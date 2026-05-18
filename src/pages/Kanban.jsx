@@ -1,30 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { tasksData } from '../data/mockData';
+import { useTasks } from '../context/TaskContext';
 import '../kanban.css';
 
 const columns = ['To do', 'Doing', 'Done'];
 
 export default function Kanban() {
-  const [tasks, setTasks] = useState(() => {
-    return tasksData.map(task => {
-      let mappedStatus = 'To do';
-      if (task.status === 'doing') mappedStatus = 'Doing';
-      if (task.status === 'done') mappedStatus = 'Done';
-
-      let mappedPriority = 'LOW';
-      if (task.priority === 'critical') mappedPriority = 'CRIT';
-      if (task.priority === 'high') mappedPriority = 'HIGH';
-
-      return {
-        id: task.id.toString(),
-        title: task.title,
-        status: mappedStatus,
-        priority: mappedPriority,
-        project: task.category || 'FocusFlow'
-      };
-    });
-  });
+  const { tasks, updateTaskStatus, addTask } = useTasks();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('ALL');
@@ -44,15 +26,7 @@ export default function Kanban() {
       return;
     }
 
-    const newTask = {
-      id: Date.now().toString(),
-      title,
-      priority,
-      project,
-      status
-    };
-
-    setTasks([...tasks, newTask]);
+    addTask(title, priority, project, status);
   };
 
   const onDragStart = (e, id) => {
@@ -65,13 +39,7 @@ export default function Kanban() {
 
   const onDrop = (e, targetStatus) => {
     const id = e.dataTransfer.getData('text');
-    const updatedTasks = tasks.map(task => {
-      if (task.id === id) {
-        return { ...task, status: targetStatus };
-      }
-      return task;
-    });
-    setTasks(updatedTasks);
+    updateTaskStatus(id, targetStatus);
   };
 
   const getPriorityClass = (priority) => {
