@@ -10,19 +10,27 @@ import TaskDetails from './pages/TaskDetails';
 import Settings from './pages/Settings';
 import FocusMode from './pages/FocusMode';
 
-const initialTasks = [
-  { id: '1', title: 'Finish figma project of FocusFlow', priority: 'CRIT', project: 'version 3.1', status: 'To do' },
-  { id: '2', title: 'Prepare interactive elements', priority: 'HIGH', project: 'FocusFlow', status: 'To do' },
-  { id: '3', title: 'Create a GitHub repository', priority: 'LOW', project: 'FocusFlow', status: 'To do' },
-  { id: '4', title: 'Do views in Figma', priority: 'CRIT', project: 'FocusFlow', status: 'Doing' },
-  { id: '5', title: 'Implement views using React', priority: 'HIGH', project: 'FocusFlow', status: 'Doing' },
-  { id: '6', title: 'Domain Name terminology', priority: 'CRIT', project: 'FocusFlow', status: 'Done' },
-  { id: '7', title: 'User needs research', priority: 'HIGH', project: 'FocusFlow', status: 'Done' },
-  { id: '8', title: 'Functionalities schema', priority: 'CRIT', project: 'FocusFlow', status: 'Done' },
-];
-
+import { tasksData } from './data/mockData';
 function App() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState(() => {
+    return tasksData.map(task => {
+      let mappedStatus = 'To do';
+      if (task.status === 'doing') mappedStatus = 'Doing';
+      if (task.status === 'done') mappedStatus = 'Done';
+
+      let mappedPriority = 'LOW';
+      if (task.priority === 'critical') mappedPriority = 'CRIT';
+      if (task.priority === 'high') mappedPriority = 'HIGH';
+
+      return {
+        id: task.id.toString(),
+        title: task.title,
+        status: mappedStatus,
+        priority: mappedPriority,
+        project: task.category || 'FocusFlow'
+      };
+    });
+  });
 
   return (
     <Router>
@@ -34,10 +42,8 @@ function App() {
             <Route path="/today" element={<Today />} />
             <Route path="/all" element={<AllTasks />} />
             <Route path="/analytics" element={<Analytics />} />
-
             <Route path="/kanban" element={<Kanban tasks={tasks} setTasks={setTasks} />} />
             <Route path="/kanban/:id" element={<TaskDetails tasks={tasks} />} />
-            
             <Route path="/settings" element={<Settings />} />
             <Route path="/focus" element={<FocusMode />} />
           </Routes>

@@ -1,21 +1,31 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-const initialTasks = [
-  { id: '1', title: 'Finish figma project of FocusFlow', priority: 'CRIT', project: 'version 3.1', status: 'To do' },
-  { id: '2', title: 'Prepare interactive elements', priority: 'HIGH', project: 'FocusFlow', status: 'To do' },
-  { id: '3', title: 'Create a GitHub repository', priority: 'LOW', project: 'FocusFlow', status: 'To do' },
-  { id: '4', title: 'Do views in Figma', priority: 'CRIT', project: 'FocusFlow', status: 'Doing' },
-  { id: '5', title: 'Implement views using React', priority: 'HIGH', project: 'FocusFlow', status: 'Doing' },
-  { id: '6', title: 'Domain Name terminology', priority: 'CRIT', project: 'FocusFlow', status: 'Done' },
-  { id: '7', title: 'User needs research', priority: 'HIGH', project: 'FocusFlow', status: 'Done' },
-  { id: '8', title: 'Functionalities schema', priority: 'CRIT', project: 'FocusFlow', status: 'Done' },
-];
+import { tasksData } from '../data/mockData';
+import '../kanban.css';
 
 const columns = ['To do', 'Doing', 'Done'];
 
 export default function Kanban() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useState(() => {
+    return tasksData.map(task => {
+      let mappedStatus = 'To do';
+      if (task.status === 'doing') mappedStatus = 'Doing';
+      if (task.status === 'done') mappedStatus = 'Done';
+
+      let mappedPriority = 'LOW';
+      if (task.priority === 'critical') mappedPriority = 'CRIT';
+      if (task.priority === 'high') mappedPriority = 'HIGH';
+
+      return {
+        id: task.id.toString(),
+        title: task.title,
+        status: mappedStatus,
+        priority: mappedPriority,
+        project: task.category || 'FocusFlow'
+      };
+    });
+  });
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('ALL');
   const [showFilters, setShowFilters] = useState(false);
