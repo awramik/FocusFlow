@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// 1. Importujemy TaskProvider z pliku, w którym przed chwilą go zapisaliśmy
-import { TaskProvider } from './context/TaskContext'; // <-- upewnij się, że ścieżka jest poprawna
+import { TaskProvider } from './context/TaskContext';
 
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -11,9 +10,10 @@ import Kanban from './pages/Kanban';
 import TaskDetails from './pages/TaskDetails';
 import Settings from './pages/Settings';
 import FocusMode from './pages/FocusMode';
+import Calendar from './pages/Calendar';
 
-import './index.css';
-import './kanban.css';
+import './style/index.css';
+import './style/kanban.css';
 
 function App() {
   return (
@@ -31,6 +31,7 @@ function App() {
               <Route path="/kanban/:id" element={<TaskDetails />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/focus" element={<FocusMode />} />
+              <Route path="/calendar" element={<Calendar />} />
             </Routes>
           </main>
         </div>

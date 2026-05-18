@@ -8,6 +8,7 @@ import {
   Clock, 
   MoreHorizontal 
 } from 'lucide-react';
+import RightAnalytics from '../components/RightAnalytics';
 
 export default function Today() {
   const { tasks, updateTaskStatus } = useTasks();
@@ -38,7 +39,9 @@ export default function Today() {
 
   return (
     <div className="dashboard-layout">
-      <section className="center-content" style={{ padding: '40px', overflowY: 'auto' }}>
+      
+      {/* SEKCJA GŁÓWNA*/}
+      <main className="center-content" style={{ padding: '40px', overflowY: 'auto' }}>
         <div className="flex-between" style={{ marginBottom: '24px' }}>
           <div>
             <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
@@ -54,6 +57,7 @@ export default function Today() {
           </button>
         </div>
 
+        {/* WYSZUKIWARKA */}
         <div style={{ position: 'relative', marginBottom: '40px' }}>
           <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input
@@ -75,6 +79,7 @@ export default function Today() {
           />
         </div>
 
+        {/* SEKCJA: ACTIVE */}
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', letterSpacing: '1px' }}>ACTIVE</span>
@@ -116,6 +121,7 @@ export default function Today() {
           </div>
         </div>
 
+        {/* SEKCJA: COMPLETED */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', letterSpacing: '1px' }}>COMPLETED</span>
@@ -158,12 +164,10 @@ export default function Today() {
             )}
           </div>
         </div>
+      </main>
 
-      </section>
+      <RightAnalytics />
 
-      {/*panel analytics*/}
-      <aside className="right-sidebar">
-      </aside>
     </div>
   );
 }

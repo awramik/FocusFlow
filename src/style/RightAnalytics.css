@@ -219,3 +219,13 @@
   line-height: 13px;
   color: #FFB3D9;
 }
+
+.mini-calendar-widget:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 175, 215, 0.4);
+}
+
+.mini-calendar-widget:active {
+  transform: translateY(0);
+}

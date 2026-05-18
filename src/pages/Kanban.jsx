@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '../context/TaskContext';
-import '../kanban.css';
+import '../style/kanban.css';
 
 const columns = ['To do', 'Doing', 'Done'];
 
