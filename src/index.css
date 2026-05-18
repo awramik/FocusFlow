@@ -31,7 +31,8 @@ body {
 /* --- UKŁAD TRÓJKOLUMNOWY --- */
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* --- LEWA KOLUMNA (SIDEBAR) --- */
@@ -43,6 +44,9 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  height: 100vh;
+  position: sticky;
+  top: 0;
 }
 
 /* --- LOGO --- */
@@ -131,6 +135,8 @@ body {
 .main-area {
   flex: 1;
   display: flex;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .dashboard-layout {

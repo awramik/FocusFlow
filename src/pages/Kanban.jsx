@@ -55,8 +55,7 @@ export default function Kanban() {
   });
 
   return (
-    <div className="center-content kanban-page">
-      
+  <div className="kanban-page" style={{ padding: '40px', width: '100%', minHeight: '100vh' }}>    
       <div className="kanban-header">
         <div>
           <h1 className="kanban-title">Kanban</h1>
