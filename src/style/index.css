@@ -40,7 +40,7 @@ body {
   width: 260px;
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border);
-  padding: 32px 24px;
+  padding: 42px 24px 32px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -51,11 +51,21 @@ body {
 
 /* --- LOGO --- */
 .sidebar-logo {
+  box-sizing: border-box;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #582E7E;
+  margin-right: -24px;
+  margin-left: -24px;
+  padding-right: 24px;
+  padding-left: 24px;
+  min-height: 80px; 
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
-  margin-bottom: 40px;
-  padding-left: 12px;
+
+  padding-top: 12px;   
+  padding-bottom: 12px;  
 }
 
 .logo-icon {
@@ -114,22 +124,53 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 40px 0;
+  margin: 30px 0;
 }
 
-.bubble-placeholder {
-  width: 140px;
-  height: 140px;
+.ferdynand-container {
+  width: 230px;
+  height: 230px;
   border-radius: 50%;
   background: radial-gradient(circle, var(--accent-purple) 0%, var(--bg-card) 100%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--text-main);
+  position: relative;
+  cursor: pointer;
   box-shadow: 0 0 30px rgba(80, 45, 115, 0.4);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.ferdynand-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(242, 172, 211, 0.3);
+}
+
+/* Stylizacja samego obrazka PNG */
+.ferdynand-img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.ferdynand-container:active .ferdynand-img {
+  transform: scale(0.9);
+}
+
+.ferdynand-badge {
+  position: absolute;
+  bottom: 12px;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--accent-primary);
+  letter-spacing: 1px;
+  background: rgba(21, 9, 38, 0.7);
+  padding: 2px 6px;
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 .main-area {
@@ -146,7 +187,7 @@ body {
 
 .center-content {
   flex: 1;
-  padding: 40px;
+  padding: 42px 40px 40px 40px; /* góra: 42, prawej: 40, dół: 40, lewej: 40 */
   overflow-y: auto;
 }
 

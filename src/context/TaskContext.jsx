@@ -1,10 +1,16 @@
 import React, { createContext, useState, useContext } from 'react';
-import { tasksData } from '../data/mockData';
+import { 
+  tasksData, 
+  currentUser, 
+  statsData, 
+  projectsData, 
+  recentActivity 
+} from '../data/mockData';
 
 const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
-  // mapowanie danych na potrzeby kanbana
+  // mapowanie danych na potrzeby kanbana oraz innych widoków
   const [tasks, setTasks] = useState(() => {
     return tasksData.map(task => {
       let mappedStatus = 'To do';
@@ -25,7 +31,7 @@ export const TaskProvider = ({ children }) => {
     });
   });
 
-  // Funkcja do zmiany statusu zadania (drag & drop w kanbanie)
+  // Funkcja do zmiany statusu zadania (używana w Kanbanie i Today)
   const updateTaskStatus = (taskId, newStatus) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
@@ -46,8 +52,18 @@ export const TaskProvider = ({ children }) => {
     setTasks(prevTasks => [...prevTasks, newTask]);
   };
 
+  const contextValue = {
+    tasks,
+    updateTaskStatus,
+    addTask,
+    currentUser,
+    statsData,
+    projectsData,
+    recentActivity 
+  };
+
   return (
-    <TaskContext.Provider value={{ tasks, updateTaskStatus, addTask }}>
+    <TaskContext.Provider value={contextValue}>
       {children}
     </TaskContext.Provider>
   );

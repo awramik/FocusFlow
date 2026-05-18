@@ -1,0 +1,221 @@
+/* =========================================
+   PROJEKT FIGMA: RIGHTANALYTICS.CSS
+   ========================================= */
+
+.right-sidebar {
+  width: 320px;
+  background: #250F3D;
+  border-left: 1px solid #2F1547;
+  padding: 42px 24px 40px 24px; 
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-header {
+  box-sizing: border-box;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #582E7E;
+  margin-left: -24px;
+  margin-right: -24px;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: calc(100% + 48px);
+  min-height: 80px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  
+  padding-top: 12px;
+  padding-bottom: 12px; 
+}
+.analytics-header h2 {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 26px;
+  color: #FFFFFF;
+  margin: 0 0 4px 0;
+}
+
+.analytics-header p {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 13px;
+  color: #FFB3D9;
+  margin: 0;
+}
+
+/* 2. Kafelki Statystyk */
+.analytics-metrics-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.analytics-metric-card {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100px;
+  background: #2F1547;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.metric-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.metric-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: #A78BBA;
+}
+
+.metric-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 32px;
+  color: #F5F5F5;
+}
+
+.metric-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+  justify-content: center;
+}
+
+.progress-circle-box {
+  width: 36px;
+  height: 36px;
+  background: #40235B;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-pink { color: #FF9EC4; }
+.icon-pink-light { color: #FFB3D9; }
+
+.metric-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 13px;
+  text-align: center;
+  color: #FFB3D9;
+}
+
+/* 3. Linia oddzielająca */
+.analytics-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid #582E7E;
+  margin: 0 0 32px 0;
+}
+
+/* 4. Today's Focus Widget */
+.today-focus-widget {
+  box-sizing: border-box;
+  width: 100%;
+  height: 150px;
+  background: #2F1547;
+  border: 2px solid #582E7E;
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.focus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.focus-header h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  color: #A78BBA;
+  margin: 0;
+}
+
+.focus-arrow-icon {
+  color: #FF9EC4;
+}
+
+.focus-progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.focus-completed-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 16px;
+  color: #FFB3D9;
+}
+
+.focus-ratio {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 18px;
+  color: #FF9EC4;
+}
+
+.focus-progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #1A0A2E;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.focus-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFB3D9 0%, #FF9EC4 100%);
+  border-radius: 4px 0px 0px 4px;
+  transition: width 0.4s ease-in-out;
+}
+
+.focus-time-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.focus-clock-icon {
+  color: #FFB3D9;
+}
+
+.focus-time-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 13px;
+  color: #FFB3D9;
+}

@@ -1,0 +1,687 @@
+/* =========================================
+   NOWY UKŁAD DASHBOARDU (Main Content)
+   ========================================= */
+
+.dashboard-header {
+  box-sizing: border-box;
+  margin-bottom: 32px;
+  border-bottom: 1px solid #582E7E;
+  margin-top: 0;
+  margin-left: -40px;
+  margin-right: -40px;
+  padding-left: 40px;
+  padding-right: 40px;
+  min-height: 80px; 
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-bottom: 12px; 
+}
+
+.dashboard-header h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 44px;
+  margin: 0 0 4px 0;
+  color: #ffffff;
+}
+
+.dashboard-header p {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 17px;
+  color: #A78BBA;
+  margin: 0;
+}
+/* GÓRNY RZĄD */
+.top-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.glass-card {
+  background: #2F1547;
+  border: 1px solid rgba(255, 179, 217, 0.6);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* 1. Daily Status Card */
+.daily-status-card {
+  width: 246px; 
+  display: flex;
+  flex-direction: column;
+}
+
+.daily-status-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: -0.5px;
+  color: #A78BBA;
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+}
+
+.daily-status-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 0 0 12px 0;
+}
+
+.daily-status-percent {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 40px;
+  line-height: 48px;
+  letter-spacing: -0.8px;
+  color: #FFB3D9;
+}
+
+.daily-status-goal {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+  letter-spacing: 0.6px;
+  color: #A78BBA;
+}
+
+.daily-progress-bg {
+  width: 100%;
+  height: 4px;
+  background: #1A0A2E;
+  border-radius: 9999px;
+  position: relative;
+}
+
+.daily-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #FFB3D9 0%, #FF9EC4 100%);
+  box-shadow: 0px 0px 15px rgba(255, 121, 198, 0.3);
+  border-radius: 8px;
+  transition: width 0.5s ease;
+}
+
+/* 2. Active Session Card */
+.active-session-card {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.active-session-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.timer-circle {
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  border: 2px solid rgba(255, 179, 217, 0.3); 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  color: #FFB3D9;
+}
+
+.active-session-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.active-session-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 12px;
+  color: #A78BBA;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+}
+
+.active-session-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  color: #FFB3D9;
+  margin: 0;
+}
+
+.active-session-task {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 12px;
+  color: #A78BBA;
+  margin: 4px 0 0 0;
+}
+
+.active-session-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 40px;
+  height: 40px;
+  background: #1A0A2E;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  color: #A78BBA;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #FFB3D9;
+  color: #1A0A2E;
+}
+
+/* ŚRODKOWA SEKCJA */
+.middle-section {
+  display: flex;
+  gap: 32px; /* Zwiększony odstęp między listą a prawą stroną */
+  margin-bottom: 32px;
+}
+
+/* --- LEWA KOLUMNA ZADAŃ --- */
+.tasks-column {
+  flex: 1; /* Pozwala liście zająć całe wolne miejsce! */
+  display: flex;
+  flex-direction: column;
+}
+
+.recent-tasks-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  color: #A78BBA;
+  margin: 0 0 16px 0;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-card-new {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 16px;
+  gap: 16px;
+  width: 100%;
+  height: 79px;
+  background: #2F1547;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.task-card-new.priority-critical { border-left: 4px solid #FFAFD7; }
+.task-card-new.priority-high     { border-left: 4px solid rgba(255, 175, 215, 0.4); }
+.task-card-new.priority-low      { border-left: 4px solid #4B3D54; }
+.task-card-new.priority-medium   { border-left: 4px solid #A78BBA; }
+
+/* Kółko Checkmark */
+.task-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.priority-critical .task-checkbox { border: 2px solid #FFB3D9; }
+.priority-high .task-checkbox     { border: 2px solid #A78BBA; }
+.priority-low .task-checkbox      { border: 2px solid #4B3D54; }
+.priority-medium .task-checkbox   { border: 2px solid #A78BBA; }
+
+/* Kółko ZAZNACZONE (Pełne z ptaszkiem) */
+.priority-critical .task-checkbox.checked { background: #FFB3D9; border-color: #FFB3D9; }
+.priority-high .task-checkbox.checked     { background: #A78BBA; border-color: #A78BBA; }
+.priority-low .task-checkbox.checked      { background: #4B3D54; border-color: #4B3D54; }
+.priority-medium .task-checkbox.checked   { background: #A78BBA; border-color: #A78BBA; }
+
+/* Całe zadanie ZAZNACZONE (Wizualne wyszarzenie i przekreślenie tekstu) */
+.task-card-new.completed {
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+.task-card-new.completed .task-title-new {
+  text-decoration: line-through;
+  color: #A78BBA;
+}
+
+.task-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.task-title-new {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.task-tags {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.task-tag-priority {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 15px;
+  text-transform: uppercase;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.priority-critical .task-tag-priority { background: rgba(255, 179, 217, 0.2); color: #FFB3D9; }
+.priority-high .task-tag-priority     { background: rgba(167, 139, 186, 0.2); color: #A78BBA; }
+.priority-low .task-tag-priority      { background: rgba(75, 61, 84, 0.2);    color: #4B3D54; }
+.priority-medium .task-tag-priority   { background: rgba(167, 139, 186, 0.2); color: #A78BBA; }
+
+.task-tag-category {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 15px;
+  color: #A78BBA;
+  margin-top: 2px;
+}
+
+.task-options {
+  color: #A78BBA;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- PRAWA KOLUMNA WIDŻETÓW (Ze sztywną szerokością) --- */
+.summary-column {
+  flex: 0 0 258px; /* Sztywna szerokość z Figmy */
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 44px; /* Obniżenie żeby zrównać z zadaniami */
+}
+
+/* PROGRESS BARS (Przezroczysty kafelek) */
+.progress-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px; 
+  width: 100%;
+}
+
+.transparent-card {
+  background: transparent;
+  border: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.progress-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-text-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.progress-label-pink {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  color: #FFB3D9;
+  text-transform: uppercase;
+}
+
+.progress-value-pink {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  color: #FFB3D9;
+}
+
+.progress-label-purple {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  color: #A78BBA;
+  text-transform: uppercase;
+}
+
+.progress-value-purple {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  font-size: 10px;
+  color: #D7BAFF;
+}
+
+.progress-bar-bg-dark {
+  width: 100%;
+  height: 6px;
+  background: #2F1547;
+  border-radius: 9999px;
+  position: relative;
+}
+
+.progress-bar-fill-pink {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #FFB3D9 0%, #FF9EC4 100%);
+  box-shadow: 0px 0px 15px rgba(255, 121, 198, 0.3);
+  border-radius: 8px;
+}
+
+.progress-bar-fill-purple {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #A78BBA 0%, #875DA4 100%);
+  box-shadow: 0px 0px 10px rgba(215, 186, 255, 0.3);
+  border-radius: 8px;
+}
+
+/* VELOCITY CARD (Z Figmy) */
+.velocity-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 16px;
+  flex: 1;
+  background: #2F1547;
+  border: 1px solid rgba(255, 179, 217, 0.6);
+  border-radius: 8px;
+}
+
+.velocity-icon-wrapper {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.velocity-icon-wrapper svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.velocity-content {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0px 0px;
+  gap: 4px;
+}
+
+.velocity-card h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FFB3D9;
+  margin: 0;
+}
+
+.velocity-card p {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #A78BBA;
+  margin: 0;
+}
+
+/* DOLNY RZĄD */
+.bottom-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px; /* Zwiększony odstęp między kafelkami */
+}
+
+/* 1. Focus Streak */
+.bottom-card-streak {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px; /* Zwiększony lekko padding dla lepszego oddechu */
+  flex: 1; /* Pozwala na równe rozciągnięcie! */
+  height: 172px; 
+  background: #2F1547;
+  border: 1px solid rgba(255, 179, 217, 0.6);
+  border-radius: 8px;
+}
+
+.streak-icon {
+  color: #D7BAFF;
+  margin-bottom: 8px;
+}
+
+.streak-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%; /* Odblokowana szerokość */
+  margin-bottom: 8px;
+}
+
+.bottom-card-streak h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FFFFFF;
+  margin: 0;
+}
+
+.streak-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%; /* Odblokowana szerokość */
+}
+
+.bottom-card-streak p {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  color: #A78BBA;
+  margin: 0;
+}
+
+/* 2. PRO TIP */
+.bottom-card-tip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px;
+  flex: 1; /* Rozciąganie! */
+  height: 172px; 
+  background: #FFB3D9;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.tip-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%; /* Odblokowana szerokość */
+  margin-bottom: 12px;
+}
+
+.tip-icon {
+  color: #FF68A3;
+}
+
+.tip-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.bottom-card-tip h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FF68A3;
+  margin: 0;
+}
+
+.tip-text {
+  width: 100%; /* Odblokowana szerokość */
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  display: flex;
+  align-items: flex-end;
+  color: #2F1547;
+  margin: 0;
+}
+
+/* 3. Weekly Recap */
+.bottom-card-recap {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px;
+  gap: 12px;
+  flex: 1; /* Rozciąganie! */
+  height: 172px; 
+  background: #2F1547;
+  border: 2px dashed rgba(255, 175, 215, 0.3);
+  backdrop-filter: blur(6px);
+  border-radius: 12px;
+}
+
+.recap-title-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.bottom-card-recap h3 {
+  width: 100%; /* Odblokowana szerokość */
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #FFAFD7;
+  margin: 0;
+}
+
+.recap-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Odblokowana szerokość */
+  margin-bottom: auto; /* Pcha przycisk maksymalnie do dołu */
+}
+
+.bottom-card-recap p {
+  width: 100%; /* Odblokowana szerokość */
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #A78BBA;
+  margin: 0;
+}
+
+.generate-pdf-btn {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0px;
+  width: 100%; /* Przycisk rozciąga się na szerokość */
+  max-width: 220px; /* Zabezpieczenie, by przycisk nie zrobił się karykaturalnie długi na bardzo szerokich ekranach */
+  height: 30px;
+  border: 1px solid #FFAFD7;
+  border-radius: 4px;
+  background: transparent;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 12px;
+  text-align: center;
+  text-transform: uppercase;
+  color: #FFAFD7;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.generate-pdf-btn:hover {
+  background: rgba(255, 175, 215, 0.1);
+}
