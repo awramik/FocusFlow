@@ -1,16 +1,16 @@
-import React from 'react';
-import { BadgeCheck, BarChart3, Flame, Pause, Play, RotateCcw, Timer } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { BadgeAlert, BadgeCheck, Flame, Lock, Pause, Play, RefreshCcwDot, Timer } from 'lucide-react';
 import congratsImage from '../assets/congrats.png';
 import '../style/Analytics.css';
 
 const weeklyData = [
-  { day: 'MON', value: 52 },
-  { day: 'TUE', value: 35 },
-  { day: 'WED', value: 74, featured: true },
-  { day: 'THU', value: 43 },
-  { day: 'FRI', value: 18 },
-  { day: 'SAT', value: 47 },
-  { day: 'SUN', value: 86, featured: true },
+  { day: 'MON', value: 52, tasksDone: 7 },
+  { day: 'TUE', value: 35, tasksDone: 4 },
+  { day: 'WED', value: 74, tasksDone: 10, featured: true },
+  { day: 'THU', value: 43, tasksDone: 6 },
+  { day: 'FRI', value: 18, tasksDone: 2 },
+  { day: 'SAT', value: 47, tasksDone: 5 },
+  { day: 'SUN', value: 86, tasksDone: 12, featured: true },
 ];
 
 const achievements = [
@@ -18,7 +18,6 @@ const achievements = [
     icon: BadgeCheck,
     title: 'First steps',
     text: 'Welcome to FocusFlow, where all your tasks come true! First task logged successfully :)',
-    highlighted: true,
     status: 'Earned',
     date: '02.05.2026',
     congratulated: true,
@@ -38,6 +37,30 @@ const weeklyAverage = Math.round(
 );
 
 function AnalyticsRightPanel() {
+  const [secondsLeft, setSecondsLeft] = useState(25 * 60);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isPomodoroTipOpen, setIsPomodoroTipOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isRunning) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setSecondsLeft((currentSeconds) => {
+        if (currentSeconds <= 1) {
+          setIsRunning(false);
+          return 0;
+        }
+
+        return currentSeconds - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isRunning]);
+
+  const timerMinutes = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
+  const timerSeconds = (secondsLeft % 60).toString().padStart(2, '0');
+
   return (
     <aside className="analytics-page__right-panel">
       <header className="analytics-page__right-header">
@@ -45,25 +68,50 @@ function AnalyticsRightPanel() {
         <p>Improve your focus and achieve your goals</p>
       </header>
 
-      <section className="analytics-page__tip-card">
+      <button
+        type="button"
+        className={`analytics-page__tip-card ${isPomodoroTipOpen ? 'analytics-page__tip-card--expanded' : ''}`}
+        aria-expanded={isPomodoroTipOpen}
+        onClick={() => setIsPomodoroTipOpen((isOpen) => !isOpen)}
+      >
         <div className="analytics-page__tip-title">
-          <RotateCcw size={20} />
+          <RefreshCcwDot size={20} />
           <span>Pomodoro technique</span>
         </div>
         <p>Use focused 25-minute sprints followed by a 5-minute break</p>
-      </section>
+
+        <div className="analytics-page__tip-details" aria-hidden={!isPomodoroTipOpen}>
+          <p>
+            Set a timer, focus completely, and avoid interruptions during the 25 minutes. After
+            the break, repeat. Four sprints in, take a longer 15-30 minute break.
+          </p>
+          <span>{isPomodoroTipOpen ? 'show less details' : 'show details'}</span>
+        </div>
+      </button>
 
       <section className="analytics-page__timer-card" aria-label="Pomodoro timer">
         <div className="analytics-page__timer-actions">
-          <button type="button" aria-label="Pause timer">
+          <button type="button" aria-label="Pause timer" onClick={() => setIsRunning(false)}>
             <Pause size={13} />
           </button>
-          <button type="button" aria-label="Start timer">
+          <button
+            type="button"
+            aria-label={secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
+            onClick={() => {
+              if (secondsLeft === 0) {
+                setSecondsLeft(25 * 60);
+              }
+
+              setIsRunning(true);
+            }}
+          >
             <Play size={13} />
           </button>
         </div>
         <Timer size={36} className="analytics-page__timer-icon" />
-        <span className="analytics-page__timer-value">24:55</span>
+        <span className="analytics-page__timer-value">
+          {timerMinutes}:{timerSeconds}
+        </span>
       </section>
     </aside>
   );
@@ -83,32 +131,39 @@ export default function Analytics() {
             <span>Weekly performance</span>
             <span className="analytics-page__legend">
               <span aria-hidden="true" />
-              Completion percent
+              Number of completed tasks
             </span>
           </div>
 
-          <div
-            className="analytics-page__bars"
-            style={{ '--average-position': `${100 - weeklyAverage}%` }}
-          >
-            <div className="analytics-page__average-line" aria-hidden="true" />
-            <div className="analytics-page__average-label" aria-hidden="true">
-              This is
-              <br />
-              your
-              <br />
-              average
-            </div>
+          <div className="analytics-page__chart-frame">
+            <div
+              className="analytics-page__bars"
+              style={{ '--average-position': `${100 - weeklyAverage}%` }}
+            >
+              <div className="analytics-page__average-line" aria-hidden="true" />
+              <div className="analytics-page__average-label" aria-hidden="true">
+                Your average is 6.8 tasks/day
+              </div>
 
-            {weeklyData.map((item, index) => (
-              <div
-                key={item.day}
-                className={`analytics-page__bar ${item.featured ? 'analytics-page__bar--featured' : ''}`}
-                data-side={index < 4 ? 'left' : 'right'}
-                style={{ height: `${item.value}%` }}
-                title={`${item.day}: ${item.value}%`}
-              />
-            ))}
+              {weeklyData.map((item, index) => {
+                const shiftStrength = [0.3, 0.45, 0.65, 1, 1, 0.65, 0.45][index];
+                const shiftDirection = index < 4 ? -1 : 1;
+
+                return (
+                  <div
+                    key={item.day}
+                    className={`analytics-page__bar ${item.featured ? 'analytics-page__bar--featured' : ''}`}
+                    style={{
+                      height: `${item.value}%`,
+                      '--bar-hover-shift': shiftDirection * shiftStrength,
+                    }}
+                    title={`${item.day}: ${item.tasksDone} tasks done`}
+                  >
+                    <span className="analytics-page__bar-value">{item.tasksDone}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           <div className="analytics-page__chart-footer">
@@ -160,13 +215,20 @@ export default function Analytics() {
 
             <article className="analytics-page__achievement-card analytics-page__achievement-card--locked">
               <div className="analytics-page__achievement-lock">
-                <BarChart3 size={24} />
+                <BadgeAlert size={24} />
               </div>
-              <h3>Data awaits</h3>
-              <p>Stay in focus mode to unlock deeper weekly insights.</p>
+              <h3>Crisis averted</h3>
+              <p>It's a race against time ! Meet 5 deadlines before the time runs out..</p>
               <div className="analytics-page__locked-progress" aria-hidden="true">
                 <span />
               </div>
+              <footer className="analytics-page__locked-footer">
+                <span>Progress 3/5</span>
+                <span className="analytics-page__locked-status">
+                  <Lock size={12} />
+                  Locked
+                </span>
+              </footer>
             </article>
           </div>
         </section>
