@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { BadgeAlert, BadgeCheck, Flame, Lock, Pause, Play, RefreshCcwDot, Timer } from 'lucide-react';
-import congratsImage from '../assets/congrats.png';
 import '../style/Analytics.css';
 
 const weeklyData = [
@@ -20,7 +19,6 @@ const achievements = [
     text: 'Welcome to FocusFlow, where all your tasks come true! First task logged successfully :)',
     status: 'Earned',
     date: '02.05.2026',
-    congratulated: true,
   },
   {
     icon: Flame,
@@ -28,7 +26,6 @@ const achievements = [
     text: "Continuous high performance maintained for 7 days - you killin' it girl!",
     status: 'Earned',
     date: '09.05.2026',
-    congratulated: true,
   },
 ];
 
@@ -189,13 +186,6 @@ export default function Analytics() {
                       <Icon size={22} fill={achievement.highlighted ? 'currentColor' : 'none'} />
                     </div>
 
-                    {achievement.congratulated && (
-                      <img
-                        className="analytics-page__congrats"
-                        src={congratsImage}
-                        alt="Congrats"
-                      />
-                    )}
                   </div>
 
                   <h3>{achievement.title}</h3>

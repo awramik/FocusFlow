@@ -1,5 +1,5 @@
 .analytics-page {
-  --analytics-content-max: clamp(1040px, 72vw, 1760px);
+  --analytics-content-max: clamp(1040px, 72vw, 3440px);
 
   display: flex;
   flex: 1;
@@ -19,8 +19,8 @@
 
 .analytics-page__header {
   min-height: 80px;
-  margin: clamp(-42px, -3vw, -28px) clamp(-40px, -3.5vw, -20px) clamp(32px, 4vw, 56px);
-  padding: clamp(28px, 3vw, 42px) clamp(20px, 3.5vw, 40px) 22px;
+  margin: 0 clamp(-40px, -3.5vw, -20px) clamp(32px, 4vw, 56px);
+  padding: 0 clamp(20px, 3.5vw, 40px) 12px;
   border-bottom: 1px solid #582e7e;
   display: flex;
   flex-direction: column;
@@ -254,27 +254,6 @@
   border: 1px solid rgba(255, 175, 215, 0.32);
   border-radius: 8px;
   background: rgba(47, 21, 71, 0.86);
-}
-
-.analytics-page__congrats {
-  position: absolute;
-  top: 0%;
-  left: 63%;
-  z-index: 1;
-  width: min(68%, 220px);
-  height: clamp(58px, 7vw, 70px);
-  max-height: clamp(58px, 18cqw, 112px);
-  object-fit: contain;
-  object-position: center;
-  transform: translateX(-50%) rotate(5deg) scale(0.9);
-  opacity: 0;
-  transition: opacity 0.2s ease, transform 0.24s ease;
-  pointer-events: none;
-}
-
-.analytics-page__achievement-card:hover .analytics-page__congrats {
-  opacity: 1;
-  transform: translateX(-50%) scale(2);
 }
 
 .analytics-page__achievement-card h3 {
@@ -582,22 +561,6 @@
 }
 
 @media (min-width: 1800px) {
-  .analytics-page {
-    --analytics-content-max: min(1760px, calc(100vw - 820px));
-  }
-
-  .analytics-page__content {
-    padding-left: clamp(48px, 4vw, 96px);
-    padding-right: clamp(48px, 4vw, 96px);
-  }
-
-  .analytics-page__header {
-    margin-left: clamp(-96px, -4vw, -48px);
-    margin-right: clamp(-96px, -4vw, -48px);
-    padding-left: clamp(48px, 4vw, 96px);
-    padding-right: clamp(48px, 4vw, 96px);
-  }
-
   .analytics-page__chart-card {
     padding: clamp(44px, 2.3vw, 64px);
   }
@@ -625,51 +588,14 @@
 }
 
 @media (max-width: 1100px) {
-  .analytics-page {
-    flex-direction: column;
-  }
-
-  .analytics-page__content {
-    overflow-y: visible;
-  }
-
   .analytics-page__right-panel {
-    width: 100%;
-    flex-basis: auto;
-    flex-shrink: 1;
-    border-left: 0;
-    border-top: 1px solid #582e7e;
-    overflow-y: visible;
-  }
-
-  .analytics-page__right-header {
-    min-height: 100px;
+    display: none;
   }
 
   .analytics-page__chart-card,
   .analytics-page__achievements-section {
     width: min(1040px, 100%);
     margin-right: auto;
-  }
-
-  .analytics-page__right-panel {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(220px, 1fr) minmax(220px, 1fr);
-    align-items: stretch;
-    gap: 20px;
-    padding: 0 20px 28px;
-  }
-
-  .analytics-page__right-header {
-    border-bottom: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
-
-  .analytics-page__tip-card,
-  .analytics-page__timer-card {
-    width: 100%;
-    margin-top: 28px;
   }
 }
 
@@ -679,8 +605,8 @@
   }
 
   .analytics-page__header {
-    margin: -28px -20px 32px;
-    padding: 28px 20px 18px;
+    margin: 0 -20px 32px;
+    padding: 0 20px 12px;
   }
 
   .analytics-page__header h1 {
@@ -725,15 +651,6 @@
     font-size: 32px;
   }
 
-  .analytics-page__right-panel {
-    display: block;
-    padding: 0 20px 32px;
-  }
-
-  .analytics-page__right-header {
-    padding-left: 0;
-    padding-right: 0;
-  }
 }
 
 @media (max-width: 480px) {
@@ -742,8 +659,8 @@
   }
 
   .analytics-page__header {
-    margin: -24px -14px 28px;
-    padding: 24px 14px 16px;
+    margin: 0 -14px 28px;
+    padding: 0 14px 12px;
   }
 
   .analytics-page__header h1 {
@@ -766,10 +683,6 @@
 
   .analytics-page__achievement-top {
     min-height: 54px;
-  }
-
-  .analytics-page__congrats {
-    height: 64px;
   }
 
   .analytics-page__timer-card {
