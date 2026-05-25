@@ -10,11 +10,11 @@ import {
 const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
-  // mapowanie danych na potrzeby kanbana oraz innych widoków
+  // Mapowanie danych na potrzeby kanbana oraz innych widoków z zachowaniem oryginalnych pól (np. deadline)
   const [tasks, setTasks] = useState(() => {
     return tasksData.map(task => {
       let mappedStatus = 'To do';
-      if (task.status === 'doing') mappedStatus = 'Doing';
+      if (task.status === 'doing' || task.status === 'ongoing') mappedStatus = 'Doing';
       if (task.status === 'done') mappedStatus = 'Done';
 
       let mappedPriority = 'LOW';
@@ -22,6 +22,7 @@ export const TaskProvider = ({ children }) => {
       if (task.priority === 'high') mappedPriority = 'HIGH';
 
       return {
+        ...task, // Przekazujemy wszystkie oryginalne pola (w tym deadline i opis)
         id: task.id.toString(),
         title: task.title,
         status: mappedStatus,
@@ -47,7 +48,8 @@ export const TaskProvider = ({ children }) => {
       title,
       priority,
       project,
-      status
+      status,
+      deadline: new Date().toISOString().split('T')[0] + ' 12:00 PM' // Domyślny deadline dla nowych zadań
     };
     setTasks(prevTasks => [...prevTasks, newTask]);
   };
