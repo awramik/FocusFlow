@@ -28,19 +28,61 @@ export default function AllTasks() {
   const [selectedProject, setSelectedProject] = useState('ALL');
   const [selectedDate, setSelectedDate] = useState(''); 
 
+  // STAN DLA FORMULARZA I NOWYCH ZADAŃ
+  const [localTasks, setLocalTasks] = useState([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newPriority, setNewPriority] = useState('LOW');
+  const [newProject, setNewProject] = useState('FocusFlow');
+  const [newDeadline, setNewDeadline] = useState('');
+  const allCombinedTasks = [...localTasks, ...tasks];
+
   // Pobieranie unikalnych projektów TYLKO z aktywnych zadań
-  const uniqueProjects = tasks 
-    ? ['ALL', ...new Set(tasks.filter(t => t.status !== 'Done').map(t => t.project).filter(Boolean))]
+  const uniqueProjects = allCombinedTasks 
+    ? ['ALL', ...new Set(allCombinedTasks.filter(t => t.status !== 'Done').map(t => t.project).filter(Boolean))]
     : ['ALL'];
 
-  const handleToggleComplete = (taskId) => {
+  const handleToggleComplete = (taskId, currentStatus) => {
+    if (String(taskId).startsWith('local-')) {
+      setLocalTasks(prev => prev.map(t => 
+        t.id === taskId ? { ...t, status: t.status === 'Done' ? 'To do' : 'Done' } : t
+      ));
+      return;
+    }
+
     if (updateTaskStatus) {
-      updateTaskStatus(taskId, 'Done');
+      const newStatus = currentStatus === 'Done' ? 'To do' : 'Done';
+      updateTaskStatus(taskId, newStatus);
     }
   };
 
+  // Funkcja obsługująca zatwierdzenie formularza (DODANE)
+  const handleCreateTask = (e) => {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+
+    const newTaskObj = {
+      id: `local-${Date.now()}`,
+      title: newTitle.trim(),
+      priority: newPriority,
+      project: newProject || 'FocusFlow',
+      deadline: newDeadline ? newDeadline.replace('T', ' ') : '',
+      status: 'To do',
+      comments: [],
+      attachments: []
+    };
+
+    setLocalTasks([newTaskObj, ...localTasks]);
+    
+    // Czyszczenie i zamykanie formularza
+    setNewTitle('');
+    setNewDeadline('');
+    setNewPriority('LOW');
+    setIsFormOpen(false);
+  };
+
   const handleResetFilters = () => {
-    searchQuery('');
+    setSearchQuery('');
     setSelectedPriority('ALL');
     setSelectedProject('ALL');
     setSelectedDate('');
@@ -54,25 +96,18 @@ export default function AllTasks() {
 
   const handleDateChange = (e) => {
     let raw = e.target.value.replace(/[^\d]/g, '');
-    
     let year = raw.slice(0, 4);
     let month = raw.slice(4, 6);
     let day = raw.slice(6, 8);
 
-    // walidacja miesiąca
-    if (month.length === 1 && month !== '0' && month !== '1') {
-      month = '0' + month;
-    }
+    if (month.length === 1 && month !== '0' && month !== '1') month = '0' + month;
     if (month.length === 2) {
       const mNum = parseInt(month, 10);
       if (mNum < 1) month = '01';
       if (mNum > 12) month = '12';
     }
 
-    // walidacja dnia
-    if (day.length === 1 && day !== '0' && day !== '1' && day !== '2' && day !== '3') {
-      day = '0' + day;
-    }
+    if (day.length === 1 && day !== '0' && day !== '1' && day !== '2' && day !== '3') day = '0' + day;
     if (day.length === 2 && month.length === 2) {
       const mNum = parseInt(month, 10);
       const dNum = parseInt(day, 10);
@@ -85,27 +120,21 @@ export default function AllTasks() {
         const isLeap = (yNum % 4 === 0);
         maxDays = isLeap ? 29 : 28;
       }
-
       if (dNum < 1) day = '01';
       if (dNum > maxDays) day = String(maxDays).padStart(2, '0');
     }
 
     let formatted = year;
-    if (raw.length > 4 || month.length > 0) {
-      formatted += '-' + month;
-    }
-    if (raw.length > 6 || day.length > 0) {
-      formatted += '-' + day;
-    }
-
+    if (raw.length > 4 || month.length > 0) formatted += '-' + month;
+    if (raw.length > 6 || day.length > 0) formatted += '-' + day;
     setSelectedDate(formatted);
   };
 
   // ZAAWANSOWANE FILTROWANIE
-  const filteredTasks = tasks?.filter(task => {
+  const filteredTasks = allCombinedTasks?.filter(task => {
     if (task.status === 'Done') return false;
 
-    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = task.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPriority = selectedPriority === 'ALL' || task.priority === selectedPriority;
     const matchesProject = selectedProject === 'ALL' || task.project === selectedProject;
     
@@ -117,7 +146,6 @@ export default function AllTasks() {
     return matchesSearch && matchesPriority && matchesProject && matchesDate;
   }) || [];
 
-  // Flaga informująca, czy jakikolwiek filtr (lub wyszukiwarka) jest aktywny
   const shouldShowReset = selectedPriority !== 'ALL' || selectedProject !== 'ALL' || selectedDate !== '' || searchQuery !== '';
 
   return (
@@ -137,11 +165,156 @@ export default function AllTasks() {
               Use filters to find the most relevant tasks and crush them!
             </p>
           </div>
-          <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px' }}>
-            <Plus size={16} />
-            new task
+          {/* POPRAWIONY PRZYCISK: Otwiera i zamyka formularz */}
+          <button 
+            onClick={() => setIsFormOpen(!isFormOpen)}
+            className="btn-primary" 
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '12px' }}
+          >
+            {isFormOpen ? <X size={16} /> : <Plus size={16} />}
+            {isFormOpen ? 'cancel' : 'new task'}
           </button>
         </div>
+
+        {/* NOWY FORMULARZ SZYBKIEGO DODAWANIA (DODANE) */}
+        {isFormOpen && (
+          <form 
+            onSubmit={handleCreateTask}
+            className="card animate-fade-in" 
+            style={{ 
+              margin: '0 0 32px 0', 
+              padding: '24px', 
+              backgroundColor: '#1c0c30', 
+              border: '1px solid var(--accent-purple)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
+            }}
+          >
+            <div style={{ padding: '0 0 4px 0', margin: 0 }}>
+              <span style={{ 
+                color: 'var(--accent-primary)', 
+                fontSize: '11px', 
+                fontWeight: '700', 
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: '1px'
+              }}>
+                // ADD A NEW TASK TO YOUR LIST!
+              </span>
+            </div>
+
+            <input 
+              type="text" 
+              placeholder="Task title..."
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              required
+              autoFocus
+              style={{
+                width: '100%',
+                background: '#130823',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                color: 'var(--text-main)',
+                fontSize: '14px',
+                fontFamily: "'JetBrains Mono', monospace",
+                outline: 'none'
+              }}
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <div>
+                <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
+                <input 
+                  type="text" 
+                  value={newProject}
+                  onChange={(e) => setNewProject(e.target.value)}
+                  placeholder="FocusFlow"
+                  style={{
+                    width: '100%',
+                    background: '#130823',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    color: 'var(--text-main)',
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PRIORITY</label>
+                <select 
+                  value={newPriority} 
+                  onChange={(e) => setNewPriority(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: '#130823',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    color: 'var(--text-main)',
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="LOW">LOW</option>
+                  <option value="HIGH">HIGH</option>
+                  <option value="CRIT">CRITICAL</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DEADLINE DATE</label>
+                <input 
+                  type="date" 
+                  value={newDeadline}
+                  onChange={(e) => setNewDeadline(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: '#130823',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '7px 12px',
+                    color: 'var(--text-main)',
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    outline: 'none',
+                    cursor: 'text'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
+              <button 
+                type="button" 
+                onClick={() => setIsFormOpen(false)}
+                className="icon-btn" 
+                style={{ 
+                  padding: '8px 16px', 
+                  fontSize: '12px', 
+                  fontWeight: '500',
+                  fontFamily: "'JetBrains Mono', monospace" 
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="btn-primary" 
+                style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}
+              >
+                ADD TASK
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* AKCJE I WYSZUKIWARKA */}
         <div className="kanban-actions" style={{ marginBottom: showFilters ? '16px' : '24px' }}>
@@ -172,7 +345,6 @@ export default function AllTasks() {
         {/* PANEL FILTRÓW */}
         {showFilters && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '24px' }}>
-            
             <div className="priority-filters-bar" style={{ margin: 0 }}>
               <span className="filter-label" style={{ minWidth: '80px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <ShieldAlert size={12} /> Priority:
@@ -208,7 +380,6 @@ export default function AllTasks() {
                 <span className="filter-label" style={{ minWidth: '80px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <Calendar size={12} /> Date:
                 </span>
-                
                 <input 
                   type="text"
                   placeholder="YYYY-MM-DD"
@@ -287,7 +458,7 @@ export default function AllTasks() {
 
                   <Circle 
                     size={20} 
-                    onClick={() => handleToggleComplete(task.id)}
+                    onClick={() => handleToggleComplete(task.id, task.status)}
                     style={{ color: 'var(--accent-primary)', cursor: 'pointer', flexShrink: 0, marginLeft: '4px' }} 
                   />
                   
