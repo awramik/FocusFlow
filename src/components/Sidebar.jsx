@@ -66,7 +66,7 @@ export default function Sidebar() {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/kanban" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+            <NavLink to="/kanban" end className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
               <Kanban size={20} /> Kanban
             </NavLink>
           </li>

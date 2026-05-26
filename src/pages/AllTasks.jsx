@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useTasks } from '../context/TaskContext';
+import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
   Circle, 
@@ -16,6 +17,7 @@ import RightAnalytics from '../components/RightAnalytics';
 
 export default function AllTasks() {
   const { tasks, updateTaskStatus } = useTasks();
+  const navigate = useNavigate();
   
   // Stany wyszukiwania i filtrów
   const [searchQuery, setSearchQuery] = useState('');
@@ -38,7 +40,7 @@ export default function AllTasks() {
   };
 
   const handleResetFilters = () => {
-    setSearchQuery('');
+    searchQuery('');
     setSelectedPriority('ALL');
     setSelectedProject('ALL');
     setSelectedDate('');
@@ -50,7 +52,6 @@ export default function AllTasks() {
     return 'priority-tag low';
   };
 
-  // INTELIGENTNA WALIDACJA I SIKANIE DATY OD LEWEJ DO PRAWEJ
   const handleDateChange = (e) => {
     let raw = e.target.value.replace(/[^\d]/g, '');
     
@@ -255,7 +256,6 @@ export default function AllTasks() {
         {/* LISTA ZADAŃ */}
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-            {/* POPRAWKA: teraz sprawdzamy wyłącznie warunek dynamicznego filtrowania (shouldShowReset) */}
             <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Layers size={14} /> {shouldShowReset ? 'FILTERED TASKS' : 'ACTIVE TASKS'}
             </span>
@@ -312,7 +312,12 @@ export default function AllTasks() {
                     </div>
                   </div>
 
-                  <button className="icon-btn" style={{ padding: '4px' }}>
+                  <button 
+                    className="icon-btn" 
+                    style={{ padding: '4px', cursor: 'pointer' }}
+                    onClick={() => navigate(`/kanban/${task.id}`)}
+                    title="View task details"
+                  >
                     <MoreHorizontal size={18} />
                   </button>
                 </div>

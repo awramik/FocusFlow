@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useTasks } from '../context/TaskContext';
-import { Calendar as CalendarIcon, Clock, CheckCircle2, Circle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar as CalendarIcon, Clock, CheckCircle2, Circle, ChevronLeft } from 'lucide-react';
 
 export default function Calendar() {
   const { tasks } = useTasks();
+  const navigate = useNavigate();
   
   const today = new Date();
   const currentDayNum = today.getDate(); 
@@ -50,18 +52,50 @@ export default function Calendar() {
   return (
     <div style={{ padding: '40px', color: 'var(--text-main)', width: '100%', maxWidth: '1240px', margin: '0 auto', boxSizing: 'border-box' }}>
       
-      {/* NAGŁÓWEK */}
+      {/* NAGŁÓWEK Z RETURN BUTTONEM */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', width: '100%' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CalendarIcon size={28} style={{ color: 'var(--accent-primary)' }} />
-            <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
-              Calendar View
-            </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          
+          {/* PRZYCISK POWROTU (Return Button) */}
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              color: 'var(--text-main)',
+              width: '40px',
+              height: '40px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-primary)';
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
+            }}
+            title="Go back"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <CalendarIcon size={26} style={{ color: 'var(--accent-primary)' }} />
+              <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
+                Calendar View
+              </h1>
+            </div>
+            <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '14px' }}>
+              Schedule tracker • <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>{currentMonth} {currentYear}</span>
+            </p>
           </div>
-          <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '14px' }}>
-            Schedule tracker • <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>{currentMonth} {currentYear}</span>
-          </p>
         </div>
         
         <div style={{ 
@@ -138,7 +172,6 @@ export default function Calendar() {
                     {day}
                   </span>
 
-                  {/* Kropki - absolutna warstwa na dole kafelka */}
                   {dayTasks.length > 0 && (
                     <div style={{ 
                       position: 'absolute', 
@@ -173,14 +206,14 @@ export default function Calendar() {
           </div>
         </div>
 
-        {/* PRAWA STRONA: PANEL Z ZADANIAMI (Zajmuje całą pozostałą przestrzeń) */}
+        {/* PRAWA STRONA: PANEL Z ZADANIAMI */}
         <div style={{ 
           background: '#231236', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 
           padding: '24px', 
           minHeight: '520px',
-          flex: 1,              // Elastycznie bierze wszystko, co zostało z prawej strony
+          flex: 1,
           boxSizing: 'border-box'
         }}>
           <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 4px 0' }}>
