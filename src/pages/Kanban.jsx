@@ -15,7 +15,7 @@ export default function Kanban() {
   const [selectedPriority, setSelectedPriority] = useState('ALL');
   const [showFilters, setShowFilters] = useState(false);
 
-  // STAN DLA NOWYCH ZADAŃ I FORMULARZA (POPRAWIONE)
+  // STAN DLA NOWYCH ZADAŃ I FORMULARZA
   const [localTasks, setLocalTasks] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
