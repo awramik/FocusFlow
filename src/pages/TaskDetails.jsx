@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTasks } from '../context/TaskContext';
 import { 
@@ -22,6 +22,19 @@ export default function TaskDetails() {
   const { tasks, currentUser } = useTasks();
   const task = tasks?.find(t => t.id?.toString() === id?.toString());
 
+  // LOKALNY STAN NA KOMENTARZE I INPUT
+  const [comments, setComments] = useState([]);
+  const [newCommentText, setNewCommentText] = useState('');
+
+  // Synchronizacja stanu z danymi z mockData przy załadowaniu zadania
+  useEffect(() => {
+    if (task?.comments) {
+      setComments(task.comments);
+    } else {
+      setComments([]);
+    }
+  }, [task]);
+
   if (!task) {
     return (
       <div className="center-content" style={{ padding: '40px', textAlign: 'center' }}>
@@ -34,6 +47,27 @@ export default function TaskDetails() {
     );
   }
 
+  const handleAddComment = () => {
+    if (!newCommentText.trim()) return;
+
+    const newComment = {
+      id: Date.now(),
+      author: "Dev Stranger",
+      text: newCommentText.trim(),
+      date: "Just now"
+    };
+
+    setComments([...comments, newComment]);
+    setNewCommentText('');
+  };
+
+  // Obsługa wysyłania przez naciśnięcie klawisza Enter
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleAddComment();
+    }
+  };
+
   const getPriorityClass = (priority) => {
     const p = priority?.toUpperCase();
     if (p === 'CRIT' || p === 'CRITICAL') return 'priority-tag critical';
@@ -41,7 +75,6 @@ export default function TaskDetails() {
     return 'priority-tag low';
   };
 
-  // Bezpieczne formatowanie daty
   const formatDate = (dateStr) => {
     if (!dateStr) return 'NOT SET';
     try {
@@ -56,7 +89,7 @@ export default function TaskDetails() {
 
   return (
     <div className="center-content kanban-page">
-      
+
       <div className="flex-between" style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)' }}>
           <span style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>Dashboard</span>
@@ -77,6 +110,7 @@ export default function TaskDetails() {
 
       <div className="kanban-board-grid" style={{ gridTemplateColumns: '1fr 320px', gap: '40px' }}>
         
+        {/* LEWA KOLUMNA */}
         <div className="column-tasks-container" style={{ gap: '32px' }}>
           
           {/* NAGŁÓWEK */}
@@ -157,17 +191,17 @@ export default function TaskDetails() {
             )}
           </div>
 
-          {/* SEKCJA KOMENTARZY */}
+          {/* SEKCJA KOMENTARZY*/}
           <div>
             <h2 className="category-tag" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Plus size={14} style={{ transform: 'rotate(45deg)' }} /> Activity & Comments <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>({task.comments?.length || 0})</span>
+              <Plus size={14} style={{ transform: 'rotate(45deg)' }} /> Activity & Comments <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>({comments.length})</span>
             </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               
-              {/* Lista istniejących komentarzy */}
-              {task.comments && task.comments.length > 0 ? (
-                task.comments.map(comment => (
+              {/* Lista komentarzy pobierana ze stanu lokalnego */}
+              {comments.length > 0 ? (
+                comments.map(comment => (
                   <div key={comment.id} style={{ 
                     backgroundColor: '#130823', 
                     border: '1px solid var(--border)', 
@@ -178,9 +212,42 @@ export default function TaskDetails() {
                       <span style={{ fontSize: '12px', fontWeight: '750', color: 'var(--accent-primary)', fontFamily: "'JetBrains Mono', monospace" }}>
                         @{comment.author.replace(/\s+/g, '').toLowerCase()}
                       </span>
-                      <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                        {comment.date}
-                      </span>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                          {comment.date}
+                        </span>
+
+                        {comment.author === "Dev Stranger" && (
+                          <button
+                            onClick={() => setComments(comments.filter(c => c.id !== comment.id))}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: '#EF4444',
+                              fontSize: '10px',
+                              fontWeight: '700',
+                              fontFamily: "'JetBrains Mono', monospace",
+                              cursor: 'pointer',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              letterSpacing: '0.5px',
+                              transition: 'all 0.2s ease',
+                              backgroundColor: 'rgba(239, 68, 68, 0.05)'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+                              e.currentTarget.style.textDecoration = 'underline';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
+                              e.currentTarget.style.textDecoration = 'none';
+                            }}
+                          >
+                            DELETE
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <p style={{ fontSize: '13px', color: 'var(--text-main)', lineHeight: '1.5', margin: 0 }}>
                       {comment.text}
@@ -193,6 +260,7 @@ export default function TaskDetails() {
                 </p>
               )}
 
+              {/* Formularz dodawania nowego komentarza */}
               <div style={{ 
                 display: 'flex', 
                 gap: '12px', 
@@ -206,6 +274,9 @@ export default function TaskDetails() {
                 <input 
                   type="text" 
                   placeholder="Write a comment..." 
+                  value={newCommentText}
+                  onChange={(e) => setNewCommentText(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   style={{ 
                     flex: 1, 
                     background: 'none', 
@@ -217,6 +288,7 @@ export default function TaskDetails() {
                   }} 
                 />
                 <button 
+                  onClick={handleAddComment}
                   className="btn-primary" 
                   style={{ 
                     padding: '6px 14px', 
@@ -233,7 +305,7 @@ export default function TaskDetails() {
             </div>
           </div>
 
-</div>
+        </div>
 
         {/* PRAWY PANEL */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
