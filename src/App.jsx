@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { TaskProvider } from './context/TaskContext';
 
+import AnalyticsTracker from './components/AnalyticsTracker';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Today from './pages/Today';
@@ -19,6 +20,7 @@ function App() {
   return (
     <TaskProvider>
       <Router>
+        <AnalyticsTracker />
         <div className="app-layout">
           <Sidebar />
           <main className="main-area">

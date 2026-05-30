@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useTasks } from '../context/TaskContext';
-import { Calendar as CalendarIcon, Clock, CheckCircle2, Circle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Calendar as CalendarIcon, Clock, CheckCircle2, Circle, ChevronLeft } from 'lucide-react';
 
 export default function Calendar() {
   const { tasks } = useTasks();
+  const navigate = useNavigate();
   
   const today = new Date();
   const currentDayNum = today.getDate(); 
@@ -48,20 +50,52 @@ export default function Calendar() {
     : 0;
 
   return (
-    <div style={{ padding: '40px', color: 'var(--text-main)', width: '100%', maxWidth: '1240px', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div style={{ padding: '24px', color: 'var(--text-main)', width: '100%', maxWidth: '1400px', margin: '0 auto', boxSizing: 'border-box' }}>
       
-      {/* NAGŁÓWEK */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', width: '100%' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <CalendarIcon size={28} style={{ color: 'var(--accent-primary)' }} />
-            <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
-              Calendar View
-            </h1>
+      {/* NAGŁÓWEK Z RETURN BUTTONEM */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', width: '100%', flexWrap: 'wrap', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          
+          {/* PRZYCISK POWROTU (Return Button) */}
+          <button 
+            onClick={() => navigate(-1)} 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              color: 'var(--text-main)',
+              width: '40px',
+              height: '40px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--accent-primary)';
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--border)';
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
+            }}
+            title="Go back"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <CalendarIcon size={26} style={{ color: 'var(--accent-primary)' }} />
+              <h1 style={{ fontSize: '32px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
+                Calendar View
+              </h1>
+            </div>
+            <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '14px' }}>
+              Schedule tracker • <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>{currentMonth} {currentYear}</span>
+            </p>
           </div>
-          <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '14px' }}>
-            Schedule tracker • <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>{currentMonth} {currentYear}</span>
-          </p>
         </div>
         
         <div style={{ 
@@ -72,21 +106,22 @@ export default function Calendar() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '30px', width: '100%', alignItems: 'start' }}>
+      {/* GŁÓWNY KONTENER (ELASTYCZNY REAKTYWNY UKŁAD) */}
+      <div style={{ display: 'flex', gap: '24px', width: '100%', alignItems: 'start', flexWrap: 'wrap' }}>
         
-        {/* LEWA STRONA: SZEROKA SIATKA KALENDARZA */}
+        {/* LEWA STRONA: ELASTYCZNA SIATKA KALENDARZA */}
         <div style={{ 
           background: 'rgba(35, 18, 54, 0.4)', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 
           padding: '24px', 
-          width: '720px',
-          flexShrink: 0,
+          flex: '1.7', // Kalendarz zajmuje proporcjonalnie więcej miejsca
+          minWidth: '320px', // Bezpieczna minimalna szerokość dla małych ekranów
           boxSizing: 'border-box' 
         }}>
           
           {/* Nazwy dni tygodnia */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '12px', textAlign: 'center', marginBottom: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center', marginBottom: '16px' }}>
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, idx) => (
               <div key={idx} style={{ color: 'var(--text-muted)', fontWeight: '700', fontSize: '12px', textTransform: 'uppercase' }}>
                 {d}
@@ -94,15 +129,16 @@ export default function Calendar() {
             ))}
           </div>
 
+          {/* Dni miesiąca dopasowujące się do szerokości (1fr) */}
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(7, 85px)', 
-            gridAutoRows: '85px', 
-            gap: '12px',
+            gridTemplateColumns: 'repeat(7, 1fr)', // Każda kolumna ma identyczny procent szerokości
+            gridAutoRows: 'minmax(75px, auto)', // Wysokość dopasowuje się, ale ma bezpieczne minimum
+            gap: '8px',
             justifyContent: 'center'
           }}>
             {emptySpaces.map(space => (
-              <div key={`empty-${space}`} style={{ width: '85px', height: '85px', opacity: 0 }} />
+              <div key={`empty-${space}`} style={{ opacity: 0 }} />
             ))}
 
             {daysInMonth.map(day => {
@@ -115,15 +151,21 @@ export default function Calendar() {
                   key={day}
                   onClick={() => setSelectedDay(day)}
                   style={{
-                    width: '85px',
-                    height: '85px',
+                    aspectRatio: '1 / 1', // Sprawia, że kafelki są idealnymi kwadratami niezależnie od szerokości ekranu
                     background: isSelected ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.02)',
                     border: isToday && !isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border)',
                     borderRadius: '10px',
-                    padding: '10px',
+                    padding: '8px',
                     cursor: 'pointer',
                     position: 'relative',
-                    boxSizing: 'border-box'
+                    boxSizing: 'border-box',
+                    transition: 'transform 0.1s ease, background-color 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
                   }}
                 >
                   <span style={{ 
@@ -132,25 +174,24 @@ export default function Calendar() {
                     color: isSelected ? '#2F1547' : isToday ? 'var(--accent-primary)' : 'var(--text-main)',
                     fontFamily: "'JetBrains Mono', monospace",
                     position: 'absolute',
-                    top: '10px',
-                    left: '10px'
+                    top: '8px',
+                    left: '8px'
                   }}>
                     {day}
                   </span>
 
-                  {/* Kropki - absolutna warstwa na dole kafelka */}
                   {dayTasks.length > 0 && (
                     <div style={{ 
                       position: 'absolute', 
-                      bottom: '10px', 
-                      left: '0',
-                      right: '0',
+                      bottom: '8px', 
+                      left: '4px',
+                      right: '4px',
                       display: 'flex', 
                       gap: '4px',
                       justifyContent: 'center',
                       alignItems: 'center',
-                      width: '100%',
-                      pointerEvents: 'none'
+                      pointerEvents: 'none',
+                      flexWrap: 'wrap'
                     }}>
                       {dayTasks.slice(0, 3).map((t, idx) => (
                         <div 
@@ -173,14 +214,15 @@ export default function Calendar() {
           </div>
         </div>
 
-        {/* PRAWA STRONA: PANEL Z ZADANIAMI (Zajmuje całą pozostałą przestrzeń) */}
+        {/* PRAWA STRONA: PANEL Z ZADANIAMI */}
         <div style={{ 
           background: '#231236', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 
           padding: '24px', 
-          minHeight: '520px',
-          flex: 1,              // Elastycznie bierze wszystko, co zostało z prawej strony
+          minHeight: '400px',
+          flex: '1', // Panel zadań jest nieco węższy niż siatka
+          minWidth: '280px',
           boxSizing: 'border-box'
         }}>
           <h3 style={{ fontSize: '18px', fontWeight: '700', margin: '0 0 4px 0' }}>
@@ -219,7 +261,7 @@ export default function Calendar() {
                         {task.title}
                       </h4>
                       
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px', flexWrap: 'wrap' }}>
                         <span style={{ 
                           backgroundColor: '#170b24', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '700',
                           border: '1px solid rgba(255,255,255,0.05)', color: 'var(--accent-primary)'
