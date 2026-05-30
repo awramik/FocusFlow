@@ -39,6 +39,19 @@ export const statsData = {
   focusTime: "4h 20m" 
 };
 
+export const hoursData = {
+  workHours: {
+    current: 4.5,
+    goal: 6,
+    unit: "h"
+  },
+  focusedHours: {
+    current: 1.2,
+    goal: 2,
+    unit: "h"
+  }
+};
+
 export const tasksData = [
   {
     id: 1,

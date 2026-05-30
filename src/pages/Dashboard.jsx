@@ -1,14 +1,88 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import RightAnalytics from '../components/RightAnalytics';
-import { Clock3, Download, Zap, Flame, Lightbulb, Pause, Square, GripVertical, Check } from 'lucide-react';
+import { Clock3, Download, Zap, Flame, Lightbulb, Pause, Square, GripVertical, Check, Play } from 'lucide-react';
 import '../style/Dashboard.css';
 
+const SETTINGS_STORAGE_KEY = 'focusflow-settings';
+
 const Dashboard = () => {
-  const { tasks, currentUser, statsData, projectsData } = useTasks(); 
+  const { tasks, currentUser, statsData, projectsData, hoursData } = useTasks(); 
 
   // Lokalny stan do przechowywania ID zaznaczonych (odklikniętych) zadań
   const [checkedTasks, setCheckedTasks] = useState(new Set());
+
+  // Timer state
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  // Initialize timer with settings duration on mount
+  useEffect(() => {
+    const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    let timerDuration = 25; // default
+    
+    if (storedSettings) {
+      try {
+        const settings = JSON.parse(storedSettings);
+        timerDuration = settings.timerDuration || 25;
+      } catch (e) {
+        // Use default if parsing fails
+      }
+    }
+    
+    setTimeLeft(timerDuration * 60); // Convert minutes to seconds
+    setIsActive(true);
+  }, []);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (!isRunning || timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setIsRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Toggle play/pause
+  const handleToggleTimer = () => {
+    if (isActive) {
+      setIsRunning(!isRunning);
+    }
+  };
+
+  // Reset timer
+  const handleResetTimer = () => {
+    setIsRunning(false);
+    const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    let timerDuration = 25;
+    
+    if (storedSettings) {
+      try {
+        const settings = JSON.parse(storedSettings);
+        timerDuration = settings.timerDuration || 25;
+      } catch (e) {
+        // Use default if parsing fails
+      }
+    }
+    
+    setTimeLeft(timerDuration * 60);
+  };
 
   const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
 
@@ -18,6 +92,10 @@ const Dashboard = () => {
   const totalTasks = tasks?.length || 0;
   const completedTasks = tasks?.filter(t => t.status === 'done').length || 0;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 75;
+
+  // Calculate percentages dynamically from hoursData
+  const workHoursPercentage = Math.round((hoursData.workHours.current / hoursData.workHours.goal) * 100);
+  const focusedHoursPercentage = Math.round((hoursData.focusedHours.current / hoursData.focusedHours.goal) * 100);
 
   const formatPriority = (priority) => {
     if (!priority) return '[LOW]';
@@ -64,7 +142,7 @@ const Dashboard = () => {
           <div className="glass-card active-session-card">
             <div className="active-session-left">
               <div className="timer-circle">
-                18:42
+                {formatTime(timeLeft)}
               </div>
               <div className="active-session-info">
                 <p className="active-session-label">ACTIVE SESSION</p>
@@ -73,8 +151,12 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="active-session-actions">
-              <button className="action-btn"><Pause size={14} fill="currentColor" /></button>
-              <button className="action-btn"><Square size={12} fill="currentColor" /></button>
+              <button className="action-btn" onClick={handleToggleTimer} title={isRunning ? "Pause" : "Play"}>
+                {isRunning ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+              </button>
+              <button className="action-btn" onClick={handleResetTimer} title="Reset">
+                <Square size={12} fill="currentColor" />
+              </button>
             </div>
           </div>
         </section>
@@ -126,16 +208,16 @@ const Dashboard = () => {
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-pink">Hours of work</span>
-                  <span className="progress-value-pink">4.5 / 6h</span>
+                  <span className="progress-value-pink">{hoursData.workHours.current} / {hoursData.workHours.goal}{hoursData.workHours.unit}</span>
                 </div>
-                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-pink" style={{width: '75%'}}></div></div>
+                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-pink" style={{width: `${workHoursPercentage}%`}}></div></div>
               </div>
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-purple">Hours focused (pomodoro)</span>
-                  <span className="progress-value-purple">1.2 / 2h</span>
+                  <span className="progress-value-purple">{hoursData.focusedHours.current} / {hoursData.focusedHours.goal}{hoursData.focusedHours.unit}</span>
                 </div>
-                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-purple" style={{width: '60%'}}></div></div>
+                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-purple" style={{width: `${focusedHoursPercentage}%`}}></div></div>
               </div>
             </div>
 
