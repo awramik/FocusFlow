@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BadgeAlert, BadgeCheck, Flame, Lock, Pause, Play, RefreshCcwDot, Timer } from 'lucide-react';
+import { BadgeAlert, BadgeCheck, Flame, Lock, Play, RefreshCcwDot, Square, Timer } from 'lucide-react';
 import '../style/Analytics.css';
 
 const weeklyData = [
@@ -88,13 +88,16 @@ function AnalyticsRightPanel() {
 
       <section className="analytics-page__timer-card" aria-label="Pomodoro timer">
         <div className="analytics-page__timer-actions">
-          <button type="button" aria-label="Pause timer" onClick={() => setIsRunning(false)}>
-            <Pause size={13} />
-          </button>
           <button
             type="button"
-            aria-label={secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
+            aria-label={isRunning ? 'Stop timer' : secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
+            aria-pressed={isRunning}
             onClick={() => {
+              if (isRunning) {
+                setIsRunning(false);
+                return;
+              }
+
               if (secondsLeft === 0) {
                 setSecondsLeft(25 * 60);
               }
@@ -102,7 +105,7 @@ function AnalyticsRightPanel() {
               setIsRunning(true);
             }}
           >
-            <Play size={13} />
+            {isRunning ? <Square size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
           </button>
         </div>
         <Timer size={36} className="analytics-page__timer-icon" />
