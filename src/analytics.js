@@ -1,6 +1,7 @@
 const gaMeasurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
 const hotjarId = import.meta.env.VITE_HOTJAR_ID;
 const hotjarVersion = Number(import.meta.env.VITE_HOTJAR_VERSION || 6);
+const contentsquareUxaSrc = import.meta.env.VITE_CONTENTSQUARE_UXA_SRC;
 
 let initialized = false;
 let lastTrackedPath = '';
@@ -37,7 +38,16 @@ const initGoogleAnalytics = () => {
 };
 
 const initHotjar = () => {
-  if (!hotjarId || document.getElementById('hotjar-script')) {
+  if (document.getElementById('hotjar-script')) {
+    return;
+  }
+
+  if (contentsquareUxaSrc) {
+    appendScript('hotjar-script', contentsquareUxaSrc);
+    return;
+  }
+
+  if (!hotjarId) {
     return;
   }
 
@@ -81,7 +91,7 @@ export const trackPageView = (path) => {
     });
   }
 
-  if (hotjarId && typeof window.hj === 'function') {
+  if ((hotjarId || contentsquareUxaSrc) && typeof window.hj === 'function') {
     window.hj('stateChange', path);
   }
 };

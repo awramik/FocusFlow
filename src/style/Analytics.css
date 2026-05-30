@@ -21,7 +21,6 @@
   min-height: 80px;
   margin: 0 clamp(-40px, -3.5vw, -20px) clamp(32px, 4vw, 56px);
   padding: 0 clamp(20px, 3.5vw, 40px) 12px;
-  border-bottom: 1px solid #582e7e;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -509,15 +508,17 @@
 .analytics-page__timer-card {
   min-height: 86px;
   padding: 16px 20px;
-  display: flex;
+  display: grid;
+  grid-template-columns: 32px 36px minmax(7ch, 1fr);
   align-items: center;
-  gap: 20px;
+  gap: clamp(12px, 1.1vw, 20px);
+  container-type: inline-size;
 }
 
 .analytics-page__timer-actions {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
 }
 
 .analytics-page__timer-actions button {
@@ -554,10 +555,14 @@
 }
 
 .analytics-page__timer-value {
+  min-width: 0;
+  width: 100%;
   color: #bca9d3;
-  font-size: clamp(30px, 2.5vw, 38px);
+  font-size: clamp(28px, 12cqw, 38px);
   line-height: 44px;
   font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
 }
 
 @media (min-width: 1800px) {
@@ -686,7 +691,8 @@
   }
 
   .analytics-page__timer-card {
-    gap: 14px;
+    grid-template-columns: 30px 32px minmax(7ch, 1fr);
+    gap: 12px;
   }
 
   .analytics-page__timer-value {
