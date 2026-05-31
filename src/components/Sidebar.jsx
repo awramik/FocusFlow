@@ -9,7 +9,7 @@ import {
   Settings, 
   Focus 
 } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom'; // DODANY HOOK useLocation
 
 // Importujemy 5 faz wzrostu Pana Ferdynanda
 import ferdynand1 from '../assets/egg.png';
@@ -20,8 +20,11 @@ import ferdynand5 from '../assets/adult.png';
 
 export default function Sidebar() {
 
-// Stan przechowujący aktualną fazę (od 1 do 5)
+  // Stan przechowujący aktualną fazę (od 1 do 5)
   const [faza, setFaza] = useState(1);
+  
+  // Pobieramy aktualną ścieżkę z paska przeglądarki
+  const location = useLocation(); 
 
   // Tablica z zaimportowanymi obrazkami dla łatwiejszego mapowania
   const ferdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
@@ -33,6 +36,9 @@ export default function Sidebar() {
       return prevFaza + 1;
     });
   };
+
+  // Sprawdzamy czy użytkownik jest w trybie Focus Mode
+  const isFocusMode = location.pathname === '/focus';
 
   return (
     <nav className="left-sidebar">
@@ -55,11 +61,21 @@ export default function Sidebar() {
               <CalendarDays size={20} /> Today
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/all" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+          
+          <li className="focus-exempt">
+            <NavLink 
+              to="/all" 
+              onClick={(e) => {
+                if (isFocusMode) {
+                  e.preventDefault();
+                }
+              }}
+              className={({isActive}) => (isActive || isFocusMode) ? "nav-item active" : "nav-item"}
+            >
               <ListTodo size={20} /> All tasks
             </NavLink>
           </li>
+          
           <li>
             <NavLink to="/analytics" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
               <BarChart2 size={20} /> Analytics
@@ -99,9 +115,13 @@ export default function Sidebar() {
               <Settings size={20} /> Settings
             </NavLink>
           </li>
-          <li>
-            <NavLink to="/focus" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
-              <Focus size={20} /> No distractions
+          
+          <li className="focus-exempt">
+            <NavLink 
+              to={isFocusMode ? "/all" : "/focus"} 
+              className={() => isFocusMode ? "nav-item active" : "nav-item"}
+            >
+              <Focus size={20} /> {isFocusMode ? "Exit Focus Mode" : "No distractions"}
             </NavLink>
           </li>
         </ul>

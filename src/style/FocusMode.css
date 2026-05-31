@@ -1,0 +1,17 @@
+/* Prawy panel */
+.focus-blur-overlay {
+  filter: blur(6px) brightness(0.6);
+  pointer-events: none;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+/* Lewy panel - wszystko OPRÓCZ klas focus-exempt */
+body.focus-mode-active .left-sidebar .sidebar-logo,
+body.focus-mode-active .left-sidebar .sidebar-middle,
+body.focus-mode-active .left-sidebar .nav-links li:not(.focus-exempt) {
+  filter: blur(6px) brightness(0.6);
+  pointer-events: none;
+  user-select: none;
+  transition: all 0.3s ease;
+}
