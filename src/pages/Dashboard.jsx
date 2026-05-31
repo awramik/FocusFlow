@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import RightAnalytics from '../components/RightAnalytics';
-import { Clock3, Zap, Flame, Lightbulb, Pause, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
+import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
 import '../style/Dashboard.css';
 
 const Dashboard = () => {
@@ -16,6 +16,40 @@ const Dashboard = () => {
   const totalTasks = tasks?.length || 0;
   const completedTasks = tasks?.filter(t => t.status === 'done' || t.status === 'Done').length || 0;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 75;
+
+  const INITIAL_TIME = 25 * 60;
+  const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    let interval = null;
+
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsRunning(false);
+      alert("Czas minął! Pora na krótką przerwę.");
+    }
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleStartPause = () => {
+    setIsRunning(!isRunning);
+  };
+
+  const handleReset = () => {
+    setIsRunning(false);
+    setTimeLeft(INITIAL_TIME);
+  };
 
   const getPriorityClass = (priority) => {
     if (priority === 'CRIT' || priority === 'critical') return 'priority-tag critical';
@@ -59,7 +93,7 @@ const Dashboard = () => {
           <div className="glass-card active-session-card">
             <div className="active-session-left">
               <div className="timer-circle">
-                18:42
+                {formatTime(timeLeft)}
               </div>
               <div className="active-session-info">
                 <p className="active-session-label">ACTIVE SESSION</p>
@@ -68,8 +102,20 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="active-session-actions">
-              <button className="action-btn"><Pause size={14} fill="currentColor" /></button>
-              <button className="action-btn"><Square size={12} fill="currentColor" /></button>
+              <button 
+                className="action-btn" 
+                onClick={handleStartPause}
+                title={isRunning ? "Pause" : "Start"}
+              >
+                {isRunning ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+              </button>
+              <button 
+                className="action-btn" 
+                onClick={handleReset}
+                title="Reset"
+              >
+                <Square size={12} fill="currentColor" />
+              </button>
             </div>
           </div>
         </section>

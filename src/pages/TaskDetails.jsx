@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTasks } from '../context/TaskContext';
 import { 
@@ -15,6 +15,7 @@ import {
   User,
   X 
 } from 'lucide-react';
+import '../style/taskDetails.css';
 
 export default function TaskDetails() {
   const { id } = useParams();
@@ -22,16 +23,16 @@ export default function TaskDetails() {
   const { tasks, currentUser } = useTasks();
   const task = tasks?.find(t => t.id?.toString() === id?.toString());
 
-  // LOKALNY STAN NA KOMENTARZE I INPUT
   const [comments, setComments] = useState([]);
   const [newCommentText, setNewCommentText] = useState('');
+  const [attachments, setAttachments] = useState([]);
 
-  // Synchronizacja stanu z danymi z mockData przy załadowaniu zadania
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
-    if (task?.comments) {
-      setComments(task.comments);
-    } else {
-      setComments([]);
+    if (task) {
+      setComments(task.comments || []);
+      setAttachments(task.attachments || []);
     }
   }, [task]);
 
@@ -47,6 +48,52 @@ export default function TaskDetails() {
     );
   }
 
+  // OBSŁUGA KLIKNIĘCIA "ADD ATTACHMENT"
+  const handleAddAttachmentClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  // OBSŁUGA WYBORU PLIKU Z DYSKU
+  const handleFileChange = (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    
+    let formattedSize = `${(file.size / 1024).toFixed(1)} KB`;
+    if (file.size > 1024 * 1024) {
+      formattedSize = `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
+    }
+
+    const newAttachment = {
+      id: Date.now(),
+      name: file.name,
+      size: formattedSize,
+      fileObject: file // Przechowujemy oryginalny plik do pobrania
+    };
+
+    setAttachments([...attachments, newAttachment]);
+    e.target.value = ''; // Reset inputu
+  };
+
+  // OBSŁUGA POBIERANIA PLIKÓW (DOWNLOAD)
+  const handleDownloadAttachment = (attachment) => {
+    // 1. Jeśli to nowo dodany plik i ma w sobie obiekt File
+    if (attachment.fileObject) {
+      const url = URL.createObjectURL(attachment.fileObject);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = attachment.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url); // Czyszczenie pamięci pod URL
+    } else {
+      // 2. Mock dla starych plików, które przyszły z serwera/mockData i nie są realnymi plikami w pamięci przeglądarki
+      alert(`Rozpoczęto pobieranie pliku: ${attachment.name}\n(W środowisku produkcyjnym pobrano by plik z adresu URL: ${attachment.url || '/api/files/' + attachment.id})`);
+    }
+  };
+
   const handleAddComment = () => {
     if (!newCommentText.trim()) return;
 
@@ -58,10 +105,9 @@ export default function TaskDetails() {
     };
 
     setComments([...comments, newComment]);
-    setNewCommentText('');
+    NewCommentText('');
   };
 
-  // Obsługa wysyłania przez naciśnięcie klawisza Enter
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleAddComment();
@@ -88,21 +134,28 @@ export default function TaskDetails() {
   };
 
   return (
-    <div className="center-content kanban-page">
+    <div className="center-content kanban-page task-details-page">
+
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        style={{ display: 'none' }} 
+      />
 
       <div className="flex-between" style={{ marginBottom: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-muted)' }}>
-          <span style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>Dashboard</span>
-          <ChevronRight size={14} style={{ color: 'var(--text-muted)', opacity: 0.6 }} />
-          <span style={{ color: 'var(--text-main)', fontWeight: '750' }}>{task.title}</span>
+        <div className="breadcrumb-container">
+          <span className="breadcrumb-link" onClick={() => navigate('/')}>Dashboard</span>
+          <ChevronRight size={14} style={{ opacity: 0.6 }} />
+          <span className="breadcrumb-current">{task.title}</span>
         </div>
         
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 20px', borderRadius: '8px', fontSize: '12px', letterSpacing: '0.5px' }}>
+        <div className="action-header-group">
+          <button className="btn-primary share-btn">
             <Share2 size={14} />
             SHARE
           </button>
-          <button className="icon-btn" style={{ padding: '6px' }}>
+          <button className="icon-btn more-btn">
             <MoreHorizontal size={18} />
           </button>
         </div>
@@ -115,18 +168,18 @@ export default function TaskDetails() {
           
           {/* NAGŁÓWEK */}
           <div>
-            <h1 className="kanban-title" style={{ fontSize: '36px', marginBottom: '16px', letterSpacing: '0.5px' }}>
+            <h1 className="kanban-title task-title-large">
               {task.title || 'Untitled Task'}
             </h1>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <span className="filter-chip active" style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'default', padding: '4px 14px', borderRadius: '20px', textTransform: 'uppercase' }}>
+            <div className="status-meta-row">
+              <span className="filter-chip active status-chip">
                 <Circle size={10} fill="currentColor" /> {task.status || 'To do'}
               </span>
-              <span className={getPriorityClass(task.priority)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '20px' }}>
+              <span className={getPriorityClass(task.priority)}>
                 {(task.priority === 'CRIT' || task.priority === 'critical') && <AlertTriangle size={12} />}
                 {task.priority || 'LOW'}
               </span>
-              <span className="deadline" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '6px', color: 'var(--text-muted)', fontSize: '13px' }}>
+              <span className="deadline deadline-display">
                 <Calendar size={14} /> {task.deadline ? String(task.deadline).toUpperCase() : 'NO DEADLINE'}
               </span>
             </div>
@@ -134,22 +187,22 @@ export default function TaskDetails() {
 
           {/* DESCRIPTION */}
           <div>
-            <h2 className="category-tag" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 className="category-tag section-heading-row">
               <FileText size={14} /> Description
             </h2>
-            <div style={{ backgroundColor: '#130823', borderRadius: '16px', border: '1px solid var(--border)', overflow: 'hidden' }}>
-              <div style={{ backgroundColor: '#1c0c30', padding: '12px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#EF4444' }}></span>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#F59E0B' }}></span>
-                  <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10B981' }}></span>
+            <div className="readme-container">
+              <div className="readme-header">
+                <div className="window-dots">
+                  <span className="window-dot red"></span>
+                  <span className="window-dot amber"></span>
+                  <span className="window-dot green"></span>
                 </div>
-                <span className="category-tag" style={{ fontSize: '11px', textTransform: 'none' }}>README.md</span>
+                <span className="category-tag readme-filename">README.md</span>
               </div>
-              <div style={{ padding: '24px', fontFamily: 'Space Mono, monospace', fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.7' }}>
-                <span style={{ color: 'var(--accent-primary)' }}>const</span> project = <span style={{ color: '#38BDF8' }}>"{task.project || 'FocusFlow'}"</span>;<br/>
-                <span style={{ color: 'rgba(255,255,255,0.25)' }}>// task_details_output</span><br/>
-                <div style={{ color: 'var(--text-main)', marginTop: '8px', fontFamily: 'inherit' }}>
+              <div className="readme-body">
+                <span className="code-keyword">const</span> project = <span className="code-string">"{task.project || 'FocusFlow'}"</span>;<br/>
+                <span className="code-comment">// task_details_output</span><br/>
+                <div className="readme-text-content">
                   {task.description || task.title || "// No description provided."}
                 </div>
               </div>
@@ -159,149 +212,104 @@ export default function TaskDetails() {
           {/* ATTACHMENTS */}
           <div>
             <div className="flex-between" style={{ marginBottom: '16px' }}>
-              <h2 className="category-tag" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Paperclip size={14} /> Attachments <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>({task.attachments?.length || 0})</span>
+              <h2 className="category-tag section-heading-row">
+                <Paperclip size={14} /> Attachments <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>({attachments.length})</span>
               </h2>
-              <button className="icon-btn" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: 'var(--accent-primary)', fontWeight: '700' }}>
+              <button 
+                onClick={handleAddAttachmentClick}
+                className="icon-btn add-attachment-btn"
+              >
                 <Plus size={14} /> Add Attachment
               </button>
             </div>
 
-            {task.attachments && task.attachments.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {task.attachments.map(file => (
-                  <div key={file.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '380px', margin: '0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ backgroundColor: 'var(--bg-main)', padding: '6px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: '800', border: '1px solid var(--border)', color: 'var(--accent-primary)' }}>
+            {attachments.length > 0 ? (
+              <div className="attachments-list">
+                {attachments.map(file => (
+                  <div key={file.id} className="card attachment-card">
+                    <div className="attachment-left">
+                      <div className="file-ext-badge">
                         {file.name?.split('.').pop()?.toUpperCase() || 'FILE'}
                       </div>
                       <div>
-                        <div style={{ fontSize: '14px', fontWeight: '600' }}>{file.name}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{file.size}</div>
+                        <div className="file-name-text">{file.name}</div>
+                        <div className="file-size-text">{file.size}</div>
                       </div>
                     </div>
-                    <button className="icon-btn" style={{ padding: '6px' }}>
-                      <Download size={16} />
-                    </button>
+                    
+                    <div className="attachment-actions">
+                      <button 
+                        className="icon-btn delete-attachment-btn" 
+                        title="Remove attachment"
+                        onClick={() => setAttachments(attachments.filter(a => a.id !== file.id))}
+                      >
+                        <X size={16} />
+                      </button>
+                      <button 
+                        className="icon-btn download-attachment-btn" 
+                        title="Download"
+                        onClick={() => handleDownloadAttachment(file)}
+                      >
+                        <Download size={16} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>No attachments uploaded.</p>
+              <p className="empty-state-text">No attachments uploaded.</p>
             )}
           </div>
 
-          {/* SEKCJA KOMENTARZY*/}
+          {/* SEKCJA KOMENTARZY */}
           <div>
-            <h2 className="category-tag" style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h2 className="category-tag section-heading-row">
               <Plus size={14} style={{ transform: 'rotate(45deg)' }} /> Activity & Comments <span style={{ color: 'var(--text-muted)', fontWeight: '400' }}>({comments.length})</span>
             </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              
-              {/* Lista komentarzy pobierana ze stanu lokalnego */}
               {comments.length > 0 ? (
                 comments.map(comment => (
-                  <div key={comment.id} style={{ 
-                    backgroundColor: '#130823', 
-                    border: '1px solid var(--border)', 
-                    borderRadius: '12px', 
-                    padding: '16px'
-                  }}>
+                  <div key={comment.id} className="comment-block">
                     <div className="flex-between" style={{ marginBottom: '8px', alignItems: 'center' }}>
-                      <span style={{ fontSize: '12px', fontWeight: '750', color: 'var(--accent-primary)', fontFamily: "'JetBrains Mono', monospace" }}>
+                      <span className="comment-author">
                         @{comment.author.replace(/\s+/g, '').toLowerCase()}
                       </span>
                       
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                          {comment.date}
-                        </span>
-
+                      <div className="comment-meta-right">
+                        <span className="comment-date">{comment.date}</span>
                         {comment.author === "Dev Stranger" && (
                           <button
                             onClick={() => setComments(comments.filter(c => c.id !== comment.id))}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: '#EF4444',
-                              fontSize: '10px',
-                              fontWeight: '700',
-                              fontFamily: "'JetBrains Mono', monospace",
-                              cursor: 'pointer',
-                              padding: '2px 6px',
-                              borderRadius: '4px',
-                              letterSpacing: '0.5px',
-                              transition: 'all 0.2s ease',
-                              backgroundColor: 'rgba(239, 68, 68, 0.05)'
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
-                              e.currentTarget.style.textDecoration = 'underline';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.05)';
-                              e.currentTarget.style.textDecoration = 'none';
-                            }}
+                            className="comment-delete-action"
                           >
                             DELETE
                           </button>
                         )}
                       </div>
                     </div>
-                    <p style={{ fontSize: '13px', color: 'var(--text-main)', lineHeight: '1.5', margin: 0 }}>
-                      {comment.text}
-                    </p>
+                    <p className="comment-body-text">{comment.text}</p>
                   </div>
                 ))
               ) : (
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', margin: '0 0 8px 0' }}>
+                <p className="empty-state-text" style={{ marginBottom: '8px' }}>
                   No comments yet. Start the discussion below.
                 </p>
               )}
 
-              {/* Formularz dodawania nowego komentarza */}
-              <div style={{ 
-                display: 'flex', 
-                gap: '12px', 
-                alignItems: 'center', 
-                backgroundColor: '#1c0c30', 
-                border: '1px solid var(--border)', 
-                borderRadius: '12px', 
-                padding: '8px 12px 8px 16px',
-                marginTop: '8px'
-              }}>
+              <div className="new-comment-form">
                 <input 
                   type="text" 
                   placeholder="Write a comment..." 
                   value={newCommentText}
                   onChange={(e) => setNewCommentText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  style={{ 
-                    flex: 1, 
-                    background: 'none', 
-                    border: 'none', 
-                    outline: 'none', 
-                    color: 'var(--text-main)', 
-                    fontSize: '13px',
-                    fontFamily: "'JetBrains Mono', monospace"
-                  }} 
+                  className="new-comment-input"
                 />
-                <button 
-                  onClick={handleAddComment}
-                  className="btn-primary" 
-                  style={{ 
-                    padding: '6px 14px', 
-                    borderRadius: '8px', 
-                    fontSize: '11px', 
-                    fontWeight: '700', 
-                    letterSpacing: '0.5px' 
-                  }}
-                >
+                <button onClick={handleAddComment} className="btn-primary send-comment-btn">
                   SEND
                 </button>
               </div>
-
             </div>
           </div>
 
@@ -312,34 +320,18 @@ export default function TaskDetails() {
           
           {/* ASSIGNEES */}
           <div className="card" style={{ margin: '0' }}>
-            <span className="category-tag" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '16px', fontSize: '11px' }}>
+            <span className="category-tag section-heading-row" style={{ fontSize: '11px' }}>
               <User size={12} /> ASSIGNEES ({currentUser?.length || 0})
             </span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div className="assignees-list">
               {currentUser && currentUser.map(user => (
-                <div key={user.id} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ 
-                    width: '36px', 
-                    height: '36px', 
-                    borderRadius: '50%', 
-                    backgroundColor: 'var(--accent-purple)', 
-                    border: '1px solid var(--border)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    fontSize: '12px', 
-                    fontWeight: '700',
-                    flexShrink: 0 
-                  }}>
+                <div key={user.id} className="assignee-item">
+                  <div className="assignee-avatar">
                     {user.avatarInitials}
                   </div>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: '750', color: 'var(--text-main)' }}>
-                      {user.firstName} {user.lastName}
-                    </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                      {user.title}
-                    </div>
+                    <div className="assignee-name">{user.firstName} {user.lastName}</div>
+                    <div className="assignee-title">{user.title}</div>
                   </div>
                 </div>
               ))}
@@ -348,79 +340,45 @@ export default function TaskDetails() {
 
           {/* DATES & TIME */}
           <div className="card" style={{ margin: '0', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div className="dates-grid">
               <div>
                 <span className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '11px' }}>START DATE</span>
-                <span style={{ fontSize: '14px', fontWeight: '500' }}>
-                  {formatDate(task.startDate)}
-                </span>
+                <span className="date-value">{formatDate(task.startDate)}</span>
               </div>
               <div>
                 <span className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '11px' }}>END DATE</span>
-                <span style={{ fontSize: '14px', fontWeight: '700', color: 'var(--accent-primary)' }}>
-                  {formatDate(task.endDate)}
-                </span>
+                <span className="date-value end">{formatDate(task.endDate)}</span>
               </div>
             </div>
             
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+            <div className="estimate-box">
               <span className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '11px' }}>ESTIMATED TIME</span>
-              <span style={{ fontSize: '14px', fontWeight: '700' }}>
-                {task.estimate || 'Not estimated'}
-              </span>
+              <span className="estimate-value">{task.estimate || 'Not estimated'}</span>
             </div>
           </div>
 
           {/* TAGS */}
           <div className="card" style={{ margin: '0' }}>
             <span className="category-tag" style={{ display: 'block', marginBottom: '16px', fontSize: '11px' }}>TAGS</span>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            <div className="tags-flex">
               {task.tags && task.tags.length > 0 ? (
                 task.tags.map((tag, idx) => (
                   <span 
                     key={idx} 
-                    className={`priority-tag ${idx % 2 === 0 ? 'low' : 'high'}`} 
-                    style={{ textTransform: 'uppercase', padding: '4px 10px', fontSize: '11px', background: idx % 2 === 0 ? '#111827' : undefined }}
+                    className={`priority-tag ${idx % 2 === 0 ? 'low' : 'high'} tag-item ${idx % 2 === 0 ? 'even' : ''}`}
                   >
                     {tag}
                   </span>
                 ))
               ) : (
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>No tags</span>
+                <span className="empty-state-text" style={{ fontStyle: 'italic' }}>No tags</span>
               )}
             </div>
           </div>
 
           {/* PRZYCISK ZAMYKANIA DETAILS */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px', paddingRight: '4px' }}>
-            <button 
-              onClick={() => navigate(-1)} 
-              style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 0',
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: 'var(--accent-primary)',
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '11px',
-                fontWeight: '700',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                cursor: 'pointer',
-                opacity: 0.8,
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.opacity = '1';
-                e.currentTarget.style.textDecoration = 'underline';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = '0.8';
-                e.currentTarget.style.textDecoration = 'none';
-              }}
-            >
+          <div className="close-panel-row">
+            <button onClick={() => navigate(-1)} className="close-details-btn">
               <X size={12} />
               Close details
             </button>
