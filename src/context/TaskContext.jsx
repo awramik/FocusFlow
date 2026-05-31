@@ -87,7 +87,11 @@ export const TaskProvider = ({ children }) => {
     statsData,
     projectsData,
     recentActivity,
-    hoursData 
+    hoursData,
+    timeLeft,
+    isRunning,
+    handleStartPause,
+    handleReset
   };
 
   return (

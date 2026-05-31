@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useTasks } from '../context/TaskContext';
 import { BadgeAlert, BadgeCheck, Flame, Lock, Play, RefreshCcwDot, Square, Timer } from 'lucide-react';
 import '../style/Analytics.css';
 
@@ -34,29 +35,11 @@ const weeklyAverage = Math.round(
 );
 
 function AnalyticsRightPanel() {
-  const [secondsLeft, setSecondsLeft] = useState(25 * 60);
-  const [isRunning, setIsRunning] = useState(false);
+  const { timeLeft, isRunning, handleStartPause } = useTasks();
   const [isPomodoroTipOpen, setIsPomodoroTipOpen] = useState(false);
 
-  useEffect(() => {
-    if (!isRunning) return undefined;
-
-    const intervalId = window.setInterval(() => {
-      setSecondsLeft((currentSeconds) => {
-        if (currentSeconds <= 1) {
-          setIsRunning(false);
-          return 0;
-        }
-
-        return currentSeconds - 1;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(intervalId);
-  }, [isRunning]);
-
-  const timerMinutes = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
-  const timerSeconds = (secondsLeft % 60).toString().padStart(2, '0');
+  const timerMinutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+  const timerSeconds = (timeLeft % 60).toString().padStart(2, '0');
 
   return (
     <aside 
@@ -72,19 +55,18 @@ function AnalyticsRightPanel() {
         gap: '24px'
       }}
     >
-      {/* NAGŁÓWEK: Linia dopasowana do środkowego panelu */}
       <header 
         className="analytics-page__right-header" 
         style={{ 
           boxSizing: 'border-box',
-          marginBottom: '12px',              // Zmniejszony z 24px na 12px, żeby podciągnąć kafelki w górę
+          marginBottom: '12px', 
           borderBottom: '1px solid #582E7E', 
-          marginLeft: '-24px',               
-          marginRight: '-24px',              
-          paddingLeft: '24px',               
+          marginLeft: '-24px', 
+          marginRight: '-24px', 
+          paddingLeft: '24px', 
           paddingRight: '24px',
-          width: 'calc(100% + 48px)',        
-          minHeight: '80px',                 
+          width: 'calc(100% + 48px)', 
+          minHeight: '80px', 
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -96,7 +78,6 @@ function AnalyticsRightPanel() {
         <p style={{ margin: 0 }}>Improve your focus and achieve your goals</p>
       </header>
 
-      {/* KAFELEK PODPOWIEDZI */}
       <button
         type="button"
         className={`analytics-page__tip-card ${isPomodoroTipOpen ? 'analytics-page__tip-card--expanded' : ''}`}
@@ -110,7 +91,7 @@ function AnalyticsRightPanel() {
           cursor: 'pointer',
           display: 'flex',
           flexDirection: 'column',
-          marginTop: '0px'                   // Gwarancja braku niechcianego odepchnięcia od linii
+          marginTop: '0px'
         }}
       >
         <div className="analytics-page__tip-title" style={{ width: '100%' }}>
@@ -138,20 +119,9 @@ function AnalyticsRightPanel() {
         <div className="analytics-page__timer-actions">
           <button
             type="button"
-            aria-label={isRunning ? 'Stop timer' : secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
+            aria-label={isRunning ? 'Stop timer' : 'Start timer'}
             aria-pressed={isRunning}
-            onClick={() => {
-              if (isRunning) {
-                setIsRunning(false);
-                return;
-              }
-
-              if (secondsLeft === 0) {
-                setSecondsLeft(25 * 60);
-              }
-
-              setIsRunning(true);
-            }}
+            onClick={handleStartPause}
           >
             {isRunning ? <Square size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
           </button>
@@ -236,7 +206,6 @@ export default function Analytics() {
                     <div className="analytics-page__achievement-icon">
                       <Icon size={22} fill={achievement.highlighted ? 'currentColor' : 'none'} />
                     </div>
-
                   </div>
 
                   <h3>{achievement.title}</h3>
