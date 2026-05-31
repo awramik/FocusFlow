@@ -137,6 +137,14 @@ const Dashboard = () => {
       return newChecked;
     });
   };
+  // Obliczanie procentowego postępu dla godzin pracy i skupienia
+  const workHoursPercentage = hoursData?.workHours?.goal 
+    ? Math.min(100, Math.round((hoursData.workHours.current / hoursData.workHours.goal) * 100)) 
+    : 0;
+
+  const focusedHoursPercentage = hoursData?.focusedHours?.goal 
+    ? Math.min(100, Math.round((hoursData.focusedHours.current / hoursData.focusedHours.goal) * 100)) 
+    : 0;
 
   return (
     <div className="dashboard-layout">
@@ -196,7 +204,7 @@ const Dashboard = () => {
                 
                 return (
                   // Dodajemy klasę 'completed', jeśli zadanie jest zaznaczone
-                  <div key={task.id} className={`task-card-new priority-${task.priority} ${isChecked ? 'completed' : ''}`}>
+                  <div key={task.id} className={`task-card-new priority-${String(task.priority || 'low').trim().toLowerCase()} ${isChecked ? 'completed' : ''}`}>
                     
                     {/* Interaktywne kółeczko z onClick */}
                     <div 

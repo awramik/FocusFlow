@@ -19,8 +19,9 @@ export const TaskProvider = ({ children }) => {
       if (task.status === 'done') mappedStatus = 'Done';
 
       let mappedPriority = 'LOW';
-      if (task.priority === 'critical') mappedPriority = 'CRIT';
+      if (task.priority === 'critical') mappedPriority = 'CRITICAL';
       if (task.priority === 'high') mappedPriority = 'HIGH';
+      if (task.priority === 'medium') mappedPriority = 'MEDIUM';
 
       return {
         ...task, // Przekazujemy wszystkie oryginalne pola (w tym deadline i opis)

@@ -258,6 +258,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  border: 2px solid #4B3D54;
 }
 
 .priority-critical .task-checkbox { border: 2px solid #FFB3D9; }
