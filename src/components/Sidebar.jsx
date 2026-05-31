@@ -10,6 +10,9 @@ import {
   Focus 
 } from 'lucide-react';
 import { NavLink, useLocation, Link, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+import { LogOut } from 'lucide-react';
 
 // Importujemy 5 faz wzrostu Pana Ferdynanda
 import ferdynand1 from '../assets/egg.png';
@@ -19,6 +22,17 @@ import ferdynand4 from '../assets/graduate.png';
 import ferdynand5 from '../assets/adult.png';
 
 export default function Sidebar() {
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/'); // Po pomyślnym wylogowaniu wracamy na stronę powitalną
+    } catch (error) {
+      alert("Błąd podczas wylogowywania: " + error.message);
+    }
+  };
 
   // Stan przechowujący aktualną fazę (od 1 do 5)
   const [faza, setFaza] = useState(1);
@@ -35,10 +49,13 @@ export default function Sidebar() {
       if (prevFaza === 5) return 1;
       return prevFaza + 1;
     });
+    
   };
 
   // Sprawdzamy czy użytkownik jest w trybie Focus Mode
   const isFocusMode = location.pathname === '/focus';
+
+  
 
   return (
     <nav className="left-sidebar" style={{ height: '100vh', overflowY: 'auto', position: 'relative', backgroundColor: '#250f3d' }}>
@@ -154,6 +171,21 @@ export default function Sidebar() {
             >
               <Focus size={20} /> {isFocusMode ? "Exit Focus Mode" : "No distractions"}
             </NavLink>
+          </li>
+
+          <li>
+            <Link 
+              to="#"
+              onClick={(e) => {
+                e.preventDefault();
+                handleLogout();
+              }} 
+              className="nav-item" 
+              style={{ color: '#FFAFD7' }}
+            >
+              <LogOut size={20} />
+              <span style={{ fontWeight: 'bold' }}>Log out</span>
+            </Link>
           </li>
         </ul>
       </div>
