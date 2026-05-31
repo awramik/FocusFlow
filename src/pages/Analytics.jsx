@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BadgeAlert, BadgeCheck, Flame, Lock, Pause, Play, RefreshCcwDot, Timer } from 'lucide-react';
+import { BadgeAlert, BadgeCheck, Flame, Lock, Play, RefreshCcwDot, Square, Timer } from 'lucide-react';
 import '../style/Analytics.css';
 
 const weeklyData = [
@@ -134,70 +134,32 @@ function AnalyticsRightPanel() {
         </div>
       </button>
 
-      {/* SEKCJA TIMERA */}
-      <section 
-        className="analytics-page__timer-card" 
-        aria-label="Pomodoro timer"
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '100%',
-          maxWidth: '100%',
-          boxSizing: 'border-box'
-        }}
-      >
-        <div 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            gap: '16px',
-            width: '100%'
-          }}
-        >
-          <div 
-            className="analytics-page__timer-actions" 
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '6px',
-              margin: 0
+      <section className="analytics-page__timer-card" aria-label="Pomodoro timer">
+        <div className="analytics-page__timer-actions">
+          <button
+            type="button"
+            aria-label={isRunning ? 'Stop timer' : secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
+            aria-pressed={isRunning}
+            onClick={() => {
+              if (isRunning) {
+                setIsRunning(false);
+                return;
+              }
+
+              if (secondsLeft === 0) {
+                setSecondsLeft(25 * 60);
+              }
+
+              setIsRunning(true);
             }}
           >
-            <button type="button" aria-label="Pause timer" onClick={() => setIsRunning(false)}>
-              <Pause size={13} />
-            </button>
-            <button
-              type="button"
-              aria-label={secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
-              onClick={() => {
-                if (secondsLeft === 0) {
-                  setSecondsLeft(25 * 60);
-                }
-                setIsRunning(true);
-              }}
-            >
-              <Play size={13} />
-            </button>
-          </div>
-
-          <Timer 
-            size={36} 
-            className="analytics-page__timer-icon" 
-            style={{ margin: 0 }} 
-          />
-
-          <span 
-            className="analytics-page__timer-value" 
-            style={{ 
-              margin: 0,
-              whiteSpace: 'nowrap' 
-            }}
-          >
-            {timerMinutes}:{timerSeconds}
-          </span>
+            {isRunning ? <Square size={13} fill="currentColor" /> : <Play size={13} fill="currentColor" />}
+          </button>
         </div>
+        <Timer size={36} className="analytics-page__timer-icon" />
+        <span className="analytics-page__timer-value">
+          {timerMinutes}:{timerSeconds}
+        </span>
       </section>
     </aside>
   );

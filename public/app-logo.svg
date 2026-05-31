@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">FocusFlow logo</title>
+  <rect width="48" height="48" rx="10" fill="#F2ACD3" />
+  <path
+    d="M26 5 11 27h13l-2 16 15-22H24l2-16Z"
+    fill="none"
+    stroke="#150926"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

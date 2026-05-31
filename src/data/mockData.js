@@ -39,6 +39,19 @@ export const statsData = {
   focusTime: "4h 20m" 
 };
 
+export const hoursData = {
+  workHours: {
+    current: 4.5,
+    goal: 6,
+    unit: "h"
+  },
+  focusedHours: {
+    current: 1.2,
+    goal: 2,
+    unit: "h"
+  }
+};
+
 export const tasksData = [
   {
     id: 1,
@@ -46,7 +59,7 @@ export const tasksData = [
     status: "ongoing",
     priority: "critical",
     category: "DESIGN V3.1",
-    deadline: "2026-05-18 10:30 AM",
+    deadline: "2026-05-30 10:30 AM",
     description: "Complete all application screens in Figma, including the new Dashboard and Kanban views. Ensure all interactive components are linked.",
     attachments: [
       { id: 101, name: "wireframes_v2.pdf", size: "2.4 MB" }
@@ -57,7 +70,7 @@ export const tasksData = [
     assignee: { name: "Maja C.", avatar: "MC" },
     tags: ["UI", "Figma", "Mobile"],
     startDate: "2026-05-10",
-    endDate: "2026-05-18",
+    endDate: "2026-05-30",
     estimate: "32h",
     dependencies: { blocks: 2, isBlocked: 0 }
   },
@@ -67,14 +80,14 @@ export const tasksData = [
     status: "planned",
     priority: "high",
     category: "FocusFlow",
-    deadline: "2026-05-20 6:30 PM",
+    deadline: "2026-05-30 6:30 PM",
     description: "Create hover effects, click transitions, and loading state animations for all major buttons.",
     attachments: [],
     comments: [],
     assignee: { name: "Zuzanna B.", avatar: "ZB" },
     tags: ["Animation", "Prototyping"],
-    startDate: "2026-05-19",
-    endDate: "2026-05-20",
+    startDate: "2026-05-29",
+    endDate: "2026-05-30",
     estimate: "12h",
     dependencies: { blocks: 1, isBlocked: 1 }
   },
@@ -84,7 +97,7 @@ export const tasksData = [
     status: "done",
     priority: "low",
     category: "FocusFlow",
-    deadline: "2026-05-15 12:00 PM",
+    deadline: "2026-05-30 12:00 PM",
     description: "Initialize the frontend repository, add initial Vite + React setup, and invite all team members.",
     attachments: [],
     comments: [
@@ -92,8 +105,8 @@ export const tasksData = [
     ],
     assignee: { name: "Wiktoria A.", avatar: "WA" },
     tags: ["DevOps", "Setup"],
-    startDate: "2026-05-15",
-    endDate: "2026-05-15",
+    startDate: "2026-05-30",
+    endDate: "2026-05-30",
     estimate: "1h",
     dependencies: { blocks: 0, isBlocked: 0 }
   },

@@ -4,7 +4,8 @@ import {
   currentUser, 
   statsData, 
   projectsData, 
-  recentActivity 
+  recentActivity,
+  hoursData 
 } from '../data/mockData';
 
 const TaskContext = createContext();
@@ -86,11 +87,7 @@ export const TaskProvider = ({ children }) => {
     statsData,
     projectsData,
     recentActivity,
-    // Timer
-    timeLeft,
-    isRunning,
-    handleStartPause,
-    handleReset
+    hoursData 
   };
 
   return (

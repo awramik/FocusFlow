@@ -1,31 +1,124 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import RightAnalytics from '../components/RightAnalytics';
-import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
+import { Clock3, Download, Zap, Flame, Lightbulb, Pause, Square, GripVertical, Check, Play } from 'lucide-react';
 import '../style/Dashboard.css';
 
-const Dashboard = () => {
-  // Wyciągamy stan i funkcje timera bezpośrednio z globalnego kontekstu
-  const { 
-    tasks, 
-    currentUser, 
-    updateTaskStatus,
-    timeLeft,
-    isRunning,
-    handleStartPause,
-    handleReset
-  } = useTasks(); 
+const SETTINGS_STORAGE_KEY = 'focusflow-settings';
 
-  const navigate = useNavigate();
+const Dashboard = () => {
+  const { tasks, currentUser, statsData, projectsData, hoursData } = useTasks(); 
+
+  // Lokalny stan do przechowywania ID zaznaczonych (odklikniętych) zadań
+  const [checkedTasks, setCheckedTasks] = useState(new Set());
+
+  // Timer state
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  // Initialize timer with settings duration on mount
+  useEffect(() => {
+    const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    let timerDuration = 25; // default
+    
+    if (storedSettings) {
+      try {
+        const settings = JSON.parse(storedSettings);
+        timerDuration = settings.timerDuration || 25;
+      } catch (e) {
+        // Use default if parsing fails
+      }
+    }
+    
+    setTimeLeft(timerDuration * 60); // Convert minutes to seconds
+    setIsActive(true);
+  }, []);
+
+  // Timer countdown effect
+  useEffect(() => {
+    if (!isRunning || timeLeft <= 0) return;
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          setIsRunning(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft]);
+
+  // Format time as MM:SS
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Toggle play/pause
+  const handleToggleTimer = () => {
+    if (isActive) {
+      setIsRunning(!isRunning);
+    }
+  };
+
+  // Reset timer
+  const handleResetTimer = () => {
+    setIsRunning(false);
+    const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
+    let timerDuration = 25;
+    
+    if (storedSettings) {
+      try {
+        const settings = JSON.parse(storedSettings);
+        timerDuration = settings.timerDuration || 25;
+      } catch (e) {
+        // Use default if parsing fails
+      }
+    }
+    
+    setTimeLeft(timerDuration * 60);
+  };
+
   const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
 
-  const todaysTasks = tasks?.filter(t => t.status !== 'done' && t.status !== 'Done').slice(0, 3);
-  const activeTask = tasks?.find(t => t.status === 'ongoing') || todaysTasks?.[0];
+  const activeTask = tasks?.find(t => t.status === 'Doing') || tasks?.[0];
+  const todaysTasks = tasks?.filter(t => t.status !== 'Done').slice(0, 3);
 
-  const totalTasks = tasks?.length || 0;
-  const completedTasks = tasks?.filter(t => t.status === 'done' || t.status === 'Done').length || 0;
-  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 75;
+  // Helper function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Helper function to extract date from deadline string (e.g., "2026-05-31 12:00 PM")
+  const getDateFromDeadline = (deadline) => {
+    if (!deadline) return null;
+    return deadline.split(' ')[0];
+  };
+
+  // Calculate daily completion percentage based on tasks due today
+  const dailyCompletion = useMemo(() => {
+    const todayDate = getTodayDate();
+    const todayTasksList = tasks?.filter(t => {
+      const taskDate = getDateFromDeadline(t.deadline);
+      return taskDate === todayDate;
+    }) || [];
+
+    const completedTodayTasks = todayTasksList.filter(t => t.status === 'Done').length;
+    const totalTodayTasks = todayTasksList.length;
+
+    return {
+      completed: completedTodayTasks,
+      total: totalTodayTasks,
+      percentage: totalTodayTasks > 0 ? Math.round((completedTodayTasks / totalTodayTasks) * 100) : 0
+    };
+  }, [tasks]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -64,11 +157,11 @@ const Dashboard = () => {
           <div className="glass-card daily-status-card">
             <p className="daily-status-title">Daily completion status</p>
             <div className="daily-status-value-row">
-              <span className="daily-status-percent">{completionPercentage}%</span>
+              <span className="daily-status-percent">{dailyCompletion.percentage}%</span>
               <span className="daily-status-goal">OF GOAL</span>
             </div>
             <div className="daily-progress-bg">
-              <div className="daily-progress-fill" style={{ width: `${completionPercentage}%` }}></div>
+              <div className="daily-progress-fill" style={{ width: `${dailyCompletion.percentage}%` }}></div>
             </div>
           </div>
 
@@ -84,18 +177,10 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="active-session-actions">
-              <button 
-                className="action-btn" 
-                onClick={handleStartPause}
-                title={isRunning ? "Pause" : "Start"}
-              >
+              <button className="action-btn" onClick={handleToggleTimer} title={isRunning ? "Pause" : "Play"}>
                 {isRunning ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
               </button>
-              <button 
-                className="action-btn" 
-                onClick={handleReset}
-                title="Reset"
-              >
+              <button className="action-btn" onClick={handleResetTimer} title="Reset">
                 <Square size={12} fill="currentColor" />
               </button>
             </div>
@@ -203,16 +288,16 @@ const Dashboard = () => {
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-pink">Hours of work</span>
-                  <span className="progress-value-pink">4.5 / 6h</span>
+                  <span className="progress-value-pink">{hoursData.workHours.current} / {hoursData.workHours.goal}{hoursData.workHours.unit}</span>
                 </div>
-                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-pink" style={{width: '75%'}}></div></div>
+                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-pink" style={{width: `${workHoursPercentage}%`}}></div></div>
               </div>
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-purple">Hours focused (pomodoro)</span>
-                  <span className="progress-value-purple">1.2 / 2h</span>
+                  <span className="progress-value-purple">{hoursData.focusedHours.current} / {hoursData.focusedHours.goal}{hoursData.focusedHours.unit}</span>
                 </div>
-                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-purple" style={{width: '60%'}}></div></div>
+                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-purple" style={{width: `${focusedHoursPercentage}%`}}></div></div>
               </div>
             </div>
             <div className="velocity-card" style={{ flex: 'none', height: 'auto' }}>
