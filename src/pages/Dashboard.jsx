@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import RightAnalytics from '../components/RightAnalytics';
 import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
 import '../style/Dashboard.css';
+
+const SETTINGS_STORAGE_KEY = 'focusflow-settings';
 
 const Dashboard = () => {
   const { 
@@ -13,10 +15,12 @@ const Dashboard = () => {
     timeLeft,
     isRunning,
     handleStartPause,
-    handleReset
+    handleReset,
+    hoursData
   } = useTasks(); 
 
   const navigate = useNavigate();
+  
   const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
 
   const todaysTasks = tasks?.filter(t => t.status !== 'done' && t.status !== 'Done').slice(0, 3);
@@ -48,29 +52,6 @@ const Dashboard = () => {
     }
   };
 
-  // Reset timer
-  const handleResetTimer = () => {
-    setIsRunning(false);
-    const storedSettings = window.localStorage.getItem(SETTINGS_STORAGE_KEY);
-    let timerDuration = 25;
-    
-    if (storedSettings) {
-      try {
-        const settings = JSON.parse(storedSettings);
-        timerDuration = settings.timerDuration || 25;
-      } catch (e) {
-        // Use default if parsing fails
-      }
-    }
-    
-    setTimeLeft(timerDuration * 60);
-  };
-
-  const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
-
-  const activeTask = tasks?.find(t => t.status === 'Doing') || tasks?.[0];
-  const todaysTasks = tasks?.filter(t => t.status !== 'Done').slice(0, 3);
-
   // Helper function to get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
     const today = new Date();
@@ -86,18 +67,21 @@ const Dashboard = () => {
   // Calculate daily completion percentage based on tasks due today
   const dailyCompletion = useMemo(() => {
     const todayDate = getTodayDate();
+    
     const todayTasksList = tasks?.filter(t => {
       const taskDate = getDateFromDeadline(t.deadline);
       return taskDate === todayDate;
     }) || [];
 
-    const completedTodayTasks = todayTasksList.filter(t => t.status === 'Done').length;
+    if (todayTasksList.length === 0) return { completed: 0, total: 0, percentage: 0 };
+
+    const completedTodayTasks = todayTasksList.filter(t => t.status === 'Done' || t.status === 'done').length;
     const totalTodayTasks = todayTasksList.length;
 
     return {
       completed: completedTodayTasks,
       total: totalTodayTasks,
-      percentage: totalTodayTasks > 0 ? Math.round((completedTodayTasks / totalTodayTasks) * 100) : 0
+      percentage: Math.round((completedTodayTasks / totalTodayTasks) * 100)
     };
   }, [tasks]);
 
@@ -105,19 +89,6 @@ const Dashboard = () => {
     if (!priority) return '[LOW]';
     if (priority.toLowerCase() === 'critical') return '[CRIT]';
     return `[${priority.toUpperCase()}]`;
-  };
-
-  // Funkcja, która przełącza stan zadania z "pustego" na "zaznaczone"
-  const handleTaskToggle = (taskId) => {
-    setCheckedTasks(prev => {
-      const newChecked = new Set(prev);
-      if (newChecked.has(taskId)) {
-        newChecked.delete(taskId);
-      } else {
-        newChecked.add(taskId);
-      }
-      return newChecked;
-    });
   };
   // Obliczanie procentowego postępu dla godzin pracy i skupienia
   const workHoursPercentage = hoursData?.workHours?.goal 
@@ -270,14 +241,14 @@ const Dashboard = () => {
                   <span className="progress-label-pink">Hours of work</span>
                   <span className="progress-value-pink">4.5 / 6h</span>
                 </div>
-                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-pink" style={{width: '75%'}}></div></div>
+                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-pink" style={{width: `${workHoursPercentage}%`}}></div></div>
               </div>
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-purple">Hours focused (pomodoro)</span>
                   <span className="progress-value-purple">1.2 / 2h</span>
                 </div>
-                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-purple" style={{width: '60%'}}></div></div>
+                <div className="progress-bar-bg-dark"><div className="progress-bar-fill-purple" style={{width: `${focusedHoursPercentage}%`}}></div></div>
               </div>
             </div>
             <div className="velocity-card" style={{ flex: 'none', height: 'auto' }}>

@@ -9,8 +9,7 @@ import {
   Settings, 
   Focus 
 } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom'; // DODANY HOOK useLocation
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, useLocation, Link, useNavigate } from 'react-router-dom';
 
 // Importujemy 5 faz wzrostu Pana Ferdynanda
 import ferdynand1 from '../assets/egg.png';

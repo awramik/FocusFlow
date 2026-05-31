@@ -53,7 +53,7 @@ export const TaskProvider = ({ children }) => {
     setTasks(prevTasks => [...prevTasks, newTask]);
   };
 
-  // --- ZARZĄDZANIE TIMEREM ---
+  // // --- ZARZĄDZANIE TIMEREM ---
   const INITIAL_TIME = 25 * 60;
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [isRunning, setIsRunning] = useState(false);
@@ -67,7 +67,6 @@ export const TaskProvider = ({ children }) => {
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
-      // Możesz dodać tutaj np. powiadomienie dźwiękowe
     }
 
     return () => clearInterval(interval);
