@@ -86,29 +86,69 @@ function AnalyticsRightPanel() {
         </div>
       </button>
 
-      <section className="analytics-page__timer-card" aria-label="Pomodoro timer">
-        <div className="analytics-page__timer-actions">
-          <button type="button" aria-label="Pause timer" onClick={() => setIsRunning(false)}>
-            <Pause size={13} />
-          </button>
-          <button
-            type="button"
-            aria-label={secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
-            onClick={() => {
-              if (secondsLeft === 0) {
-                setSecondsLeft(25 * 60);
-              }
-
-              setIsRunning(true);
+     {/* SEKCJA TIMERA */}
+      <section 
+        className="analytics-page__timer-card" 
+        aria-label="Pomodoro timer"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+      >
+        <div 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            gap: '16px',
+            width: '100%'
+          }}
+        >
+          <div 
+            className="analytics-page__timer-actions" 
+            style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '6px',
+              margin: 0
             }}
           >
-            <Play size={13} />
-          </button>
+            <button type="button" aria-label="Pause timer" onClick={() => setIsRunning(false)}>
+              <Pause size={13} />
+            </button>
+            <button
+              type="button"
+              aria-label={secondsLeft === 0 ? 'Restart timer' : 'Start timer'}
+              onClick={() => {
+                if (secondsLeft === 0) {
+                  setSecondsLeft(25 * 60);
+                }
+                setIsRunning(true);
+              }}
+            >
+              <Play size={13} />
+            </button>
+          </div>
+
+          {/* Ikona stopera */}
+          <Timer 
+            size={36} 
+            className="analytics-page__timer-icon" 
+            style={{ margin: 0 }} // reset bocznych przesunięć z CSS
+          />
+
+          {/* Czas (XX:XX) */}
+          <span 
+            className="analytics-page__timer-value" 
+            style={{ 
+              margin: 0,
+              whiteSpace: 'nowrap' // blokuje łamanie tekstu przy zmianie okna
+            }}
+          >
+            {timerMinutes}:{timerSeconds}
+          </span>
         </div>
-        <Timer size={36} className="analytics-page__timer-icon" />
-        <span className="analytics-page__timer-value">
-          {timerMinutes}:{timerSeconds}
-        </span>
       </section>
     </aside>
   );

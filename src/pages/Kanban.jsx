@@ -303,8 +303,6 @@ export default function Kanban() {
         </div>
       )}
 
-      <div className="kanban-divider" />
-
       {/* SIATKA TABLICY KANBAN */}
       <div className="kanban-board-grid">
         {columns.map(column => (

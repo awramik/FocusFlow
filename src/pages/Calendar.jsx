@@ -50,7 +50,7 @@ export default function Calendar() {
     : 0;
 
   return (
-    <div style={{ padding: '24px', color: 'var(--text-main)', width: '100%', maxWidth: '1400px', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div style={{ padding: '24px', color: 'var(--text-main)', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
       
       {/* NAGŁÓWEK Z RETURN BUTTONEM */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', width: '100%', flexWrap: 'wrap', gap: '16px' }}>
