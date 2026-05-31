@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -8,7 +8,8 @@ import {
   Clock, 
   MoreHorizontal,
   Folder,
-  X
+  X,
+  ArrowUp
 } from 'lucide-react';
 import RightAnalytics from '../components/RightAnalytics';
 
@@ -25,6 +26,60 @@ export default function Today() {
   const [newProject, setNewProject] = useState('FocusFlow');
   const [newDeadline, setNewDeadline] = useState('');
 
+  // STAN I LOGIKA DLA INTELIGENTNEGO PRZYCISKU FAB
+  const [scrollDirection, setScrollDirection] = useState('down');
+  const mainContentRef = useRef(null);
+  const lastScrollTop = useRef(0);
+
+  // Monitorowanie kierunku scrollowania wewnątrz kontenera <main>
+  useEffect(() => {
+    const mainElement = mainContentRef.current;
+    if (!mainElement) return;
+
+    const handleScroll = () => {
+      const currentScrollTop = mainElement.scrollTop;
+      
+      // Jeśli użytkownik zjedzie na sam dół, zmień na 'up'
+      if (mainElement.scrollHeight - currentScrollTop <= mainElement.clientHeight + 10) {
+        setScrollDirection('up');
+      } 
+      // Jeśli wróci na samą górę, zmień na 'down'
+      else if (currentScrollTop <= 10) {
+        setScrollDirection('down');
+      } 
+      // W innych wypadkach reaguj na dynamiczny kierunek ruchu ruch
+      else if (currentScrollTop > lastScrollTop.current) {
+        setScrollDirection('down');
+      } else {
+        setScrollDirection('up');
+      }
+      
+      lastScrollTop.current = currentScrollTop <= 0 ? 0 : currentScrollTop;
+    };
+
+    mainElement.addEventListener('scroll', handleScroll);
+    return () => mainElement.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Obsługa kliknięcia w FAB (płynne przewijanie góra/dół)
+  const handleFabClick = () => {
+    if (!mainContentRef.current) return;
+    
+    if (scrollDirection === 'down') {
+      mainContentRef.current.scrollTo({
+        top: mainContentRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+      setScrollDirection('up');
+    } else {
+      mainContentRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      setScrollDirection('down');
+    }
+  };
+
   const formattedDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -33,7 +88,6 @@ export default function Today() {
   });
 
   const handleToggleComplete = (taskId, currentStatus) => {
-    // Sprawdzamy najpierw, czy zadanie jest z lokalnego stanu frontendowego
     if (String(taskId).startsWith('local-')) {
       setLocalTasks(prev => prev.map(t => 
         t.id === taskId ? { ...t, status: t.status === 'Done' ? 'To do' : 'Done' } : t
@@ -41,7 +95,6 @@ export default function Today() {
       return;
     }
 
-    // Jeśli nie lokalne, standardowo aktualizujemy globalny kontekst
     if (updateTaskStatus) {
       const newStatus = currentStatus === 'Done' ? 'To do' : 'Done';
       updateTaskStatus(taskId, newStatus);
@@ -56,7 +109,6 @@ export default function Today() {
     return 'priority-tag low';
   };
 
-  // Łączymy zadania z Contextu z naszymi lokalnymi nowo dodanymi zadaniami frontendowymi
   const allCombinedTasks = [...localTasks, ...tasks];
 
   const filteredTasks = allCombinedTasks.filter(task =>
@@ -66,7 +118,6 @@ export default function Today() {
   const activeTasks = filteredTasks.filter(task => task.status !== 'Done');
   const completedTasks = filteredTasks.filter(task => task.status === 'Done');
 
-  // Funkcja obsługująca zatwierdzenie formularza i stworzenie karty
   const handleCreateTask = (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
@@ -84,7 +135,6 @@ export default function Today() {
 
     setLocalTasks([newTaskObj, ...localTasks]);
     
-    // Czyszczenie pól formularza i zamknięcie go
     setNewTitle('');
     setNewDeadline('');
     setNewPriority('LOW');
@@ -163,7 +213,8 @@ export default function Today() {
   return (
     <div className="dashboard-layout">
       
-      <main className="center-content" style={{ padding: '40px', overflowY: 'auto' }}>
+      {/* Podpięta referencja mainContentRef pod kontener ze scrollem */}
+      <main ref={mainContentRef} className="center-content" style={{ padding: '40px', overflowY: 'auto' }}>
         <div className="flex-between" style={{ marginBottom: '24px' }}>
           <div>
             <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
@@ -183,7 +234,7 @@ export default function Today() {
           </button>
         </div>
 
-        {/* WYSUWANY, WIZUALNIE DOPASOWANY FORMULARZ SZYBKIEGO DODAWANIA */}
+        {/* WYSUWANY FORMULARZ */}
         {isFormOpen && (
           <form 
             onSubmit={handleCreateTask}
@@ -231,7 +282,6 @@ export default function Today() {
             />
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-              {/* Projekt */}
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
                 <input 
@@ -253,7 +303,6 @@ export default function Today() {
                 />
               </div>
 
-              {/* Priorytet */}
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PRIORITY</label>
                 <select 
@@ -278,7 +327,6 @@ export default function Today() {
                 </select>
               </div>
 
-              {/* Deadline */}
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DEADLINE DATE</label>
                 <input 
@@ -368,7 +416,7 @@ export default function Today() {
         </div>
 
         {/* SEKCJA: COMPLETED */}
-        <div>
+        <div style={{ marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
             <span style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-muted)', letterSpacing: '1px' }}>COMPLETED</span>
             <div style={{ flex: 1, borderBottom: '1px dashed var(--border)', opacity: 0.5 }}></div>
@@ -385,6 +433,50 @@ export default function Today() {
             )}
           </div>
         </div>
+
+        {/* INTELIGENTNY PRZYCISK FAB */}
+        <button
+          type="button"
+          onClick={handleFabClick}
+          title={scrollDirection === 'down' ? 'Scroll to bottom' : 'Scroll to top'}
+          style={{
+            position: 'sticky',
+            bottom: '24px',
+            left: '100%',
+            transform: 'translateX(-24px)',
+            zIndex: 99,
+            width: '44px',
+            height: '44px',
+            borderRadius: '12px',
+            backgroundColor: '#250f3d',
+            border: '2px solid var(--accent-purple)',
+            color: 'var(--accent-primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            outline: 'none',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--accent-purple)';
+            e.currentTarget.style.borderColor = 'var(--accent-primary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#250f3d';
+            e.currentTarget.style.borderColor = 'var(--accent-purple)';
+          }}
+        >
+          <ArrowUp 
+            size={20} 
+            style={{
+              transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              transform: scrollDirection === 'down' ? 'rotate(180deg)' : 'rotate(0deg)'
+            }} 
+          />
+        </button>
+
       </main>
 
       <RightAnalytics />

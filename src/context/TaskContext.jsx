@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { 
   tasksData, 
   currentUser, 
@@ -11,7 +11,7 @@ import {
 const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
-  // Mapowanie danych na potrzeby kanbana oraz innych widoków z zachowaniem oryginalnych pól (np. deadline)
+  // --- ZARZĄDZANIE ZADANIAMI ---
   const [tasks, setTasks] = useState(() => {
     return tasksData.map(task => {
       let mappedStatus = 'To do';
@@ -24,9 +24,8 @@ export const TaskProvider = ({ children }) => {
       if (task.priority === 'medium') mappedPriority = 'MEDIUM';
 
       return {
-        ...task, // Przekazujemy wszystkie oryginalne pola (w tym deadline i opis)
+        ...task,
         id: task.id.toString(),
-        title: task.title,
         status: mappedStatus,
         priority: mappedPriority,
         project: task.category || 'FocusFlow'
@@ -34,7 +33,6 @@ export const TaskProvider = ({ children }) => {
     });
   });
 
-  // Funkcja do zmiany statusu zadania (używana w Kanbanie i Today)
   const updateTaskStatus = (taskId, newStatus) => {
     setTasks(prevTasks =>
       prevTasks.map(task =>
@@ -43,7 +41,6 @@ export const TaskProvider = ({ children }) => {
     );
   };
 
-  // Funkcja do dodawania nowego zadania
   const addTask = (title, priority, project, status) => {
     const newTask = {
       id: Date.now().toString(),
@@ -51,11 +48,38 @@ export const TaskProvider = ({ children }) => {
       priority,
       project,
       status,
-      deadline: new Date().toISOString().split('T')[0] + ' 12:00 PM' // Domyślny deadline dla nowych zadań
+      deadline: new Date().toISOString().split('T')[0] + ' 12:00 PM'
     };
     setTasks(prevTasks => [...prevTasks, newTask]);
   };
 
+  // --- ZARZĄDZANIE TIMEREM ---
+  const INITIAL_TIME = 25 * 60;
+  const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
+  const [isRunning, setIsRunning] = useState(false);
+
+  useEffect(() => {
+    let interval = null;
+
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prevTime) => prevTime - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && isRunning) {
+      setIsRunning(false);
+      // Możesz dodać tutaj np. powiadomienie dźwiękowe
+    }
+
+    return () => clearInterval(interval);
+  }, [isRunning, timeLeft]);
+
+  const handleStartPause = () => setIsRunning(prev => !prev);
+  const handleReset = () => {
+    setIsRunning(false);
+    setTimeLeft(INITIAL_TIME);
+  };
+
+  // --- EXPORT DO KONTEKSTU ---
   const contextValue = {
     tasks,
     updateTaskStatus,
@@ -64,7 +88,11 @@ export const TaskProvider = ({ children }) => {
     statsData,
     projectsData,
     recentActivity,
-    hoursData 
+    hoursData,
+    timeLeft,
+    isRunning,
+    handleStartPause,
+    handleReset
   };
 
   return (

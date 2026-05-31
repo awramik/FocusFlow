@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -11,7 +11,8 @@ import {
   ShieldAlert,
   Folder,
   Calendar,
-  Layers
+  Layers,
+  ArrowUp // Importujemy strzałkę do obsługi FAB
 } from 'lucide-react';
 import RightAnalytics from '../components/RightAnalytics';
 
@@ -19,6 +20,13 @@ export default function AllTasks() {
   const { tasks, updateTaskStatus } = useTasks();
   const navigate = useNavigate();
   
+  // Referencja do przewijanego kontenera środkowego
+  const scrollContainerRef = useRef(null);
+  
+  // Stan kontrolujący kierunek i widoczność przycisku FAB
+  // 'down' oznacza przewijanie w dół, 'up' przewijanie do góry
+  const [scrollDirection, setScrollDirection] = useState('down');
+
   // Stany wyszukiwania i filtrów
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -36,6 +44,43 @@ export default function AllTasks() {
   const [newProject, setNewProject] = useState('FocusFlow');
   const [newDeadline, setNewDeadline] = useState('');
   const allCombinedTasks = [...localTasks, ...tasks];
+
+  // Obsługa dynamicznej zmiany kierunku strzałki na FAB
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    
+    // Jeśli jesteśmy blisko góry (mniej niż 150px od początku), zawsze pokazuj "w dół"
+    if (scrollTop < 150) {
+      setScrollDirection('down');
+    } 
+    // Jeśli zbliżamy się do końca listy, zmień kierunek "w górę"
+    else if (scrollTop + clientHeight >= scrollHeight - 150) {
+      setScrollDirection('up');
+    }
+    // W przeciwnym wypadku domyślnie zostawiamy "w górę" jako szybki powrót
+    else {
+      setScrollDirection('up');
+    }
+  };
+
+  // Funkcja realizująca gładkie przewijanie po kliknięciu w FAB
+  const handleFabClick = () => {
+    if (!scrollContainerRef.current) return;
+
+    if (scrollDirection === 'down') {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    } else {
+      scrollContainerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   // Pobieranie unikalnych projektów TYLKO z aktywnych zadań
   const uniqueProjects = allCombinedTasks 
@@ -56,7 +101,6 @@ export default function AllTasks() {
     }
   };
 
-  // Funkcja obsługująca zatwierdzenie formularza (DODANE)
   const handleCreateTask = (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
@@ -74,7 +118,6 @@ export default function AllTasks() {
 
     setLocalTasks([newTaskObj, ...localTasks]);
     
-    // Czyszczenie i zamykanie formularza
     setNewTitle('');
     setNewDeadline('');
     setNewPriority('LOW');
@@ -130,7 +173,6 @@ export default function AllTasks() {
     setSelectedDate(formatted);
   };
 
-  // ZAAWANSOWANE FILTROWANIE
   const filteredTasks = allCombinedTasks?.filter(task => {
     if (task.status === 'Done') return false;
 
@@ -149,9 +191,15 @@ export default function AllTasks() {
   const shouldShowReset = selectedPriority !== 'ALL' || selectedProject !== 'ALL' || selectedDate !== '' || searchQuery !== '';
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout" style={{ position: 'relative' }}>
       
-      <main className="center-content" style={{ padding: '40px', overflowY: 'auto' }}>
+      {/* GŁÓWNY KONTENER ŚRODKOWY - Dodano ref oraz onScroll */}
+      <main 
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="center-content" 
+        style={{ padding: '40px', overflowY: 'auto', position: 'relative' }}
+      >
         
         {/* NAGŁÓWEK */}
         <div className="flex-between" style={{ marginBottom: '24px' }}>
@@ -165,7 +213,6 @@ export default function AllTasks() {
               Use filters to find the most relevant tasks and crush them!
             </p>
           </div>
-          {/* POPRAWIONY PRZYCISK: Otwiera i zamyka formularz */}
           <button 
             onClick={() => setIsFormOpen(!isFormOpen)}
             className="btn-primary" 
@@ -176,7 +223,7 @@ export default function AllTasks() {
           </button>
         </div>
 
-        {/* NOWY FORMULARZ SZYBKIEGO DODAWANIA (DODANE) */}
+        {/* NOWY FORMULARZ SZYBKIEGO DODAWANIA */}
         {isFormOpen && (
           <form 
             onSubmit={handleCreateTask}
@@ -422,8 +469,6 @@ export default function AllTasks() {
           </div>
         )}
 
-        <div className="kanban-divider" style={{ marginTop: '10px' }} />
-
         {/* LISTA ZADAŃ */}
         <div style={{ marginBottom: '40px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
@@ -496,6 +541,51 @@ export default function AllTasks() {
             )}
           </div>
         </div>
+
+        {/* INTELIGENTNY PRZYCISK FAB */}
+        <button
+          type="button"
+          onClick={handleFabClick}
+          title={scrollDirection === 'down' ? 'Scroll to bottom' : 'Scroll to top'}
+          style={{
+            position: 'sticky',
+            bottom: '24px',
+            left: '100%',
+            transform: 'translateX(-24px)',
+            zIndex: 99,
+            width: '44px',
+            height: '44px',
+            borderRadius: '12px',
+            backgroundColor: '#250f3d',
+            border: '2px solid var(--accent-purple)',
+            color: 'var(--accent-primary)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            outline: 'none',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--accent-purple)';
+            e.currentTarget.style.borderColor = 'var(--accent-primary)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#250f3d';
+            e.currentTarget.style.borderColor = 'var(--accent-purple)';
+          }}
+        >
+          <ArrowUp 
+            size={20} 
+            style={{
+              transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              // jeśli kierunek to 'down', obracamy strzałkę w dół o 180 stopni
+              transform: scrollDirection === 'down' ? 'rotate(180deg)' : 'rotate(0deg)'
+            }} 
+          />
+        </button>
+
       </main>
 
       <RightAnalytics />
