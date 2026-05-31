@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import RightAnalytics from '../components/RightAnalytics';
 import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
 import '../style/Dashboard.css';
@@ -19,9 +20,21 @@ const Dashboard = () => {
     hoursData
   } = useTasks(); 
 
+  const { currentUser: authUser, loading } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+  if (loading) return; 
   
-  const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
+  if (!authUser) {
+    navigate('/');
+  }
+}, [authUser, loading, navigate]);
+
+  if (authUser === undefined) return <div>Ładowanie sesji...</div>;
+
+  
+  const activeUser = authUser ? { firstName: authUser.email.split('@')[0] } : { firstName: "DevStrange" };
 
   const todaysTasks = tasks?.filter(t => t.status !== 'done' && t.status !== 'Done').slice(0, 3);
   const activeTask = tasks?.find(t => t.status === 'ongoing') || todaysTasks?.[0];

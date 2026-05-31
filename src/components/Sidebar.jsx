@@ -72,7 +72,7 @@ export default function Sidebar() {
         }}
       >
         <div className="sidebar-logo-container">
-          <Link to="/" className="sidebar-logo-link" style={{ textDecoration: 'none' }}>
+          <Link to="/dashboard" className="sidebar-logo-link" style={{ textDecoration: 'none' }}>
             {/* Wyśrodkowanie loga i tekstu bez zmieniania właściwości dzieci (zwiększony gap do 10px) */}
             <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
               <div className="logo-icon"><Zap size={24} /></div> {/* Zmiana: size z 20 na 24 */}
@@ -84,7 +84,7 @@ export default function Sidebar() {
         
         <ul className="nav-links" style={{ marginTop: '0px' }}>
           <li>
-            <NavLink to="/" className={({isActive}) => isActive ? "nav-item active" : "nav-item"} end>
+            <NavLink to="/dashboard" className={({isActive}) => isActive ? "nav-item active" : "nav-item"} end>
               <LayoutDashboard size={20} /> Dashboard
             </NavLink>
           </li>
@@ -150,7 +150,7 @@ export default function Sidebar() {
           <li className="focus-exempt">
             <NavLink 
               to={isFocusMode ? "/all" : "/focus"} 
-              className={() => isFocusMode ? "nav-item active" : "nav-item"}
+              className={({isActive}) => isActive ? "nav-item active" : "nav-item"}
             >
               <Focus size={20} /> {isFocusMode ? "Exit Focus Mode" : "No distractions"}
             </NavLink>
