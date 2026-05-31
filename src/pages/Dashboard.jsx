@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTasks } from '../context/TaskContext';
 import RightAnalytics from '../components/RightAnalytics';
 import { Clock3, Download, Zap, Flame, Lightbulb, Pause, Square, GripVertical, Check } from 'lucide-react';
@@ -12,12 +12,38 @@ const Dashboard = () => {
 
   const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
 
-  const activeTask = tasks?.find(t => t.status === 'ongoing') || tasks?.[0];
-  const todaysTasks = tasks?.filter(t => t.status !== 'done').slice(0, 3);
+  const activeTask = tasks?.find(t => t.status === 'Doing') || tasks?.[0];
+  const todaysTasks = tasks?.filter(t => t.status !== 'Done').slice(0, 3);
 
-  const totalTasks = tasks?.length || 0;
-  const completedTasks = tasks?.filter(t => t.status === 'done').length || 0;
-  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 75;
+  // Helper function to get today's date in YYYY-MM-DD format
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  };
+
+  // Helper function to extract date from deadline string (e.g., "2026-05-31 12:00 PM")
+  const getDateFromDeadline = (deadline) => {
+    if (!deadline) return null;
+    return deadline.split(' ')[0];
+  };
+
+  // Calculate daily completion percentage based on tasks due today
+  const dailyCompletion = useMemo(() => {
+    const todayDate = getTodayDate();
+    const todayTasksList = tasks?.filter(t => {
+      const taskDate = getDateFromDeadline(t.deadline);
+      return taskDate === todayDate;
+    }) || [];
+
+    const completedTodayTasks = todayTasksList.filter(t => t.status === 'Done').length;
+    const totalTodayTasks = todayTasksList.length;
+
+    return {
+      completed: completedTodayTasks,
+      total: totalTodayTasks,
+      percentage: totalTodayTasks > 0 ? Math.round((completedTodayTasks / totalTodayTasks) * 100) : 0
+    };
+  }, [tasks]);
 
   const formatPriority = (priority) => {
     if (!priority) return '[LOW]';
@@ -53,11 +79,11 @@ const Dashboard = () => {
           <div className="glass-card daily-status-card">
             <p className="daily-status-title">Daily completion status</p>
             <div className="daily-status-value-row">
-              <span className="daily-status-percent">{completionPercentage}%</span>
+              <span className="daily-status-percent">{dailyCompletion.percentage}%</span>
               <span className="daily-status-goal">OF GOAL</span>
             </div>
             <div className="daily-progress-bg">
-              <div className="daily-progress-fill" style={{ width: `${completionPercentage}%` }}></div>
+              <div className="daily-progress-fill" style={{ width: `${dailyCompletion.percentage}%` }}></div>
             </div>
           </div>
 
