@@ -59,26 +59,74 @@ function AnalyticsRightPanel() {
   const timerSeconds = (secondsLeft % 60).toString().padStart(2, '0');
 
   return (
-    <aside className="analytics-page__right-panel">
-      <header className="analytics-page__right-header">
-        <h2>Tips & tricks</h2>
-        <p>Improve your focus and achieve your goals</p>
+    <aside 
+      className="analytics-page__right-panel"
+      style={{
+        flex: '0 0 320px',
+        width: '320px',
+        minWidth: '320px',
+        padding: '42px 24px 40px 24px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px'
+      }}
+    >
+      {/* NAGŁÓWEK: Linia dopasowana do środkowego panelu */}
+      <header 
+        className="analytics-page__right-header" 
+        style={{ 
+          boxSizing: 'border-box',
+          marginBottom: '12px',              // Zmniejszony z 24px na 12px, żeby podciągnąć kafelki w górę
+          borderBottom: '1px solid #582E7E', 
+          marginLeft: '-24px',               
+          marginRight: '-24px',              
+          paddingLeft: '24px',               
+          paddingRight: '24px',
+          width: 'calc(100% + 48px)',        
+          minHeight: '80px',                 
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          paddingTop: '12px',
+          paddingBottom: '12px'
+        }}
+      >
+        <h2 style={{ margin: '0 0 4px 0' }}>Tips & tricks</h2>
+        <p style={{ margin: 0 }}>Improve your focus and achieve your goals</p>
       </header>
 
+      {/* KAFELEK PODPOWIEDZI */}
       <button
         type="button"
         className={`analytics-page__tip-card ${isPomodoroTipOpen ? 'analytics-page__tip-card--expanded' : ''}`}
         aria-expanded={isPomodoroTipOpen}
         onClick={() => setIsPomodoroTipOpen((isOpen) => !isOpen)}
+        style={{
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box',
+          textAlign: 'left',
+          cursor: 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          marginTop: '0px'                   // Gwarancja braku niechcianego odepchnięcia od linii
+        }}
       >
-        <div className="analytics-page__tip-title">
+        <div className="analytics-page__tip-title" style={{ width: '100%' }}>
           <RefreshCcwDot size={20} />
           <span>Pomodoro technique</span>
         </div>
-        <p>Use focused 25-minute sprints followed by a 5-minute break</p>
+        <p style={{ width: '100%', margin: '8px 0 0 0' }}>
+          Use focused 25-minute sprints followed by a 5-minute break
+        </p>
 
-        <div className="analytics-page__tip-details" aria-hidden={!isPomodoroTipOpen}>
-          <p>
+        <div 
+          className="analytics-page__tip-details" 
+          aria-hidden={!isPomodoroTipOpen}
+          style={{ width: '100%' }}
+        >
+          <p style={{ width: '100%' }}>
             Set a timer, focus completely, and avoid interruptions during the 25 minutes. After
             the break, repeat. Four sprints in, take a longer 15-30 minute break.
           </p>
@@ -86,14 +134,17 @@ function AnalyticsRightPanel() {
         </div>
       </button>
 
-     {/* SEKCJA TIMERA */}
+      {/* SEKCJA TIMERA */}
       <section 
         className="analytics-page__timer-card" 
         aria-label="Pomodoro timer"
         style={{
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'center'
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
         }}
       >
         <div 
@@ -131,19 +182,17 @@ function AnalyticsRightPanel() {
             </button>
           </div>
 
-          {/* Ikona stopera */}
           <Timer 
             size={36} 
             className="analytics-page__timer-icon" 
-            style={{ margin: 0 }} // reset bocznych przesunięć z CSS
+            style={{ margin: 0 }} 
           />
 
-          {/* Czas (XX:XX) */}
           <span 
             className="analytics-page__timer-value" 
             style={{ 
               margin: 0,
-              whiteSpace: 'nowrap' // blokuje łamanie tekstu przy zmianie okna
+              whiteSpace: 'nowrap' 
             }}
           >
             {timerMinutes}:{timerSeconds}

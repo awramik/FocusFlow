@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import RightAnalytics from '../components/RightAnalytics';
@@ -6,7 +6,17 @@ import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Che
 import '../style/Dashboard.css';
 
 const Dashboard = () => {
-  const { tasks, currentUser, statsData, projectsData, updateTaskStatus } = useTasks(); 
+  // Wyciągamy stan i funkcje timera bezpośrednio z globalnego kontekstu
+  const { 
+    tasks, 
+    currentUser, 
+    updateTaskStatus,
+    timeLeft,
+    isRunning,
+    handleStartPause,
+    handleReset
+  } = useTasks(); 
+
   const navigate = useNavigate();
   const activeUser = currentUser && currentUser.length > 0 ? currentUser[0] : { firstName: "DevStrange" };
 
@@ -17,38 +27,10 @@ const Dashboard = () => {
   const completedTasks = tasks?.filter(t => t.status === 'done' || t.status === 'Done').length || 0;
   const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 75;
 
-  const INITIAL_TIME = 25 * 60;
-  const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
-  const [isRunning, setIsRunning] = useState(false);
-
-  useEffect(() => {
-    let interval = null;
-
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsRunning(false);
-      alert("Czas minął! Pora na krótką przerwę.");
-    }
-
-    return () => clearInterval(interval);
-  }, [isRunning, timeLeft]);
-
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleStartPause = () => {
-    setIsRunning(!isRunning);
-  };
-
-  const handleReset = () => {
-    setIsRunning(false);
-    setTimeLeft(INITIAL_TIME);
   };
 
   const getPriorityClass = (priority) => {
@@ -144,13 +126,11 @@ const Dashboard = () => {
                       overflow: 'hidden'
                     }}
                   >
-                    {/* Kolorowy pasek boczny priorytetu */}
                     <div 
                       className="task-indicator-line" 
                       data-priority={task.priority} 
                     />
 
-                    {/* Poprawne kółko-checkmark */}
                     <div 
                       className={`task-checkbox ${isChecked ? 'checked' : ''}`}
                       onClick={() => handleTaskToggle(task.id, task.status || 'To do')}
