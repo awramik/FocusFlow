@@ -6,7 +6,7 @@
   width: 100%;
   min-width: 0;
   min-height: 100%;
-  background: #150926;
+  background: var(--bg-main);
 }
 
 .settings-content {
@@ -31,7 +31,7 @@
 
 .settings-header h1 {
   margin: 0 0 4px;
-  color: #ffffff;
+  color: var(--text-main);
   font-size: 36px;
   line-height: 44px;
   font-weight: 800;
@@ -39,7 +39,7 @@
 
 .settings-header p {
   margin: 0;
-  color: #a78bba;
+  color: var(--text-muted);
   font-size: 13px;
   line-height: 18px;
 }
@@ -52,8 +52,8 @@
 .settings-section h2 {
   margin: 0 0 24px;
   padding-left: 12px;
-  border-left: 4px solid #ffb3d9;
-  color: #ffb3d9;
+  border-left: 4px solid var(--dashboard-pink);
+  color: var(--dashboard-pink);
   font-size: 12px;
   line-height: 16px;
   font-weight: 800;
@@ -65,8 +65,8 @@
 .settings-option-card,
 .settings-slider-card,
 .settings-data-card {
-  background: #2f1547;
-  border: 1px solid rgba(188, 169, 211, 0.86);
+  background: var(--dashboard-card);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 12px;
 }
 
@@ -88,8 +88,8 @@
   width: 78px;
   height: 78px;
   border-radius: 10px;
-  background: #150926;
-  border: 1px solid rgba(255, 179, 217, 0.24);
+  background: var(--bg-main);
+  border: 1px solid var(--border);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -103,7 +103,7 @@
 }
 
 .settings-avatar span {
-  color: #ffb3d9;
+  color: var(--dashboard-pink);
   font-size: 24px;
   font-weight: 800;
 }
@@ -117,8 +117,8 @@
   padding: 0;
   border: 0;
   border-radius: 8px;
-  color: #150926;
-  background: #ffb3d9;
+  color: var(--accent-text);
+  background: var(--dashboard-pink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,7 +127,7 @@
 }
 
 .settings-avatar-button:hover {
-  box-shadow: 0 0 16px rgba(255, 179, 217, 0.36);
+  box-shadow: 0 0 16px var(--hover-glow);
   transform: translateY(-1px);
 }
 
@@ -150,7 +150,7 @@
 
 .settings-field span,
 .settings-slider-card > span {
-  color: rgba(188, 169, 211, 0.62);
+  color: var(--text-muted);
   font-size: 10px;
   line-height: 13px;
   font-weight: 700;
@@ -169,16 +169,21 @@
   padding: 0 12px;
   border: 1px solid transparent;
   border-radius: 4px;
-  color: #ffffff;
-  background: #150926;
+  color: var(--text-main);
+  background: var(--bg-main);
+  border: 1px solid var(--border);
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
 }
 
 .settings-field input:focus {
   outline: none;
-  border-color: rgba(255, 179, 217, 0.6);
-  box-shadow: 0 0 0 3px rgba(255, 179, 217, 0.08);
+  border-color: var(--dashboard-pink);
+  box-shadow: 0 0 0 3px color-mix(
+    in srgb,
+    var(--dashboard-pink) 15%,
+    transparent
+  );
 }
 
 .settings-input-row button,
@@ -186,10 +191,14 @@
   min-width: 66px;
   height: 26px;
   padding: 0 14px;
-  border: 1px solid rgba(188, 169, 211, 0.38);
   border-radius: 5px;
-  color: #bca9d3;
-  background: rgba(188, 169, 211, 0.14);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  background: color-mix(
+    in srgb,
+    var(--dashboard-pink) 10%,
+    transparent
+  );
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
   font-weight: 800;
@@ -204,9 +213,13 @@
 
 .settings-input-row button:not(:disabled):hover,
 .settings-data-row button:hover {
-  color: #ffffff;
-  border-color: rgba(255, 179, 217, 0.58);
-  background: rgba(255, 179, 217, 0.16);
+  color: var(--text-main);
+  border-color: var(--dashboard-pink);
+  background: color-mix(
+    in srgb,
+    var(--dashboard-pink) 15%,
+    transparent
+  );
 }
 
 .settings-input-row button:disabled {
@@ -226,7 +239,7 @@
 
 .settings-option-card h3 {
   margin: 0 0 4px;
-  color: #ffffff;
+  color: var(--text-main);
   font-size: 12px;
   line-height: 16px;
   font-weight: 800;
@@ -234,7 +247,7 @@
 
 .settings-option-card p {
   margin: 0;
-  color: rgba(188, 169, 211, 0.72);
+  color: var(--text-muted);
   font-size: 10px;
   line-height: 13px;
 }
@@ -245,7 +258,7 @@
   padding: 3px;
   border: 0;
   border-radius: 999px;
-  background: #48245f;
+  background: var(--accent-purple);
   flex: 0 0 auto;
   cursor: pointer;
   display: flex;
@@ -257,16 +270,17 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #8b70a3;
+  background: var(--bg-card);
+  border: 1px solid var(--accent-purple);
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .settings-switch--on {
-  background: #ffb3d9;
+  background: var(--dashboard-pink);
 }
 
 .settings-switch--on span {
-  background: #150926;
+  background: var(--accent-text);
   transform: translateX(20px);
 }
 
@@ -291,7 +305,7 @@
 }
 
 .settings-slider-row strong {
-  color: #a78bba;
+  color: var(--dashboard-subtitle);
   font-size: 24px;
   line-height: 30px;
   font-weight: 800;
@@ -308,10 +322,10 @@
   border-radius: 999px;
   background: linear-gradient(
     to right,
-    #ffb3d9 0%,
-    #ffb3d9 var(--range-value),
-    #46225f var(--range-value),
-    #46225f 100%
+    var(--dashboard-pink) 0%,
+    var(--dashboard-pink) var(--range-value),
+    var(--accent-purple) var(--range-value),
+    var(--accent-purple) 100%
   );
 }
 
@@ -320,7 +334,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #ffb3d9;
+  background: var(--dashboard-pink);
   cursor: pointer;
 }
 
@@ -329,7 +343,7 @@
   height: 16px;
   border: 0;
   border-radius: 50%;
-  background: #ffb3d9;
+  background: var(--dashboard-pink);
   cursor: pointer;
 }
 
@@ -340,7 +354,7 @@
 .settings-data-row {
   min-height: 54px;
   padding: 0 16px;
-  border-bottom: 1px solid rgba(88, 46, 126, 0.72);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -352,15 +366,23 @@
 }
 
 .settings-data-row span {
-  color: #ffffff;
+  color: var(--text-main);
   font-size: 12px;
   line-height: 16px;
 }
 
 .settings-status.settings-status--active {
-  color: #00d982;
-  border-color: rgba(0, 217, 130, 0.42);
-  background: rgba(0, 217, 130, 0.12);
+  color: var(--dashboard-pink-strong);
+  border-color: color-mix(
+    in srgb,
+    var(--dashboard-pink) 40%,
+    transparent
+  );
+  background: color-mix(
+    in srgb,
+    var(--dashboard-pink) 12%,
+    transparent
+  );
 }
 
 .settings-data-row--danger span {
@@ -376,7 +398,7 @@
 .settings-save-note {
   width: min(100%, var(--settings-content-max));
   min-height: 32px;
-  color: rgba(188, 169, 211, 0.72);
+  color: var(--text-muted);
   font-size: 11px;
   line-height: 15px;
   display: flex;

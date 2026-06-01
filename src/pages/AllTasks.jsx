@@ -231,7 +231,7 @@ export default function AllTasks() {
             style={{ 
               margin: '0 0 32px 0', 
               padding: '24px', 
-              backgroundColor: '#1c0c30', 
+              backgroundColor: 'var(--bg-column)', 
               border: '1px solid var(--accent-purple)',
               display: 'flex',
               flexDirection: 'column',
@@ -259,7 +259,7 @@ export default function AllTasks() {
               autoFocus
               style={{
                 width: '100%',
-                background: '#130823',
+                background: 'var(--calendar-tag-bg)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
                 padding: '12px 16px',
@@ -280,7 +280,7 @@ export default function AllTasks() {
                   placeholder="FocusFlow"
                   style={{
                     width: '100%',
-                    background: '#130823',
+                    background: 'var(--calendar-tag-bg)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     padding: '8px 12px',
@@ -299,7 +299,7 @@ export default function AllTasks() {
                   onChange={(e) => setNewPriority(e.target.value)}
                   style={{
                     width: '100%',
-                    background: '#130823',
+                    background: 'var(--calendar-tag-bg)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     padding: '8px 12px',
@@ -324,7 +324,7 @@ export default function AllTasks() {
                   onChange={(e) => setNewDeadline(e.target.value)}
                   style={{
                     width: '100%',
-                    background: '#130823',
+                    background: 'var(--calendar-tag-bg)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     padding: '7px 12px',
@@ -434,7 +434,7 @@ export default function AllTasks() {
                   onChange={handleDateChange}
                   maxLength={10} 
                   style={{
-                    backgroundColor: '#170b24',
+                    backgroundColor: 'var(--calendar-tag-bg)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     color: 'var(--text-main)',
@@ -556,7 +556,7 @@ export default function AllTasks() {
             width: '44px',
             height: '44px',
             borderRadius: '12px',
-            backgroundColor: '#250f3d',
+            backgroundColor: 'var(--bg-sidebar)',
             border: '2px solid var(--accent-purple)',
             color: 'var(--accent-primary)',
             display: 'flex',
@@ -572,7 +572,7 @@ export default function AllTasks() {
             e.currentTarget.style.borderColor = 'var(--accent-primary)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#250f3d';
+            e.currentTarget.style.backgroundColor = 'var(--bg-sidebar)';
             e.currentTarget.style.borderColor = 'var(--accent-purple)';
           }}
         >
@@ -580,7 +580,6 @@ export default function AllTasks() {
             size={20} 
             style={{
               transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              // jeśli kierunek to 'down', obracamy strzałkę w dół o 180 stopni
               transform: scrollDirection === 'down' ? 'rotate(180deg)' : 'rotate(0deg)'
             }} 
           />

@@ -98,161 +98,143 @@ export default function Kanban() {
       </div>
 
       {isFormOpen && (
-        <form 
-          onSubmit={handleCreateTask}
-          className="card animate-fade-in" 
-          style={{ 
-            margin: '0 0 32px 0', 
-            padding: '24px', 
-            backgroundColor: '#1c0c30', 
-            border: '1px solid var(--accent-purple)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-            borderRadius: '12px'
-          }}
-        >
-          <div style={{ padding: '0 0 4px 0', margin: 0 }}>
-            <span style={{ 
-              color: 'var(--accent-primary)', 
-              fontSize: '11px', 
-              fontWeight: '700', 
-              fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: '1px'
-            }}>
-              // CREATE A NEW TASK DIRECTLY ON THE BOARD
-            </span>
-          </div>
-
-          <input 
-            type="text" 
-            placeholder="Task title..."
-            value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
-            required
-            autoFocus
-            style={{
-              width: '100%',
-              background: '#130823',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              color: 'var(--text-main)',
-              fontSize: '14px',
-              fontFamily: "'JetBrains Mono', monospace",
-              outline: 'none'
+          <form 
+            onSubmit={handleCreateTask}
+            className="card animate-fade-in" 
+            style={{ 
+              margin: '0 0 32px 0', 
+              padding: '24px', 
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--accent-purple)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px'
             }}
-          />
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '12px' }}>
-            <div>
-              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
-              <input 
-                type="text" 
-                value={newProject}
-                onChange={(e) => setNewProject(e.target.value)}
-                placeholder="FocusFlow"
-                style={{
-                  width: '100%',
-                  background: '#130823',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  color: 'var(--text-main)',
-                  fontSize: '12px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  outline: 'none'
-                }}
-              />
+          >
+            <div style={{ padding: '0 0 4px 0', margin: 0 }}>
+              <span style={{ 
+                color: 'var(--accent-primary)', 
+                fontSize: '11px', 
+                fontWeight: '700', 
+                fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: '1px'
+              }}>
+                // ADD A NEW TASK!
+              </span>
             </div>
 
-            <div>
-              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PRIORITY</label>
-              <select 
-                value={newPriority} 
-                onChange={(e) => setNewPriority(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: '#130823',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  color: 'var(--text-main)',
-                  fontSize: '12px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  outline: 'none',
-                  cursor: 'pointer'
+            <input 
+              type="text" 
+              placeholder="Task title..."
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              required
+              autoFocus
+              style={{
+                width: '100%',
+                background: 'var(--bg-main)',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                color: 'var(--text-main)',
+                fontSize: '14px',
+                fontFamily: "'JetBrains Mono', monospace",
+                outline: 'none'
+              }}
+            />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <div>
+                <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
+                <input 
+                  type="text" 
+                  value={newProject}
+                  onChange={(e) => setNewProject(e.target.value)}
+                  placeholder="FocusFlow"
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-main)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    color: 'var(--text-main)',
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PRIORITY</label>
+                <select 
+                  value={newPriority} 
+                  onChange={(e) => setNewPriority(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-main)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    color: 'var(--text-main)',
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    outline: 'none',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <option value="LOW">LOW</option>
+                  <option value="HIGH">HIGH</option>
+                  <option value="CRIT">CRITICAL</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DEADLINE DATE</label>
+                <input 
+                  type="date" 
+                  value={newDeadline}
+                  onChange={(e) => setNewDeadline(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: 'var(--bg-main)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '7px 12px',
+                    color: 'var(--text-main)',
+                    fontSize: '12px',
+                    fontFamily: "'JetBrains Mono', monospace",
+                    outline: 'none',
+                    cursor: 'text'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
+              <button 
+                type="button" 
+                onClick={() => setIsFormOpen(false)}
+                className="icon-btn" 
+                style={{ 
+                  padding: '8px 16px', 
+                  fontSize: '12px', 
+                  fontWeight: '500',
+                  fontFamily: "'JetBrains Mono', monospace" 
                 }}
               >
-                <option value="LOW">LOW</option>
-                <option value="HIGH">HIGH</option>
-                <option value="CRIT">CRITICAL</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>INITIAL COLUMN</label>
-              <select 
-                value={newStatus} 
-                onChange={(e) => setNewStatus(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: '#130823',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '8px 12px',
-                  color: 'var(--text-main)',
-                  fontSize: '12px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  outline: 'none',
-                  cursor: 'pointer'
-                }}
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="btn-primary" 
+                style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}
               >
-                {columns.map(col => <option key={col} value={col}>{col}</option>)}
-              </select>
+                ADD TASK
+              </button>
             </div>
-
-            <div>
-              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DEADLINE</label>
-              <input 
-                type="date" 
-                value={newDeadline}
-                onChange={(e) => setNewDeadline(e.target.value)}
-                style={{
-                  width: '100%',
-                  background: '#130823',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '7px 12px',
-                  color: 'var(--text-main)',
-                  fontSize: '12px',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  outline: 'none',
-                  cursor: 'text'
-                }}
-              />
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
-            <button 
-              type="button" 
-              onClick={() => setIsFormOpen(false)}
-              className="icon-btn" 
-              style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '500', fontFamily: "'JetBrains Mono', monospace" }}
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit" 
-              className="btn-primary" 
-              style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}
-            >
-              ADD TASK
-            </button>
-          </div>
-        </form>
-      )}
+          </form>
+        )}
 
       {/* AKCJE I FILTRY */}
       <div className="kanban-actions">

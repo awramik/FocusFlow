@@ -17,6 +17,18 @@ const RightAnalytics = () => {
   const currentMonth = today.toLocaleString('en-US', { month: 'long' });
   const currentYear = today.getFullYear();
 
+  const currentMonthNumber = today.getMonth();
+  const totalDaysInMonth = new Date(
+    currentYear,
+    currentMonthNumber + 1,
+    0
+  ).getDate();
+
+  const daysInMonth = Array.from(
+    { length: totalDaysInMonth },
+    (_, i) => i + 1
+  );
+
   // Pobieramy dni z deadline'ami zadań (format YYYY-MM-DD z mockData)
   const deadlineDays = new Set(
     tasks
@@ -24,18 +36,33 @@ const RightAnalytics = () => {
       .map(task => task.deadline.split(' ')[0]) // wyciąga np. "2026-05-18"
   );
 
-  // Generujemy dni od 1 do 31
-  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
+  const firstDayIndex = new Date(
+    currentYear,
+    currentMonthNumber,
+    1
+  ).getDay();
 
-  // 1 maja 2026 to piątek. Przy układzie od Poniedziałku (M) potrzebujemy 4 pustych pól na początku.
-  const emptySpaces = Array.from({ length: 4 }, (_, i) => i);
+  const shiftAmount =
+    firstDayIndex === 0
+      ? 6
+      : firstDayIndex - 1;
+
+  const emptySpaces = Array.from(
+    { length: shiftAmount },
+    (_, i) => i
+  );
 
   // Funkcja pomocnicza sprawdzająca, czy dany dzień ma deadline
   const hasDeadline = (day) => {
     const formattedDay = day < 10 ? `0${day}` : day;
-    const dateString = `2026-05-${formattedDay}`;
-    return deadlineDays.has(dateString);
-  };
+    const currentMonthISO = String(
+      currentMonthNumber + 1
+    ).padStart(2, '0');
+
+    const dateString =
+      `${currentYear}-${currentMonthISO}-${formattedDay}`;
+        return deadlineDays.has(dateString);
+      };
 
   return (
     <aside className="right-sidebar">
@@ -188,10 +215,10 @@ const RightAnalytics = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: '6px',
-                  backgroundColor: isToday ? 'var(--accent-primary)' : hasTask ? 'rgba(52, 24, 77, 0.6)' : 'transparent',
-                  color: isToday ? '#2F1547' : hasTask ? '#FFAFD7' : 'var(--text-main)',
+                  backgroundColor: isToday ? 'var(--accent-primary)' : hasTask ? 'var(--calendar-task-bg)' : 'transparent',
+                  color: isToday ? 'var(--calendar-selected-text)' : hasTask ? 'var(--calendar-task-text)' : 'var(--text-main)',
                   fontWeight: (isToday || hasTask) ? '800' : '400',
-                  border: hasTask && !isToday ? '1px solid rgba(255, 175, 215, 0.25)' : 'none',
+                  border: hasTask && !isToday ? '1px solid var(--calendar-task-border)' : 'none',
                   position: 'relative',
                   fontSize: '11px'
                 }}

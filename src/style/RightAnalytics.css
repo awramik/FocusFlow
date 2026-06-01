@@ -4,8 +4,8 @@
 
 .right-sidebar {
   width: 320px;
-  background: #250F3D;
-  border-left: 1px solid #2F1547;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
   padding: 42px 24px 40px 24px; 
   box-sizing: border-box;
   display: flex;
@@ -15,7 +15,7 @@
 .analytics-header {
   box-sizing: border-box;
   margin-bottom: 24px;
-  border-bottom: 1px solid #582E7E;
+  border-bottom: 1px solid var(--border);
   margin-left: -24px;
   margin-right: -24px;
   padding-left: 24px;
@@ -29,12 +29,13 @@
   padding-top: 12px;
   padding-bottom: 12px; 
 }
+
 .analytics-header h2 {
   font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   font-size: 20px;
   line-height: 26px;
-  color: #FFFFFF;
+  color: var(--text-main);
   margin: 0 0 4px 0;
 }
 
@@ -43,7 +44,7 @@
   font-weight: 500;
   font-size: 10px;
   line-height: 13px;
-  color: #FFB3D9;
+  color: var(--dashboard-pink);
   margin: 0;
 }
 
@@ -59,7 +60,8 @@
   box-sizing: border-box;
   width: 100%;
   height: 100px;
-  background: #2F1547;
+  background: var(--dashboard-card);
+  border: 1px solid var(--dashboard-card-border);
   border-radius: 12px;
   padding: 16px;
   display: flex;
@@ -79,7 +81,7 @@
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
-  color: #A78BBA;
+  color: var(--text-muted);
 }
 
 .metric-value {
@@ -87,7 +89,7 @@
   font-weight: 700;
   font-size: 24px;
   line-height: 32px;
-  color: #F5F5F5;
+  color: var(--text-main);
 }
 
 .metric-right {
@@ -102,15 +104,15 @@
 .progress-circle-box {
   width: 36px;
   height: 36px;
-  background: #40235B;
+  background: var(--analytics-icon-bg);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.icon-pink { color: #FF9EC4; }
-.icon-pink-light { color: #FFB3D9; }
+.icon-pink { color: var(--dashboard-pink-strong); }
+.icon-pink-light { color: var(--dashboard-pink); }
 
 .metric-badge {
   font-family: 'JetBrains Mono', monospace;
@@ -118,14 +120,14 @@
   font-size: 10px;
   line-height: 13px;
   text-align: center;
-  color: #FFB3D9;
+  color: var(--dashboard-pink);
 }
 
 /* 3. Linia oddzielająca */
 .analytics-divider {
   width: 100%;
   border: none;
-  border-top: 1px solid #582E7E;
+  border-top: 1px solid var(--border);
   margin: 0 0 32px 0;
 }
 
@@ -134,8 +136,8 @@
   box-sizing: border-box;
   width: 100%;
   height: 150px;
-  background: #2F1547;
-  border: 2px solid #582E7E;
+  background: var(--dashboard-card);
+  border: 2px solid var(--border);
   border-radius: 12px;
   padding: 18px 22px;
   display: flex;
@@ -155,12 +157,12 @@
   font-weight: 700;
   font-size: 14px;
   line-height: 18px;
-  color: #A78BBA;
+  color: var(--text-muted);
   margin: 0;
 }
 
 .focus-arrow-icon {
-  color: #FF9EC4;
+  color: var(--dashboard-pink-strong);
 }
 
 .focus-progress-info {
@@ -175,7 +177,7 @@
   font-weight: 500;
   font-size: 12px;
   line-height: 16px;
-  color: #FFB3D9;
+  color: var(--dashboard-pink);
 }
 
 .focus-ratio {
@@ -183,13 +185,13 @@
   font-weight: 700;
   font-size: 14px;
   line-height: 18px;
-  color: #FF9EC4;
+  color: var(--dashboard-pink-strong);
 }
 
 .focus-progress-bar-bg {
   width: 100%;
   height: 8px;
-  background: #1A0A2E;
+  background: var(--focus-progress-track);
   border-radius: 4px;
   margin-bottom: 16px;
   overflow: hidden;
@@ -197,9 +199,12 @@
 
 .focus-progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FFB3D9 0%, #FF9EC4 100%);
-  border-radius: 4px 0px 0px 4px;
-  transition: width 0.4s ease-in-out;
+  background: linear-gradient(
+    90deg,
+    var(--focus-progress-start) 0%,
+    var(--focus-progress-end) 100%
+  );
+  border-radius: 4px 0 0 4px;
 }
 
 .focus-time-row {
@@ -209,7 +214,7 @@
 }
 
 .focus-clock-icon {
-  color: #FFB3D9;
+  color: var(--dashboard-pink);
 }
 
 .focus-time-text {
@@ -217,13 +222,17 @@
   font-weight: 700;
   font-size: 10px;
   line-height: 13px;
-  color: #FFB3D9;
+  color: var(--dashboard-pink);
 }
 
 .mini-calendar-widget:hover {
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 175, 215, 0.4);
+  background: color-mix(
+    in srgb,
+    var(--accent-primary) 12%,
+    transparent
+  );
+  border-color: var(--accent-primary);
 }
 
 .mini-calendar-widget:active {

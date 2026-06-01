@@ -61,34 +61,24 @@ export default function Sidebar() {
   
 
   return (
-    <nav className="left-sidebar" style={{ height: '100vh', overflowY: 'auto', position: 'relative', backgroundColor: '#250f3d' }}>
-      
-      {/* Scrollbar przypisany do całego panelu, stały kolor #502d73 przy samej krawędzi */}
-      <style>{`
-        .left-sidebar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .left-sidebar::-webkit-scrollbar-track {
-          background: transparent; 
-        }
-        .left-sidebar::-webkit-scrollbar-thumb {
-          background: #502d73; 
-          border-radius: 10px;
-        }
-        .left-sidebar::-webkit-scrollbar-thumb:hover {
-          background: #502d73; 
-        }
-      `}</style>
+    <nav
+      className="left-sidebar"
+      style={{
+        height: '100vh',
+        overflowY: 'auto',
+        position: 'relative'
+      }}
+    >
       
       {/* SEKCJA 1: Logo (Przypięte na stałe do góry, z tłem panelu, żeby menu pod nim znikało) */}
-      <div 
-        className="sidebar-top" 
-        style={{ 
-          position: 'sticky', 
-          top: 0, 
-          zIndex: 10, 
-          backgroundColor: '#250f3d', 
-          paddingBottom: '4px' // Zmiana: zmniejszono padding z 10px na 4px, aby menu podeszło bliżej kreski naturalnie
+      <div
+        className="sidebar-top"
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          backgroundColor: 'var(--bg-sidebar)',
+          paddingBottom: '4px'
         }}
       >
         <div className="sidebar-logo-container">
@@ -96,7 +86,15 @@ export default function Sidebar() {
             {/* Wyśrodkowanie loga i tekstu bez zmieniania właściwości dzieci (zwiększony gap do 10px) */}
             <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
               <div className="logo-icon"><Zap size={24} /></div> {/* Zmiana: size z 20 na 24 */}
-              <h2 style={{ color: '#ffffff', fontSize: '24px', textDecoration: 'none', margin: 0, display: 'inline-block' }}>FocusFlow</h2> {/* Zmiana: fontSize z 20px na 24px */}
+              <h2
+                style={{
+                  color: 'var(--text-main)',
+                  fontSize: '24px',
+                  textDecoration: 'none',
+                  margin: 0,
+                  display: 'inline-block'
+                }}
+              >FocusFlow</h2>
             </div>
           </Link>
         </div>

@@ -27,6 +27,38 @@ export default function Settings() {
   const [savedSettings, setSavedSettings] = useState(defaultSettings);
   const [saveState, setSaveState] = useState('idle');
   const [wipeState, setWipeState] = useState('idle');
+  
+  // Stan dla motywu
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  // helper dla zmiany motywu
+  const setFavicon = (iconPath) => {
+    let link = document.querySelector("link[rel~='icon']");
+
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+
+    link.href = iconPath;
+  };
+
+  // Efekt dla motywu
+  useEffect(() => {
+    document.body.className = theme === 'light' ? 'theme-light' : '';
+    localStorage.setItem('theme', theme);
+
+    if (theme === 'light') {
+      setFavicon('/favicon-light.svg');
+    } else {
+      setFavicon('/favicon-dark.svg');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -42,6 +74,15 @@ export default function Settings() {
       };
       setSettings(cloudSettings);
       setSavedSettings(cloudSettings);
+    const storedSettings = window.localStorage.getItem(STORAGE_KEY);
+    if (storedSettings) {
+      try {
+        const parsedSettings = { ...defaultSettings, ...JSON.parse(storedSettings) };
+        setSettings(parsedSettings);
+        setSavedSettings(parsedSettings);
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
     }
   }, [currentUser]); 
 
@@ -225,6 +266,20 @@ export default function Settings() {
 
         <section className="settings-section" aria-labelledby="focus-configuration-title">
           <h2 id="focus-configuration-title">Focus configuration</h2>
+
+          <div className="settings-option-card">
+            <div>
+              <h3>Color theme</h3>
+              <p>Switch between light and dark mode</p>
+            </div>
+            <button
+              type="button"
+              className={`settings-switch ${theme === 'light' ? 'settings-switch--on' : ''}`}
+              onClick={toggleTheme}
+            >
+              <span />
+            </button>
+          </div>
 
           <div className="settings-option-card">
             <div>

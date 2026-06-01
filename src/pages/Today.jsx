@@ -242,7 +242,7 @@ export default function Today() {
             style={{ 
               margin: '0 0 32px 0', 
               padding: '24px', 
-              backgroundColor: '#1c0c30', 
+              backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--accent-purple)',
               display: 'flex',
               flexDirection: 'column',
@@ -270,7 +270,7 @@ export default function Today() {
               autoFocus
               style={{
                 width: '100%',
-                background: '#130823',
+                background: 'var(--bg-main)',
                 border: '1px solid var(--border)',
                 borderRadius: '8px',
                 padding: '12px 16px',
@@ -291,7 +291,7 @@ export default function Today() {
                   placeholder="FocusFlow"
                   style={{
                     width: '100%',
-                    background: '#130823',
+                    background: 'var(--bg-main)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     padding: '8px 12px',
@@ -310,7 +310,7 @@ export default function Today() {
                   onChange={(e) => setNewPriority(e.target.value)}
                   style={{
                     width: '100%',
-                    background: '#130823',
+                    background: 'var(--bg-main)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     padding: '8px 12px',
@@ -335,7 +335,7 @@ export default function Today() {
                   onChange={(e) => setNewDeadline(e.target.value)}
                   style={{
                     width: '100%',
-                    background: '#130823',
+                    background: 'var(--bg-main)',
                     border: '1px solid var(--border)',
                     borderRadius: '8px',
                     padding: '7px 12px',
@@ -384,7 +384,7 @@ export default function Today() {
             onChange={(e) => setSearchQuery(e.target.value)}
             style={{
               width: '100%',
-              backgroundColor: '#231236',
+              backgroundColor: 'var(--bg-card)',
               border: '1px solid var(--border)',
               borderRadius: '12px',
               padding: '14px 16px 14px 48px',
@@ -448,7 +448,7 @@ export default function Today() {
             width: '44px',
             height: '44px',
             borderRadius: '12px',
-            backgroundColor: '#250f3d',
+            backgroundColor: 'var(--bg-sidebar)',
             border: '2px solid var(--accent-purple)',
             color: 'var(--accent-primary)',
             display: 'flex',
@@ -464,7 +464,7 @@ export default function Today() {
             e.currentTarget.style.borderColor = 'var(--accent-primary)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#250f3d';
+            e.currentTarget.style.backgroundColor = 'var(--bg-sidebar)';
             e.currentTarget.style.borderColor = 'var(--accent-purple)';
           }}
         >

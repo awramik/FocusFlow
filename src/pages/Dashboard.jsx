@@ -197,7 +197,11 @@ const Dashboard = () => {
                         marginLeft: '4px'
                       }}
                     >
-                      {isChecked && <Check size={12} strokeWidth={4} color="#130823" />}
+                      {isChecked && <Check
+                              size={12}
+                              strokeWidth={4}
+                              color="var(--checkmark-color)"
+                            />}
                     </div>
                     
                     <div style={{ flex: 1 }}>
