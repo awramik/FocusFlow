@@ -3,8 +3,9 @@ import { Camera, Check, Download, Lock, RotateCcw, Shield, Trash2 } from 'lucide
 import RightAnalytics from '../components/RightAnalytics';
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext'; 
+import { useTheme } from '../context/ThemeContext';
 import { db } from '../firebase'; 
-import { doc, updateDoc, setDoc } from 'firebase/firestore'; // Zmienione importy!
+import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import '../style/Settings.css';
 
 const defaultSettings = {
@@ -16,50 +17,24 @@ const defaultSettings = {
   timerDuration: 25,
   breakInterval: 5,
   cloudSync: true,
+  workHoursGoal: 6,
+  focusedHoursGoal: 2,
 };
 
 export default function Settings() {
   const { tasks, statsData } = useTasks();
   const { currentUser } = useAuth(); 
+
+  const { theme, toggleTheme } = useTheme(); 
+
   const fileInputRef = useRef(null);
   
   const [settings, setSettings] = useState(defaultSettings);
   const [savedSettings, setSavedSettings] = useState(defaultSettings);
   const [saveState, setSaveState] = useState('idle');
   const [wipeState, setWipeState] = useState('idle');
-  
-  // Stan dla motywu
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
-  // helper dla zmiany motywu
-  const setFavicon = (iconPath) => {
-    let link = document.querySelector("link[rel~='icon']");
-
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'icon';
-      document.head.appendChild(link);
-    }
-
-    link.href = iconPath;
-  };
-
-  // Efekt dla motywu
-  useEffect(() => {
-    document.body.className = theme === 'light' ? 'theme-light' : '';
-    localStorage.setItem('theme', theme);
-
-    if (theme === 'light') {
-      setFavicon('/favicon-light.svg');
-    } else {
-      setFavicon('/favicon-dark.svg');
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
-  };
-
+  // --- POBIERANIE USTAWIEŃ Z FIREBASE ---
   useEffect(() => {
     if (currentUser) {
       const cloudSettings = {
@@ -71,18 +46,11 @@ export default function Settings() {
         timerDuration: currentUser.settings?.timerDuration ?? defaultSettings.timerDuration,
         breakInterval: currentUser.settings?.breakInterval ?? defaultSettings.breakInterval,
         cloudSync: currentUser.settings?.cloudSync ?? defaultSettings.cloudSync,
+        workHoursGoal: currentUser.settings?.workHoursGoal ?? defaultSettings.workHoursGoal,
+        focusedHoursGoal: currentUser.settings?.focusedHoursGoal ?? defaultSettings.focusedHoursGoal,
       };
       setSettings(cloudSettings);
       setSavedSettings(cloudSettings);
-    const storedSettings = window.localStorage.getItem(STORAGE_KEY);
-    if (storedSettings) {
-      try {
-        const parsedSettings = { ...defaultSettings, ...JSON.parse(storedSettings) };
-        setSettings(parsedSettings);
-        setSavedSettings(parsedSettings);
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
     }
   }, [currentUser]); 
 
@@ -91,7 +59,6 @@ export default function Settings() {
     settings.email !== savedSettings.email ||
     settings.avatar !== savedSettings.avatar;
 
-  // --- NOWOŚĆ: TYLKO LOKALNA AKTUALIZACJA (dla płynności suwaków) ---
   const updateLocalSetting = (key, value) => {
     setSettings((currentSettings) => ({
       ...currentSettings,
@@ -99,12 +66,10 @@ export default function Settings() {
     }));
   };
 
-  // --- NOWOŚĆ: BEZPIECZNY ZAPIS DO CHMURY (kiedy puścisz suwak lub klikniesz przełącznik) ---
   const saveSettingToCloud = async (key, value) => {
     if (!currentUser) return;
     try {
       const userRef = doc(db, 'users', currentUser.uid);
-      // setDoc z merge: true wymusza zapisanie pola, nawet jeśli w bazie brakuje jakiegoś elementu
       await setDoc(userRef, {
         settings: {
           [key]: value
@@ -115,7 +80,6 @@ export default function Settings() {
     }
   };
 
-  // --- POMOCNICZA FUNKCJA DO PRZEŁĄCZNIKÓW ---
   const handleToggle = (key) => {
     const newValue = !settings[key];
     updateLocalSetting(key, newValue);
@@ -167,7 +131,6 @@ export default function Settings() {
     });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-
     link.href = url;
     link.download = 'focusflow-history.json';
     link.click();
@@ -186,7 +149,9 @@ export default function Settings() {
           timerDuration: 25,
           breakInterval: 5,
           smartFiltering: false,
-          cloudSync: true
+          cloudSync: true,
+          workHoursGoal: 6,
+          focusedHoursGoal: 2
         }
       }, { merge: true });
       setWipeState('wiped');
@@ -307,9 +272,7 @@ export default function Settings() {
                   max="90"
                   step="5"
                   value={settings.timerDuration}
-                  // Podczas ciągnięcia suwaka -> aktualizujemy tylko UI
                   onChange={(event) => updateLocalSetting('timerDuration', Number(event.target.value))}
-                  // Gdy puścisz myszkę/palec -> wysyłamy do Firebase
                   onPointerUp={(event) => saveSettingToCloud('timerDuration', Number(event.target.value))}
                   style={{ '--range-value': `${((settings.timerDuration - 5) / 85) * 100}%` }}
                 />
@@ -329,6 +292,41 @@ export default function Settings() {
                   onChange={(event) => updateLocalSetting('breakInterval', Number(event.target.value))}
                   onPointerUp={(event) => saveSettingToCloud('breakInterval', Number(event.target.value))}
                   style={{ '--range-value': `${((settings.breakInterval - 5) / 25) * 100}%` }}
+                />
+              </div>
+            </label>
+            {/* Suwak do celu godzin pracy na Dashboardzie */}
+            <label className="settings-slider-card">
+              <span>Daily work goal (hours)</span>
+              <div className="settings-slider-row">
+                <strong>{settings.workHoursGoal}h</strong>
+                <input
+                  type="range"
+                  min="1"
+                  max="12"
+                  step="1"
+                  value={settings.workHoursGoal}
+                  onChange={(event) => updateLocalSetting('workHoursGoal', Number(event.target.value))}
+                  onPointerUp={(event) => saveSettingToCloud('workHoursGoal', Number(event.target.value))}
+                  style={{ '--range-value': `${((settings.workHoursGoal - 1) / 11) * 100}%` }}
+                />
+              </div>
+            </label>
+
+            {/* Suwak celu godzin skupienia Pomodoro */}
+            <label className="settings-slider-card">
+              <span>Daily focus goal (hours)</span>
+              <div className="settings-slider-row">
+                <strong>{settings.focusedHoursGoal}h</strong>
+                <input
+                  type="range"
+                  min="1"
+                  max="8"
+                  step="1"
+                  value={settings.focusedHoursGoal}
+                  onChange={(event) => updateLocalSetting('focusedHoursGoal', Number(event.target.value))}
+                  onPointerUp={(event) => saveSettingToCloud('focusedHoursGoal', Number(event.target.value))}
+                  style={{ '--range-value': `${((settings.focusedHoursGoal - 1) / 7) * 100}%` }}
                 />
               </div>
             </label>
