@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase'
+import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { Zap } from 'lucide-react'; // Importujemy ikonę tutaj
+import { Zap } from 'lucide-react';
 import '../style/Auth.css';
 
 export default function Auth() {
@@ -22,9 +23,42 @@ export default function Auth() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, regData.email, regData.password);
-      alert("Konto utworzone!");
-    } catch (err) { alert(err.message); }
+      // Tworzy konto w module Authentication
+      const userCredential = await createUserWithEmailAndPassword(auth, regData.email, regData.password);
+      const user = userCredential.user;
+
+      // Automatycznie tworzy dokument użytkownika w Firestore (Kolekcja "users")
+      await setDoc(doc(db, "users", user.uid), {
+        email: regData.email,
+        firstName: regData.email.split('@')[0],
+        lastName: "",
+        title: "New User",
+        plan: "Free Tier",
+        avatarInitials: regData.email.substring(0, 2).toUpperCase(),
+        
+        ferdynand: {
+          stage: 1,
+          currentXP: 0
+        },
+        settings: {
+          deepWork: true,
+          timerDuration: 25,
+          breakInterval: 5
+        },
+        stats: {
+          focusTimeSeconds: 0,
+          workHoursCurrent: 0,
+          workHoursGoal: 6,
+          focusedHoursCurrent: 0,
+          focusedHoursGoal: 2
+        }
+      });
+
+      alert("Konto utworzone i profil w bazie gotowy!");
+      navigate('/dashboard'); 
+    } catch (err) { 
+      alert(err.message); 
+    }
   };
 
   const handleLogin = async (e) => {

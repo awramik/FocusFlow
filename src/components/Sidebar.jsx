@@ -11,8 +11,10 @@ import {
 } from 'lucide-react';
 import { NavLink, useLocation, Link, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import { LogOut } from 'lucide-react';
+import { doc, updateDoc } from 'firebase/firestore';
 
 // Importujemy 5 faz wzrostu Pana Ferdynanda
 import ferdynand1 from '../assets/egg.png';
@@ -22,8 +24,13 @@ import ferdynand4 from '../assets/graduate.png';
 import ferdynand5 from '../assets/adult.png';
 
 export default function Sidebar() {
-
   const navigate = useNavigate();
+  const location = useLocation(); 
+  const { currentUser } = useAuth();
+
+  const faza = currentUser?.ferdynand?.stage || 1;
+
+  const ferdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
 
   const handleLogout = async () => {
     try {
@@ -34,27 +41,23 @@ export default function Sidebar() {
     }
   };
 
-  // Stan przechowujący aktualną fazę (od 1 do 5)
-  const [faza, setFaza] = useState(1);
-  
-  // Pobieramy aktualną ścieżkę z paska przeglądarki
-  const location = useLocation(); 
-
-  // Tablica z zaimportowanymi obrazkami dla łatwiejszego mapowania
-  const ferdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
-
-  // Funkcja zmieniająca fazę po kliknięciu
-  const handleFerdynandClick = () => {
-    setFaza((prevFaza) => {
-      if (prevFaza === 5) return 1;
-      return prevFaza + 1;
-    });
+  const handleFerdynandClick = async () => {
+    if (!currentUser) return;
     
+    const nextStage = faza === 5 ? 1 : faza + 1;
+    
+    try {
+      const userRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userRef, {
+        "ferdynand.stage": nextStage
+      });
+    } catch (error) {
+      console.error("Błąd ewolucji Ferdynanda:", error);
+    }
   };
 
   // Sprawdzamy czy użytkownik jest w trybie Focus Mode
   const isFocusMode = location.pathname === '/focus';
-
   
 
   return (

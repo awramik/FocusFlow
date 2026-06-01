@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Camera, Check, Download, Lock, RotateCcw, Shield, Trash2 } from 'lucide-react';
 import RightAnalytics from '../components/RightAnalytics';
 import { useTasks } from '../context/TaskContext';
+import { useAuth } from '../context/AuthContext'; 
+import { db } from '../firebase'; 
+import { doc, updateDoc, setDoc } from 'firebase/firestore'; // Zmienione importy!
 import '../style/Settings.css';
 
-const STORAGE_KEY = 'focusflow-settings';
-
 const defaultSettings = {
-  displayName: 'System_Admin',
-  email: 'admin@focusflow.com',
+  displayName: '',
+  email: '',
   avatar: '',
   deepWork: true,
   smartFiltering: false,
@@ -19,44 +20,87 @@ const defaultSettings = {
 
 export default function Settings() {
   const { tasks, statsData } = useTasks();
+  const { currentUser } = useAuth(); 
   const fileInputRef = useRef(null);
+  
   const [settings, setSettings] = useState(defaultSettings);
   const [savedSettings, setSavedSettings] = useState(defaultSettings);
   const [saveState, setSaveState] = useState('idle');
   const [wipeState, setWipeState] = useState('idle');
 
   useEffect(() => {
-    const storedSettings = window.localStorage.getItem(STORAGE_KEY);
-
-    if (storedSettings) {
-      try {
-        const parsedSettings = { ...defaultSettings, ...JSON.parse(storedSettings) };
-        setSettings(parsedSettings);
-        setSavedSettings(parsedSettings);
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
+    if (currentUser) {
+      const cloudSettings = {
+        displayName: currentUser.firstName || defaultSettings.displayName,
+        email: currentUser.email || defaultSettings.email,
+        avatar: currentUser.avatarUrl || defaultSettings.avatar,
+        deepWork: currentUser.settings?.deepWork ?? defaultSettings.deepWork,
+        smartFiltering: currentUser.settings?.smartFiltering ?? defaultSettings.smartFiltering,
+        timerDuration: currentUser.settings?.timerDuration ?? defaultSettings.timerDuration,
+        breakInterval: currentUser.settings?.breakInterval ?? defaultSettings.breakInterval,
+        cloudSync: currentUser.settings?.cloudSync ?? defaultSettings.cloudSync,
+      };
+      setSettings(cloudSettings);
+      setSavedSettings(cloudSettings);
     }
-  }, []);
+  }, [currentUser]); 
 
   const hasProfileChanges =
     settings.displayName !== savedSettings.displayName ||
     settings.email !== savedSettings.email ||
     settings.avatar !== savedSettings.avatar;
 
-  const updateSetting = (key, value) => {
+  // --- NOWOŚĆ: TYLKO LOKALNA AKTUALIZACJA (dla płynności suwaków) ---
+  const updateLocalSetting = (key, value) => {
     setSettings((currentSettings) => ({
       ...currentSettings,
       [key]: value,
     }));
   };
 
-  const saveProfile = () => {
-    const nextSavedSettings = { ...settings };
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSavedSettings));
-    setSavedSettings(nextSavedSettings);
-    setSaveState('saved');
-    window.setTimeout(() => setSaveState('idle'), 1400);
+  // --- NOWOŚĆ: BEZPIECZNY ZAPIS DO CHMURY (kiedy puścisz suwak lub klikniesz przełącznik) ---
+  const saveSettingToCloud = async (key, value) => {
+    if (!currentUser) return;
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      // setDoc z merge: true wymusza zapisanie pola, nawet jeśli w bazie brakuje jakiegoś elementu
+      await setDoc(userRef, {
+        settings: {
+          [key]: value
+        }
+      }, { merge: true });
+    } catch (error) {
+      console.error(`Błąd zapisu ustawienia ${key}:`, error);
+    }
+  };
+
+  // --- POMOCNICZA FUNKCJA DO PRZEŁĄCZNIKÓW ---
+  const handleToggle = (key) => {
+    const newValue = !settings[key];
+    updateLocalSetting(key, newValue);
+    saveSettingToCloud(key, newValue);
+  };
+
+  const saveProfile = async () => {
+    if (!currentUser) return;
+    setSaveState('saving');
+    
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        firstName: settings.displayName,
+        email: settings.email,
+        avatarUrl: settings.avatar 
+      });
+
+      setSavedSettings({ ...settings });
+      setSaveState('saved');
+      window.setTimeout(() => setSaveState('idle'), 1400);
+    } catch (error) {
+      console.error("Błąd zapisu profilu:", error);
+      alert("Coś poszło nie tak z zapisem: " + error.message);
+      setSaveState('idle');
+    }
   };
 
   const handleAvatarChange = (event) => {
@@ -64,7 +108,9 @@ export default function Settings() {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = () => updateSetting('avatar', reader.result);
+    reader.onload = () => {
+      updateLocalSetting('avatar', reader.result);
+    };
     reader.readAsDataURL(file);
   };
 
@@ -87,24 +133,31 @@ export default function Settings() {
     URL.revokeObjectURL(url);
   };
 
-  const wipePerformanceData = () => {
-    const confirmed = window.confirm('Wipe local performance settings and reset this view?');
-    if (!confirmed) return;
+  const wipePerformanceData = async () => {
+    const confirmed = window.confirm('Wipe performance settings and reset to defaults?');
+    if (!confirmed || !currentUser) return;
 
-    window.localStorage.removeItem(STORAGE_KEY);
-    setSettings(defaultSettings);
-    setSavedSettings(defaultSettings);
-    setWipeState('wiped');
-    window.setTimeout(() => setWipeState('idle'), 1600);
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      await setDoc(userRef, {
+        settings: {
+          deepWork: true,
+          timerDuration: 25,
+          breakInterval: 5,
+          smartFiltering: false,
+          cloudSync: true
+        }
+      }, { merge: true });
+      setWipeState('wiped');
+      window.setTimeout(() => setWipeState('idle'), 1600);
+    } catch (error) {
+      console.error("Błąd resetowania:", error);
+    }
   };
 
   const avatarInitials = settings.displayName
-    .split(/[_\s]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join('')
-    .toUpperCase();
+    ? settings.displayName.split(/[_\s]+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+    : 'FF';
 
   return (
     <div className="settings-page">
@@ -123,7 +176,7 @@ export default function Settings() {
                 {settings.avatar ? (
                   <img src={settings.avatar} alt="Profile avatar" />
                 ) : (
-                  <span>{avatarInitials || 'SA'}</span>
+                  <span>{avatarInitials}</span>
                 )}
               </div>
               <button
@@ -150,7 +203,7 @@ export default function Settings() {
                   <input
                     type="text"
                     value={settings.displayName}
-                    onChange={(event) => updateSetting('displayName', event.target.value)}
+                    onChange={(event) => updateLocalSetting('displayName', event.target.value)}
                   />
                   <button type="button" disabled={!hasProfileChanges} onClick={saveProfile}>
                     {saveState === 'saved' ? 'Saved' : 'Save'}
@@ -163,7 +216,7 @@ export default function Settings() {
                 <input
                   type="email"
                   value={settings.email}
-                  onChange={(event) => updateSetting('email', event.target.value)}
+                  onChange={(event) => updateLocalSetting('email', event.target.value)}
                 />
               </label>
             </div>
@@ -182,7 +235,7 @@ export default function Settings() {
               type="button"
               className={`settings-switch ${settings.deepWork ? 'settings-switch--on' : ''}`}
               aria-pressed={settings.deepWork}
-              onClick={() => updateSetting('deepWork', !settings.deepWork)}
+              onClick={() => handleToggle('deepWork')}
             >
               <span />
             </button>
@@ -199,7 +252,10 @@ export default function Settings() {
                   max="90"
                   step="5"
                   value={settings.timerDuration}
-                  onChange={(event) => updateSetting('timerDuration', Number(event.target.value))}
+                  // Podczas ciągnięcia suwaka -> aktualizujemy tylko UI
+                  onChange={(event) => updateLocalSetting('timerDuration', Number(event.target.value))}
+                  // Gdy puścisz myszkę/palec -> wysyłamy do Firebase
+                  onPointerUp={(event) => saveSettingToCloud('timerDuration', Number(event.target.value))}
                   style={{ '--range-value': `${((settings.timerDuration - 5) / 85) * 100}%` }}
                 />
               </div>
@@ -215,7 +271,8 @@ export default function Settings() {
                   max="30"
                   step="5"
                   value={settings.breakInterval}
-                  onChange={(event) => updateSetting('breakInterval', Number(event.target.value))}
+                  onChange={(event) => updateLocalSetting('breakInterval', Number(event.target.value))}
+                  onPointerUp={(event) => saveSettingToCloud('breakInterval', Number(event.target.value))}
                   style={{ '--range-value': `${((settings.breakInterval - 5) / 25) * 100}%` }}
                 />
               </div>
@@ -231,7 +288,7 @@ export default function Settings() {
               type="button"
               className={`settings-switch ${settings.smartFiltering ? 'settings-switch--on' : ''}`}
               aria-pressed={settings.smartFiltering}
-              onClick={() => updateSetting('smartFiltering', !settings.smartFiltering)}
+              onClick={() => handleToggle('smartFiltering')}
             >
               <span />
             </button>
@@ -255,7 +312,7 @@ export default function Settings() {
               <button
                 type="button"
                 className={settings.cloudSync ? 'settings-status settings-status--active' : 'settings-status'}
-                onClick={() => updateSetting('cloudSync', !settings.cloudSync)}
+                onClick={() => handleToggle('cloudSync')}
               >
                 {settings.cloudSync ? (
                   <>
@@ -292,7 +349,7 @@ export default function Settings() {
 
         <div className="settings-save-note" role="status" aria-live="polite">
           <Shield size={14} />
-          {saveState === 'saved' ? 'Profile saved locally' : 'Changes stay on this device'}
+          {saveState === 'saved' ? 'Profile saved to cloud!' : 'Settings sync securely to Firebase.'}
         </div>
       </main>
 

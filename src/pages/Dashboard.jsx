@@ -34,7 +34,7 @@ const Dashboard = () => {
   if (authUser === undefined) return <div>Ładowanie sesji...</div>;
 
   
-  const activeUser = authUser ? { firstName: authUser.email.split('@')[0] } : { firstName: "DevStrange" };
+  const activeUser = authUser ? { firstName: authUser.firstName || authUser.email?.split('@')[0] } : { firstName: "DevStrange" };
 
   const todaysTasks = tasks?.filter(t => t.status !== 'done' && t.status !== 'Done').slice(0, 3);
   const activeTask = tasks?.find(t => t.status === 'ongoing') || todaysTasks?.[0];

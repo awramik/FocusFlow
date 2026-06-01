@@ -1,74 +1,83 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { 
-  tasksData, 
-  currentUser, 
-  statsData, 
-  projectsData, 
-  recentActivity,
-  hoursData 
-} from '../data/mockData';
+import { db } from '../firebase';
+import { collection, query, where, onSnapshot, doc, updateDoc, setDoc, addDoc } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
+
+import { statsData, projectsData, recentActivity, hoursData } from '../data/mockData';
 
 const TaskContext = createContext();
 
 export const TaskProvider = ({ children }) => {
-  // --- ZARZĄDZANIE ZADANIAMI ---
-  const [tasks, setTasks] = useState(() => {
-    return tasksData.map(task => {
-      let mappedStatus = 'To do';
-      if (task.status === 'doing' || task.status === 'ongoing') mappedStatus = 'Doing';
-      if (task.status === 'done') mappedStatus = 'Done';
+  const { currentUser } = useAuth();
+  const [tasks, setTasks] = useState([]);
+  const [loadingTasks, setLoadingTasks] = useState(true);
 
-      let mappedPriority = 'LOW';
-      if (task.priority === 'critical') mappedPriority = 'CRITICAL';
-      if (task.priority === 'high') mappedPriority = 'HIGH';
-      if (task.priority === 'medium') mappedPriority = 'MEDIUM';
+  // --- POBIERANIE ZADAŃ Z CHMURY ---
+  useEffect(() => {
+    if (!currentUser) {
+      setTasks([]);
+      setLoadingTasks(false);
+      return;
+    }
 
-      return {
-        ...task,
-        id: task.id.toString(),
-        status: mappedStatus,
-        priority: mappedPriority,
-        project: task.category || 'FocusFlow'
-      };
+    const q = query(collection(db, 'tasks'), where('userId', '==', currentUser.uid));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const tasksFromDB = [];
+      snapshot.forEach((doc) => {
+        tasksFromDB.push({ id: doc.id, ...doc.data() });
+      });
+      
+      tasksFromDB.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      setTasks(tasksFromDB);
+      setLoadingTasks(false);
     });
-  });
 
-  const updateTaskStatus = (taskId, newStatus) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === taskId ? { ...task, status: newStatus } : task
-      )
-    );
+    return () => unsubscribe();
+  }, [currentUser]);
+
+  // --- AKTUALIZACJA STATUSU W CHMURZE  ---
+  const updateTaskStatus = async (taskId, newStatus) => {
+    try {
+      setTasks(prev => prev.map(t => t.id === String(taskId) ? { ...t, status: newStatus } : t));
+      
+      const taskRef = doc(db, 'tasks', String(taskId));
+      await updateDoc(taskRef, {
+        status: newStatus,
+        completedAt: newStatus === 'Done' ? new Date().toISOString() : null
+      });
+    } catch (error) {
+      console.error("Błąd aktualizacji statusu:", error);
+    }
+  };
+  // ---  DODAWANIE ZADAŃ DO CHMURY ---
+  const addTask = async (taskData) => {
+    try {
+      const newTask = {
+        ...taskData,
+        userId: currentUser.uid,
+        createdAt: new Date().toISOString(),
+        completedAt: taskData.status === 'Done' ? new Date().toISOString() : null
+      };
+      await addDoc(collection(db, 'tasks'), newTask);
+    } catch (error) {
+      console.error("Błąd podczas dodawania zadania:", error);
+    }
   };
 
-  const addTask = (title, priority, project, status) => {
-    const newTask = {
-      id: Date.now().toString(),
-      title,
-      priority,
-      project,
-      status,
-      deadline: new Date().toISOString().split('T')[0] + ' 12:00 PM'
-    };
-    setTasks(prevTasks => [...prevTasks, newTask]);
-  };
-
-  // // --- ZARZĄDZANIE TIMEREM ---
+  // --- ZARZĄDZANIE TIMEREM POMODORO ---
   const INITIAL_TIME = 25 * 60;
   const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
   const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
     let interval = null;
-
     if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prevTime) => prevTime - 1);
-      }, 1000);
+      interval = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     } else if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
     }
-
     return () => clearInterval(interval);
   }, [isRunning, timeLeft]);
 
@@ -78,9 +87,9 @@ export const TaskProvider = ({ children }) => {
     setTimeLeft(INITIAL_TIME);
   };
 
-  // --- EXPORT DO KONTEKSTU ---
   const contextValue = {
     tasks,
+    loadingTasks,
     updateTaskStatus,
     addTask,
     currentUser,

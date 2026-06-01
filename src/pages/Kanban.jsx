@@ -7,7 +7,7 @@ import '../style/kanban.css';
 const columns = ['To do', 'Doing', 'Done'];
 
 export default function Kanban() {
-  const { tasks, updateTaskStatus } = useTasks();
+  const { tasks, updateTaskStatus, addTask } = useTasks();
   const navigate = useNavigate(); 
 
   // Stany wyszukiwania i filtrów
@@ -16,7 +16,6 @@ export default function Kanban() {
   const [showFilters, setShowFilters] = useState(false);
 
   // STAN DLA NOWYCH ZADAŃ I FORMULARZA
-  const [localTasks, setLocalTasks] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState('LOW');
@@ -24,16 +23,12 @@ export default function Kanban() {
   const [newStatus, setNewStatus] = useState('To do');
   const [newDeadline, setNewDeadline] = useState('');
 
-  // Łączymy zadania z kontekstu oraz nowo dodane lokalnie
-  const allCombinedTasks = [...localTasks, ...tasks];
-
   // Obsługa tworzenia nowego zadania przez formularz UI
-  const handleCreateTask = (e) => {
+  const handleCreateTask = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
     const newTaskObj = {
-      id: `local-${Date.now()}`,
       title: newTitle.trim(),
       priority: newPriority,
       project: newProject || 'FocusFlow',
@@ -43,9 +38,8 @@ export default function Kanban() {
       attachments: []
     };
 
-    setLocalTasks([newTaskObj, ...localTasks]);
+    await addTask(newTaskObj);
     
-    // Resetowanie pól formularza
     setNewTitle('');
     setNewDeadline('');
     setNewPriority('LOW');
@@ -82,7 +76,7 @@ export default function Kanban() {
   };
 
   // Filtrowanie połączonej listy zadań
-  const filteredTasks = allCombinedTasks.filter(task => {
+  const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPriority = selectedPriority === 'ALL' || task.priority === selectedPriority;
     return matchesSearch && matchesPriority;

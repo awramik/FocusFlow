@@ -6,8 +6,6 @@ import { TaskProvider } from './context/TaskContext'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <TaskProvider>
-      <App />
-    </TaskProvider>
+    <App />
   </StrictMode>,
 )
