@@ -12,35 +12,74 @@ export const TaskProvider = ({ children }) => {
   const [tasks, setTasks] = useState([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
 
-  // --- POBIERANIE ZADAŃ Z CHMURY ---
+  // --- POBIERANIE ZADAŃ Z CHMURY (W CZASIE RZECZYWISTYM) ---
   useEffect(() => {
     if (!currentUser) {
       setTasks([]);
       setLoadingTasks(false);
       return;
     }
+
+    // Zapytanie do Firestore o zadania przypisane do zalogowanego użytkownika
     const q = query(collection(db, 'tasks'), where('userId', '==', currentUser.uid));
+
+    // Live nasłuchiwanie zmian w bazie danych
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const tasksFromDB = [];
       snapshot.forEach((doc) => {
         tasksFromDB.push({ id: doc.id, ...doc.data() });
       });
+      
+      // Sortowanie zadań od najnowszych
       tasksFromDB.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
       setTasks(tasksFromDB);
       setLoadingTasks(false);
+    }, (error) => {
+      console.error("Błąd podczas pobierania zadań z chmury:", error);
+      setLoadingTasks(false);
     });
+
     return () => unsubscribe(); 
   }, [currentUser]);
+
+  // --- LOGIKA EWOLUCJI PANA FERDYNANDA ---
+  useEffect(() => {
+    if (!currentUser?.ferdynand) return;
+
+    const xp = currentUser.ferdynand.currentXP || 0;
+    let newStage = 1;
+
+    if (xp > 1000) newStage = 5;
+    else if (xp > 600) newStage = 4;
+    else if (xp > 300) newStage = 3;
+    else if (xp > 100) newStage = 2;
+
+    // Jeśli wyliczony poziom jest wyższy niż obecny, aktualizujemy bazę
+    if (newStage !== currentUser.ferdynand.stage) {
+      const userRef = doc(db, 'users', currentUser.uid);
+      updateDoc(userRef, { "ferdynand.stage": newStage });
+    }
+  }, [currentUser?.ferdynand?.currentXP]);
 
   // --- DODAWANIE I AKTUALIZACJA ZADAŃ ---
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
-      setTasks(prev => prev.map(t => t.id === String(taskId) ? { ...t, status: newStatus } : t));
+      const isNowDone = newStatus === 'Done' || newStatus === 'done';
+      const userRef = doc(db, 'users', currentUser.uid);
+
       const taskRef = doc(db, 'tasks', String(taskId));
       await updateDoc(taskRef, {
         status: newStatus,
-        completedAt: newStatus === 'Done' ? new Date().toISOString() : null
+        completedAt: isNowDone ? new Date().toISOString() : null
       });
+
+      // Jeśli zadanie zostało ukończone, dodaj 50 XP
+      if (isNowDone) {
+        await updateDoc(userRef, {
+          "ferdynand.currentXP": increment(50)
+        });
+      }
     } catch (error) {
       console.error("Błąd aktualizacji statusu:", error);
     }
@@ -48,9 +87,10 @@ export const TaskProvider = ({ children }) => {
 
   const addTask = async (taskData) => {
     try {
+      if (!currentUser) return;
       const newTask = {
         ...taskData,
-        userId: currentUser.uid, 
+        userId: currentUser.uid,
         createdAt: new Date().toISOString(),
         completedAt: taskData.status === 'Done' ? new Date().toISOString() : null
       };
@@ -61,8 +101,6 @@ export const TaskProvider = ({ children }) => {
   };
 
   // --- POMODORO TIMER, CHMURA, DŹWIĘK I POWIADOMIENIA ---
-  
-  // Dynamicznie czyta czas z Firebase (ustawienia usera) lub domyślnie 25
   const timerSetting = currentUser?.settings?.timerDuration || 25;
   const breakSetting = currentUser?.settings?.breakInterval || 5;
   const defaultTime = timerSetting * 60;
@@ -73,16 +111,15 @@ export const TaskProvider = ({ children }) => {
   useEffect(() => {
     if (!isRunning) {
       setTimeLeft(timerSetting * 60);
+      setIsRunning(false);
     }
-  }, [timerSetting, isRunning]);
+  }, [timerSetting]);
 
-  // Efekt dźwiękowy (krótki sygnał zakończenia zadania)
   const playTimerSound = () => {
-    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2870/2870-preview.mp3');
     audio.play().catch(e => console.log("Zablokowano autoodtwarzanie dźwięku: ", e));
   };
 
-  // Pop-up systemowy (Powiadomienie przeglądarki)
   const showNotification = () => {
     if (Notification.permission === "granted") {
       new Notification("FocusFlow", { body: "Czas minął! Zrobiłaś świetną robotę. 🚀" });
@@ -95,29 +132,26 @@ export const TaskProvider = ({ children }) => {
     }
   };
 
-  // Odpala się gdy czas dojdzie do zera
   const handleTimerComplete = async () => {
     if (!currentUser) return;
-    
     playTimerSound();
     showNotification();
 
     try {
       const userRef = doc(db, 'users', currentUser.uid);
-      const durationSeconds = timerSetting * 60;
       const durationHours = timerSetting / 60;
+      const xpEarned = 25; 
 
-      // Zapisujemy progres w bazie
       await updateDoc(userRef, {
-        "stats.focusTimeSeconds": increment(durationSeconds),
+        "stats.focusTimeSeconds": increment(timerSetting * 60),
         "stats.focusedHoursCurrent": increment(durationHours),
-        "stats.workHoursCurrent": increment(durationHours) 
+        "stats.workHoursCurrent": increment(durationHours),
+        "ferdynand.currentXP": increment(xpEarned) 
       });
       
-      // Automatycznie przełącz na przerwę
       setTimeLeft(breakSetting * 60);
     } catch (error) {
-      console.error("Błąd zapisu statystyk timera:", error);
+      console.error("Błąd zapisu timera:", error);
     }
   };
 
@@ -143,15 +177,14 @@ export const TaskProvider = ({ children }) => {
     setIsRunning(false);
     setTimeLeft(defaultTime);
   };
-// --- NALICZANIE GODZIN PRACY W TLE ---
+
+  // --- NALICZANIE GODZIN PRACY W TLE ---
   useEffect(() => {
-    // Jeśli nikt nie jest zalogowany, nie naliczamy czasu
     if (!currentUser) return;
 
     const backgroundWorkTimer = setInterval(async () => {
       try {
         const userRef = doc(db, 'users', currentUser.uid);
-        
         await updateDoc(userRef, {
           "stats.workHoursCurrent": increment(1 / 60)
         });
@@ -160,35 +193,10 @@ export const TaskProvider = ({ children }) => {
       }
     }, 60000); 
 
-    // Czyścimy stoper, gdy użytkownik się wyloguje lub przełączy konto
     return () => clearInterval(backgroundWorkTimer);
   }, [currentUser]);
 
-
-  // --- WERSJA DEMO NA PREZENTACJĘ (Szybkie naliczanie) ---
-
-  // useEffect(() => {
-  //   if (!currentUser) return;
-
-  //   // Przyspieszamy czas - Co każde 5 sekund (5000 ms) dodajemy 0.1 godziny pracy
-  //   const backgroundWorkTimer = setInterval(async () => {
-  //     try {
-  //       const userRef = doc(db, 'users', currentUser.uid);
-  //       await updateDoc(userRef, {
-  //         "stats.workHoursCurrent": increment(0.1)
-  //       });
-  //     } catch (error) {
-  //       console.error("Błąd wersji demo:", error);
-  //     }
-  //   }, 5000); 
-
-  //   return () => clearInterval(backgroundWorkTimer);
-  // }, [currentUser]);
-
-
-
-  // --- DYNAMICZNE BUDOWANIE DANYCH DLA DASHBOARDU ---
-  
+  // ---DYNAMICZNE BUDOWANIE DANYCH DLA DASHBOARDU ---
   const totalSeconds = currentUser?.stats?.focusTimeSeconds || 0;
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);

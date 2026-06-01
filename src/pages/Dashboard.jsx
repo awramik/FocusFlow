@@ -8,6 +8,17 @@ import '../style/Dashboard.css';
 
 const SETTINGS_STORAGE_KEY = 'focusflow-settings';
 
+// BAZA PORAD (Losuje jedną przy każdym wejściu)
+const PRO_TIPS = [
+  "Set your phone to 'Do Not Disturb' before starting a Pomodoro session.",
+  "Hydration is key! Keep a glass of water on your desk.",
+  "Break down large tasks into smaller, actionable 25-minute chunks.",
+  "Take a real break—step away from the screen during your 5-minute rest.",
+  "Review your goals every morning before checking emails.",
+  "Your workspace reflects your mind. Keep it clean and organized.",
+  "Eat the frog first: do your hardest task at the beginning of the day."
+];
+
 const Dashboard = () => {
   const { 
     tasks, 
@@ -17,7 +28,7 @@ const Dashboard = () => {
     isRunning,
     handleStartPause,
     handleReset,
-    hoursData // Pobieramy dynamiczne godziny z bazy
+    hoursData 
   } = useTasks(); 
 
   const { currentUser: authUser, loading } = useAuth();
@@ -58,8 +69,6 @@ const Dashboard = () => {
       const isCurrentlyDone = currentStatus === 'done' || currentStatus === 'Done';
       const newStatus = isCurrentlyDone ? 'To do' : 'Done'; 
       updateTaskStatus(taskId, newStatus);
-    } else {
-      console.error("Nie znaleziono funkcji updateTaskStatus w TaskContext!");
     }
   };
 
@@ -73,26 +82,6 @@ const Dashboard = () => {
     return deadline.split(' ')[0];
   };
 
-  const dailyCompletion = useMemo(() => {
-    const todayDate = getTodayDate();
-    const todayTasksList = tasks?.filter(t => {
-      const taskDate = getDateFromDeadline(t.deadline);
-      return taskDate === todayDate;
-    }) || [];
-
-    if (todayTasksList.length === 0) return { completed: 0, total: 0, percentage: 0 };
-
-    const completedTodayTasks = todayTasksList.filter(t => t.status === 'Done' || t.status === 'done').length;
-    const totalTodayTasks = todayTasksList.length;
-
-    return {
-      completed: completedTodayTasks,
-      total: totalTodayTasks,
-      percentage: Math.round((completedTodayTasks / totalTodayTasks) * 100)
-    };
-  }, [tasks]);
-
-  // Bezpieczne wyliczanie procentów (zabezpieczenie przed brakiem danych)
   const workHoursPercentage = hoursData?.workHours?.goal 
     ? Math.min(100, Math.round((hoursData.workHours.current / hoursData.workHours.goal) * 100)) 
     : 0;
@@ -101,11 +90,87 @@ const Dashboard = () => {
     ? Math.min(100, Math.round((hoursData.focusedHours.current / hoursData.focusedHours.goal) * 100)) 
     : 0;
 
-  // Bezpieczne pobranie wartości do wyświetlenia tekstowego
   const workCurrent = hoursData?.workHours?.current ?? 0;
   const workGoal = hoursData?.workHours?.goal ?? 6;
   const focusCurrent = hoursData?.focusedHours?.current ?? 0;
   const focusGoal = hoursData?.focusedHours?.goal ?? 2;
+
+
+  // WYLOSOWANY PRO TIP
+  const randomTip = useMemo(() => {
+    return PRO_TIPS[Math.floor(Math.random() * PRO_TIPS.length)];
+  }, []); // Losuje się raz przy wejściu na Dashboard
+
+  // PEAK VELOCITY
+  const peakVelocityText = useMemo(() => {
+    const completed = tasks?.filter(t => (t.status === 'Done' || t.status === 'done') && t.completedAt) || [];
+    if (completed.length === 0) return "Complete more tasks to unlock your velocity insights!";
+
+    const daysOfWeek = ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'];
+    const dayCounts = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 };
+
+    completed.forEach(task => {
+      const dayIndex = new Date(task.completedAt).getDay();
+      dayCounts[dayIndex]++;
+    });
+
+    let bestDayIndex = 0;
+    let maxTasks = 0;
+    for (let i = 0; i < 7; i++) {
+      if (dayCounts[i] > maxTasks) {
+        maxTasks = dayCounts[i];
+        bestDayIndex = i;
+      }
+    }
+
+    const percentage = Math.round((maxTasks / completed.length) * 100);
+    return `You are ${percentage}% more productive on ${daysOfWeek[bestDayIndex]}. Keep it up!`;
+  }, [tasks]);
+
+
+  // FOCUS STREAK (Dni z rzędu)
+  const currentStreak = useMemo(() => {
+    const completed = tasks?.filter(t => (t.status === 'Done' || t.status === 'done') && t.completedAt) || [];
+    if (completed.length === 0) return 0;
+
+    const uniqueDates = [...new Set(completed.map(t => t.completedAt.split('T')[0]))].sort((a,b) => new Date(b) - new Date(a));
+    
+    let streak = 0;
+    const todayStr = getTodayDate();
+    
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterdayStr) {
+      return 0;
+    }
+
+    let checkDate = new Date(uniqueDates[0]);
+    checkDate.setHours(0,0,0,0);
+
+    for (let i = 0; i < uniqueDates.length; i++) {
+      let taskDate = new Date(uniqueDates[i]);
+      taskDate.setHours(0,0,0,0);
+      
+      const diffTime = checkDate - taskDate;
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+      if (diffDays === 0 || diffDays === 1) {
+        streak++;
+        checkDate = taskDate;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }, [tasks]);
+
+  // GENEROWANIE RAPORTU PDF
+  const handleGeneratePDF = () => {
+    alert("Opening print dialog. Save it as PDF to review your FocusFlow report!");
+    window.print();
+  };
 
   return (
     <div className="dashboard-layout">
@@ -118,7 +183,7 @@ const Dashboard = () => {
         {/* GÓRNY RZĄD */}
         <section className="top-row">
           <div className="glass-card daily-status-card">
-            <p className="daily-status-title">Daily completion status</p>
+            <p className="daily-status-title">Total completion status</p>
             <div className="daily-status-value-row">
               <span className="daily-status-percent">{completionPercentage}%</span>
               <span className="daily-status-goal">OF GOAL</span>
@@ -134,7 +199,7 @@ const Dashboard = () => {
               <div className="active-session-info">
                 <p className="active-session-label">ACTIVE SESSION</p>
                 <h3 className="active-session-title">Pomodoro timer</h3>
-                <p className="active-session-task">TASK: {activeTask?.title || "FocusFlow visualization"}</p>
+                <p className="active-session-task">TASK: {activeTask?.title || "FocusFlow session"}</p>
               </div>
             </div>
             <div className="active-session-actions">
@@ -151,7 +216,7 @@ const Dashboard = () => {
         {/* ŚRODKOWA SEKCJA */}
         <section className="middle-section">
           <div className="tasks-column">
-            <h2 className="recent-tasks-title" style={{ marginBottom: '24px' }}>Recent tasks</h2>
+            <h2 className="recent-tasks-title" style={{ marginBottom: '24px' }}>Active tasks</h2>
             <div className="task-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {todaysTasks && todaysTasks.map((task) => {
                 const isChecked = task.status === 'done' || task.status === 'Done';
@@ -192,7 +257,7 @@ const Dashboard = () => {
                 );
               })}
               {(!todaysTasks || todaysTasks.length === 0) && (
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '12px' }}>No active tasks for today.</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)', fontStyle: 'italic', padding: '12px' }}>No active tasks available right now.</p>
               )}
             </div>
           </div>
@@ -200,7 +265,6 @@ const Dashboard = () => {
           <div className="summary-column" style={{ display: 'flex', flexDirection: 'column', gap: '54px', paddingTop: '12px' }}>
             <div className="glass-card progress-card transparent-card">
               
-              {/* OŻYWIONY ELEMENT: HOURS OF WORK */}
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-pink">Hours of work</span>
@@ -211,7 +275,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* OŻYWIONY ELEMENT: HOURS FOCUSED */}
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-purple">Hours focused (pomodoro)</span>
@@ -228,7 +291,7 @@ const Dashboard = () => {
               <div className="velocity-icon-wrapper"><Zap size={28} color="#FFAFD7" /></div>
               <div className="velocity-content">
                 <h3>Peak Velocity</h3>
-                <p>You are 15% more productive on Tuesdays between 9:00 and 11:00.</p>
+                <p>{peakVelocityText}</p>
               </div>
             </div>
           </div>
@@ -236,24 +299,43 @@ const Dashboard = () => {
 
         {/* DOLNY RZĄD */}
         <section className="bottom-row">
+          
           <div className="bottom-card-streak">
             <Flame size={16} className="streak-icon" />
-            <div className="streak-title-wrapper"><h3>Focus streak</h3></div>
-            <div className="streak-text-wrapper"><p>12 consecutive days of hitting your deep work target! You’re locked in :)</p></div>
+            <div className="streak-title-wrapper">
+              <h3>Focus streak</h3>
+            </div>
+            <div className="streak-text-wrapper">
+              <p>
+                {currentStreak === 0 
+                  ? "Finish a task today to start your streak!" 
+                  : `${currentStreak} consecutive days of hitting your targets! You’re locked in :)`}
+              </p>
+            </div>
           </div>
+          
           <div className="bottom-card-tip">
             <div className="tip-header">
               <Lightbulb size={20} className="tip-icon" />
-              <div className="tip-title-wrapper"><h3>PRO TIP</h3></div>
+              <div className="tip-title-wrapper">
+                <h3>PRO TIP</h3>
+              </div>
             </div>
-            <p className="tip-text">Your personalized weekly tip to maximize your performance!</p>
+            <p className="tip-text">{randomTip}</p>
           </div>
+          
           <div className="bottom-card-recap">
-            <div className="recap-title-wrapper"><h3>Weekly Recap</h3></div>
-            <div className="recap-text-wrapper"><p>Your automated performance report is ready for review.</p></div>
-            <button className="generate-pdf-btn">GENERATE PDF</button>
+            <div className="recap-title-wrapper">
+              <h3>Weekly Recap</h3>
+            </div>
+            <div className="recap-text-wrapper">
+              <p>Your automated performance report is ready for review.</p>
+            </div>
+            <button className="generate-pdf-btn" onClick={handleGeneratePDF}>GENERATE PDF</button>
           </div>
+          
         </section>
+
       </main>
 
       <RightAnalytics />

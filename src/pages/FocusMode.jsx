@@ -18,7 +18,7 @@ import RightAnalytics from '../components/RightAnalytics';
 import '../style/FocusMode.css';
 
 export default function FocusMode() {
-  const { tasks, updateTaskStatus } = useTasks();
+  const { tasks, updateTaskStatus, addTask } = useTasks();
   const navigate = useNavigate();
   
   // Włączenie Focus Mode na całej stronie
@@ -37,38 +37,28 @@ export default function FocusMode() {
   const [selectedProject, setSelectedProject] = useState('ALL');
   const [selectedDate, setSelectedDate] = useState(''); 
 
-  const [localTasks, setLocalTasks] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState('LOW');
   const [newProject, setNewProject] = useState('FocusFlow');
   const [newDeadline, setNewDeadline] = useState('');
-  const allCombinedTasks = [...localTasks, ...tasks];
 
-  const uniqueProjects = allCombinedTasks 
-    ? ['ALL', ...new Set(allCombinedTasks.filter(t => t.status !== 'Done').map(t => t.project).filter(Boolean))]
+  const uniqueProjects = tasks 
+    ? ['ALL', ...new Set(tasks.filter(t => t.status !== 'Done').map(t => t.project).filter(Boolean))]
     : ['ALL'];
 
   const handleToggleComplete = (taskId, currentStatus) => {
-    if (String(taskId).startsWith('local-')) {
-      setLocalTasks(prev => prev.map(t => 
-        t.id === taskId ? { ...t, status: t.status === 'Done' ? 'To do' : 'Done' } : t
-      ));
-      return;
-    }
-
     if (updateTaskStatus) {
       const newStatus = currentStatus === 'Done' ? 'To do' : 'Done';
       updateTaskStatus(taskId, newStatus);
     }
   };
 
-  const handleCreateTask = (e) => {
+  const handleCreateTask = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
-
+    
     const newTaskObj = {
-      id: `local-${Date.now()}`,
       title: newTitle.trim(),
       priority: newPriority,
       project: newProject || 'FocusFlow',
@@ -77,8 +67,9 @@ export default function FocusMode() {
       comments: [],
       attachments: []
     };
-
-    setLocalTasks([newTaskObj, ...localTasks]);
+    
+    await addTask(newTaskObj);
+    
     setNewTitle('');
     setNewDeadline('');
     setNewPriority('LOW');
@@ -131,7 +122,7 @@ export default function FocusMode() {
     setSelectedDate(formatted);
   };
 
-  const filteredTasks = allCombinedTasks?.filter(task => {
+  const filteredTasks = tasks?.filter(task => {
     if (task.status === 'Done') return false;
 
     const matchesSearch = task.title?.toLowerCase().includes(searchQuery.toLowerCase());
