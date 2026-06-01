@@ -97,8 +97,8 @@ body.theme-light {
   /* BORDERS */
   --border: #BFD5C8;
 
-  --ferdynand-glow: rgba(110, 159, 138, 0.3);
-  --hover-glow: rgba(110, 159, 138, 0.35);
+  --ferdynand-glow: rgba(53, 98, 78, 0.3);
+  --hover-glow: rgba(82, 129, 109, 0.35);
   --badge-bg: rgba(255, 255, 255, 0.8);
   --bg-column: #f7faf8;
   --accent-text: #2B3A33;

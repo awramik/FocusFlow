@@ -28,10 +28,29 @@ export default function Settings() {
   // Stan dla motywu
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
 
+  // helper dla zmiany motywu
+  const setFavicon = (iconPath) => {
+    let link = document.querySelector("link[rel~='icon']");
+
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+
+    link.href = iconPath;
+  };
+
   // Efekt dla motywu
   useEffect(() => {
     document.body.className = theme === 'light' ? 'theme-light' : '';
     localStorage.setItem('theme', theme);
+
+    if (theme === 'light') {
+      setFavicon('/favicon-light.svg');
+    } else {
+      setFavicon('/favicon-dark.svg');
+    }
   }, [theme]);
 
   const toggleTheme = () => {
