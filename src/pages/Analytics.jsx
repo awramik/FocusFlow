@@ -1,23 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useAuth } from '../context/AuthContext';
 import { BadgeAlert, BadgeCheck, Flame, Lock, Play, RefreshCcwDot, Square, Timer, Trophy, Zap } from 'lucide-react';
 import '../style/Analytics.css';
 
-const weeklyData = [
-  { day: 'MON', value: 52, tasksDone: 7 },
-  { day: 'TUE', value: 35, tasksDone: 4 },
-  { day: 'WED', value: 74, tasksDone: 10, featured: true },
-  { day: 'THU', value: 43, tasksDone: 6 },
-  { day: 'FRI', value: 18, tasksDone: 2 },
-  { day: 'SAT', value: 47, tasksDone: 5 },
-  { day: 'SUN', value: 86, tasksDone: 12, featured: true },
-];
-
-const weeklyAverage = Math.round(
-  weeklyData.reduce((sum, item) => sum + item.value, 0) / weeklyData.length
-);
-
+// Panel boczny z poradą i stoperem 
 function AnalyticsRightPanel() {
   const { timeLeft, isRunning, handleStartPause } = useTasks();
   const [isPomodoroTipOpen, setIsPomodoroTipOpen] = useState(false);
@@ -65,7 +52,68 @@ export default function Analytics() {
   const { tasks } = useTasks();
   const { currentUser } = useAuth();
 
-  const completedCount = tasks.filter(t => t.status === 'Done' || t.status === 'done').length;
+  // DYNAMICZNE WYLICZANIE DANYCH DO WYKRESU
+  const weeklyStats = useMemo(() => {
+    if (!tasks) return { data: [], average: '0.0', averagePercentage: 0 };
+
+    const completedTasks = tasks.filter(t => (t.status === 'Done' || t.status === 'done') && t.completedAt);
+    
+    const last7Days = [];
+    let maxTasksInDay = 0;
+    let totalTasksThisWeek = 0;
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`; 
+      
+      const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+      
+      const tasksDone = completedTasks.filter(t => {
+        if (!t.completedAt) return false;
+        const taskDate = new Date(t.completedAt); 
+        const tY = taskDate.getFullYear();
+        const tM = String(taskDate.getMonth() + 1).padStart(2, '0');
+        const tD = String(taskDate.getDate()).padStart(2, '0');
+        return `${tY}-${tM}-${tD}` === dateStr;
+      }).length;
+      
+      if (tasksDone > maxTasksInDay) maxTasksInDay = tasksDone;
+      totalTasksThisWeek += tasksDone;
+
+      last7Days.push({
+        id: dateStr,
+        day: dayName,
+        tasksDone,
+        value: 0,
+        featured: false
+      });
+    }
+
+    const chartScaleMax = Math.max(maxTasksInDay, 5);
+    
+    const finalData = last7Days.map(item => ({
+      ...item,
+      value: (item.tasksDone / chartScaleMax) * 100,
+      featured: item.tasksDone === maxTasksInDay && maxTasksInDay > 0
+    }));
+
+    // Klasyczna średnia dla wykresu = liczba zadań / 7 dni
+    const avg = totalTasksThisWeek / 7;
+
+    return {
+      data: finalData,
+      average: avg.toFixed(1),
+      averagePercentage: (avg / chartScaleMax) * 100
+    };
+  }, [tasks]);
+
+  // DYNAMICZNE OSIĄGNIĘCIA
+  const completedCount = tasks?.filter(t => t.status === 'Done' || t.status === 'done').length || 0;
   const totalXP = currentUser?.ferdynand?.currentXP || 0;
   const focusHours = currentUser?.stats?.focusedHoursCurrent || 0;
 
@@ -75,7 +123,7 @@ export default function Analytics() {
       title: 'First steps',
       text: 'Welcome to FocusFlow! First task logged successfully :)',
       status: completedCount >= 1 ? 'Earned' : 'Locked',
-      date: 'Unlocked',
+      date: completedCount >= 1 ? 'Unlocked' : '0/1',
       earned: completedCount >= 1
     },
     {
@@ -83,7 +131,7 @@ export default function Analytics() {
       title: 'Task Crusher',
       text: "You've completed 5 tasks. Keep the momentum going!",
       status: completedCount >= 5 ? 'Earned' : 'In Progress',
-      date: `${completedCount}/5`,
+      date: completedCount >= 5 ? 'Unlocked' : `${completedCount}/5`,
       earned: completedCount >= 5
     },
     {
@@ -91,7 +139,7 @@ export default function Analytics() {
       title: 'XP Milestone',
       text: "Reach 500 XP to prove your consistency.",
       status: totalXP >= 500 ? 'Earned' : 'In Progress',
-      date: `${totalXP}/500 XP`,
+      date: totalXP >= 500 ? 'Unlocked' : `${totalXP}/500 XP`,
       earned: totalXP >= 500
     }
   ];
@@ -104,19 +152,43 @@ export default function Analytics() {
           <p>Learn about your focus style</p>
         </header>
 
-        {/* Wykres - na razie na stałych danych weeklyData */}
         <section className="analytics-page__chart-card">
           <div className="analytics-page__chart-top">
             <span>Weekly performance</span>
             <span className="analytics-page__legend"><span />Number of completed tasks</span>
           </div>
           <div className="analytics-page__chart-frame">
-            <div className="analytics-page__bars" style={{ '--average-position': `${100 - weeklyAverage}%` }}>
-              <div className="analytics-page__average-line" />
-              <div className="analytics-page__average-label">Your average is 6.8 tasks/day</div>
-              {weeklyData.map((item, index) => (
+            <div className="analytics-page__bars" style={{ '--average-position': `${100 - weeklyStats.averagePercentage}%` }}>
+              
+              <div 
+                className="analytics-page__average-line" 
+                style={{ opacity: 1, transform: 'scaleX(1)' }} 
+              />
+              
+              {/* Napis na linii */}
+              <div 
+                className="analytics-page__average-label"
+                style={{ 
+                  top: 'var(--average-position)', 
+                  opacity: 1, 
+                  transform: 'translate(-50%, calc(-100% - 8px))',
+                  width: 'auto',
+                  minWidth: '120px',
+                  color: 'var(--analytics-chart-average)',
+                  backgroundColor: 'var(--analytics-card-bg)',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  border: '1px solid var(--border)',
+                  zIndex: 10
+                }}
+              >
+                Avg: {weeklyStats.average} tasks/day
+              </div>
+              
+              {weeklyStats.data.map((item, index) => (
                 <div 
-                  key={item.day} 
+                  key={item.id} 
                   className={`analytics-page__bar ${item.featured ? 'analytics-page__bar--featured' : ''}`}
                   style={{ height: `${item.value}%`, '--bar-hover-shift': index < 4 ? -0.5 : 0.5 }}
                 >
@@ -132,7 +204,7 @@ export default function Analytics() {
             <h2>Achievements</h2>
             <span>Milestones</span>
           </div>
-
+          
           <div className="analytics-page__achievements">
             {achievements.map((achievement) => (
               <article 
@@ -163,7 +235,7 @@ export default function Analytics() {
                 <span style={{ width: `${Math.min((focusHours / 10) * 100, 100)}%` }} />
               </div>
               <footer className="analytics-page__locked-footer">
-                <span>Progress {focusHours.toFixed(1)}/10h</span>
+                <span>Progress {parseFloat(focusHours).toFixed(1)}/10h</span>
                 <span className="analytics-page__locked-status">
                   <Lock size={12} /> {focusHours >= 10 ? 'Unlocked' : 'Locked'}
                 </span>
@@ -172,6 +244,7 @@ export default function Analytics() {
           </div>
         </section>
       </main>
+
       <AnalyticsRightPanel />
     </div>
   );

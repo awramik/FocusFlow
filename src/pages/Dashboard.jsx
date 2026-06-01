@@ -2,22 +2,14 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useTasks } from '../context/TaskContext';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { db } from '../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 import RightAnalytics from '../components/RightAnalytics';
 import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
 import '../style/Dashboard.css';
 
 const SETTINGS_STORAGE_KEY = 'focusflow-settings';
 
-// BAZA PORAD (Losuje jedną przy każdym wejściu)
-const PRO_TIPS = [
-  "Set your phone to 'Do Not Disturb' before starting a Pomodoro session.",
-  "Hydration is key! Keep a glass of water on your desk.",
-  "Break down large tasks into smaller, actionable 25-minute chunks.",
-  "Take a real break—step away from the screen during your 5-minute rest.",
-  "Review your goals every morning before checking emails.",
-  "Your workspace reflects your mind. Keep it clean and organized.",
-  "Eat the frog first: do your hardest task at the beginning of the day."
-];
 
 const Dashboard = () => {
   const { 
@@ -33,6 +25,38 @@ const Dashboard = () => {
 
   const { currentUser: authUser, loading } = useAuth();
   const navigate = useNavigate();
+
+  const [proTips, setProTips] = useState([]);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
+  const [loadingTips, setLoadingTips] = useState(true);
+
+  // POBIERANIE PRO TIPÓW Z BAZY DANYCH
+  useEffect(() => {
+    const fetchTips = async () => {
+      try {
+        const tipsCollection = collection(db, 'tips');
+        const tipsSnapshot = await getDocs(tipsCollection);
+        
+        const tipsList = [];
+        tipsSnapshot.forEach((doc) => {
+          tipsList.push({ id: doc.id, ...doc.data() });
+        });
+
+        if (tipsList.length > 0) {
+          setProTips(tipsList);
+        } else {
+          setProTips([{ text: "Add your first tip in the Firebase database!" }]);
+        }
+      } catch (error) {
+        console.error("Błąd pobierania porad:", error);
+        setProTips([{ text: "Could not load tips from database." }]);
+      } finally {
+        setLoadingTips(false);
+      }
+    };
+
+    fetchTips();
+  }, []);
 
   useEffect(() => {
     if (loading) return; 
@@ -62,6 +86,13 @@ const Dashboard = () => {
     if (priority === 'CRIT' || priority === 'critical') return 'priority-tag critical';
     if (priority === 'HIGH' || priority === 'high') return 'priority-tag high';
     return 'priority-tag low';
+  };
+
+  const getCardPriorityClass = (priority) => {
+    const p = String(priority || 'low').trim().toLowerCase();
+    if (p === 'crit' || p === 'critical') return 'priority-critical';
+    if (p === 'high') return 'priority-high';
+    return 'priority-low';
   };
 
   const handleTaskToggle = (taskId, currentStatus) => {
@@ -94,12 +125,6 @@ const Dashboard = () => {
   const workGoal = hoursData?.workHours?.goal ?? 6;
   const focusCurrent = hoursData?.focusedHours?.current ?? 0;
   const focusGoal = hoursData?.focusedHours?.goal ?? 2;
-
-
-  // WYLOSOWANY PRO TIP
-  const randomTip = useMemo(() => {
-    return PRO_TIPS[Math.floor(Math.random() * PRO_TIPS.length)];
-  }, []); // Losuje się raz przy wejściu na Dashboard
 
   // PEAK VELOCITY
   const peakVelocityText = useMemo(() => {
@@ -172,6 +197,8 @@ const Dashboard = () => {
     window.print();
   };
 
+  const activeTip = proTips[currentTipIndex] || {};
+
   return (
     <div className="dashboard-layout">
       <main className="center-content">
@@ -221,7 +248,7 @@ const Dashboard = () => {
               {todaysTasks && todaysTasks.map((task) => {
                 const isChecked = task.status === 'done' || task.status === 'Done';
                 return (
-                  <div key={task.id} className={`task-card-new priority-${String(task.priority || 'low').trim().toLowerCase()} ${isChecked ? 'completed' : ''}`}>
+                  <div key={task.id} className={`task-card-new ${getCardPriorityClass(task.priority)} ${isChecked ? 'completed' : ''}`}>
                     <div 
                       className={`task-checkbox ${isChecked ? 'checked' : ''}`}
                       onClick={() => handleTaskToggle(task.id, task.status || 'To do')}
@@ -314,14 +341,33 @@ const Dashboard = () => {
             </div>
           </div>
           
-          <div className="bottom-card-tip">
+          <div 
+            className="bottom-card-tip" 
+            onClick={() => {
+              if (!loadingTips && proTips.length > 0) {
+                setCurrentTipIndex((prev) => (prev + 1) % proTips.length);
+              }
+            }}
+            style={{ 
+              cursor: loadingTips || proTips.length <= 1 ? 'default' : 'pointer',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+            }}
+            title="Click to see next tip!"
+          >
             <div className="tip-header">
-              <Lightbulb size={20} className="tip-icon" />
+              <Lightbulb size={20} className={`tip-icon ${loadingTips ? 'spin-animation' : ''}`} />
               <div className="tip-title-wrapper">
                 <h3>PRO TIP</h3>
               </div>
             </div>
-            <p className="tip-text">{randomTip}</p>
+            <p className="tip-text" style={{ minHeight: '40px' }}>
+              {loadingTips ? "Fetching tips..." : activeTip.text}
+            </p>
+            {!loadingTips && proTips.length > 1 && (
+              <span style={{ fontSize: '10px', color: 'var(--accent-primary)', marginTop: '8px', display: 'block', opacity: 0.7 }}>
+                Click for next tip
+              </span>
+            )}
           </div>
           
           <div className="bottom-card-recap">

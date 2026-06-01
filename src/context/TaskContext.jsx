@@ -3,7 +3,6 @@ import { db } from '../firebase';
 import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, increment } from 'firebase/firestore'; 
 import { useAuth } from './AuthContext';
 
-import { projectsData, recentActivity } from '../data/mockData';
 
 const TaskContext = createContext();
 
@@ -62,6 +61,36 @@ export const TaskProvider = ({ children }) => {
     }
   }, [currentUser?.ferdynand?.currentXP]);
 
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const d = new Date();
+    const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const lastActive = currentUser.stats?.lastActiveDate;
+
+  
+    if (lastActive !== todayStr) {
+      const workGoal = currentUser.settings?.workHoursGoal || 6;
+      const focusGoal = currentUser.settings?.focusedHoursGoal || 2;
+      
+      let bonusXP = 0;
+      
+      if (lastActive) {
+        if ((currentUser.stats?.workHoursCurrent || 0) >= workGoal) bonusXP += 20;
+        if ((currentUser.stats?.focusedHoursCurrent || 0) >= focusGoal) bonusXP += 20;
+      }
+
+      const userRef = doc(db, 'users', currentUser.uid);
+      updateDoc(userRef, {
+        "stats.workHoursCurrent": 0,
+        "stats.focusedHoursCurrent": 0,
+        "stats.lastActiveDate": todayStr,
+        "ferdynand.currentXP": increment(bonusXP)
+      }).catch(err => console.error("Błąd resetu dnia:", err));
+    }
+  }, [currentUser]);
+
   // --- DODAWANIE I AKTUALIZACJA ZADAŃ ---
   const updateTaskStatus = async (taskId, newStatus) => {
     try {
@@ -74,10 +103,10 @@ export const TaskProvider = ({ children }) => {
         completedAt: isNowDone ? new Date().toISOString() : null
       });
 
-      // Jeśli zadanie zostało ukończone, dodaj 50 XP
+      // Jeśli zadanie zostało ukończone, dodaj 10 XP
       if (isNowDone) {
         await updateDoc(userRef, {
-          "ferdynand.currentXP": increment(50)
+          "ferdynand.currentXP": increment(10)
         });
       }
     } catch (error) {
@@ -122,11 +151,11 @@ export const TaskProvider = ({ children }) => {
 
   const showNotification = () => {
     if (Notification.permission === "granted") {
-      new Notification("FocusFlow", { body: "Czas minął! Zrobiłaś świetną robotę. 🚀" });
+      new Notification("FocusFlow", { body: "Czas minął! Zrobiłaś świetną robotę." });
     } else if (Notification.permission !== "denied") {
       Notification.requestPermission().then(permission => {
         if (permission === "granted") {
-          new Notification("FocusFlow", { body: "Czas minął! Zrobiłaś świetną robotę. 🚀" });
+          new Notification("FocusFlow", { body: "Czas minął! Zrobiłaś świetną robotę." });
         }
       });
     }
@@ -140,7 +169,7 @@ export const TaskProvider = ({ children }) => {
     try {
       const userRef = doc(db, 'users', currentUser.uid);
       const durationHours = timerSetting / 60;
-      const xpEarned = 25; 
+      const xpEarned = 5; 
 
       await updateDoc(userRef, {
         "stats.focusTimeSeconds": increment(timerSetting * 60),
@@ -175,7 +204,7 @@ export const TaskProvider = ({ children }) => {
 
   const handleReset = () => {
     setIsRunning(false);
-    setTimeLeft(defaultTime);
+    setTimeLeft(timerSetting * 60);
   };
 
   // --- NALICZANIE GODZIN PRACY W TLE ---
@@ -226,8 +255,6 @@ export const TaskProvider = ({ children }) => {
     currentUser,
     statsData,       
     hoursData,       
-    projectsData,
-    recentActivity,
     timeLeft,
     isRunning,
     handleStartPause,

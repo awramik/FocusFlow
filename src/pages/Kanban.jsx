@@ -10,26 +10,28 @@ export default function Kanban() {
   const { tasks, updateTaskStatus, addTask } = useTasks();
   const navigate = useNavigate(); 
 
-  // Stany wyszukiwania i filtrów
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPriority, setSelectedPriority] = useState('ALL');
   const [showFilters, setShowFilters] = useState(false);
 
-  // STAN DLA NOWYCH ZADAŃ I FORMULARZA
+  // STAN DLA NOWYCH ZADAŃ
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState('LOW');
   const [newProject, setNewProject] = useState('FocusFlow');
   const [newStatus, setNewStatus] = useState('To do');
   const [newDeadline, setNewDeadline] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newTags, setNewTags] = useState('');
 
-  // Obsługa tworzenia nowego zadania przez formularz UI
   const handleCreateTask = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
     const newTaskObj = {
       title: newTitle.trim(),
+      description: newDescription.trim(),
+      tags: newTags ? newTags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
       priority: newPriority,
       project: newProject || 'FocusFlow',
       status: newStatus,
@@ -41,6 +43,8 @@ export default function Kanban() {
     await addTask(newTaskObj);
     
     setNewTitle('');
+    setNewDescription('');
+    setNewTags('');
     setNewDeadline('');
     setNewPriority('LOW');
     setNewStatus('To do');
@@ -55,17 +59,13 @@ export default function Kanban() {
     e.preventDefault();
   };
 
+  // NAPRAWIONY DRAG & DROP
   const onDrop = (e, targetStatus) => {
-    const id = e.dataTransfer.getData('text');
+    const id = e.dataTransfer.getData('text/plain');
+    if (!id) return;
     
-    if (String(id).startsWith('local-')) {
-      setLocalTasks(prev => prev.map(t => 
-        t.id === id ? { ...t, status: targetStatus } : t
-      ));
-    } else {
-      if (updateTaskStatus) {
-        updateTaskStatus(id, targetStatus);
-      }
+    if (updateTaskStatus) {
+      updateTaskStatus(id, targetStatus);
     }
   };
 
@@ -75,17 +75,15 @@ export default function Kanban() {
     return 'priority-tag low';
   };
 
-  // Filtrowanie połączonej listy zadań
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks?.filter(task => {
     const matchesSearch = task.title?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPriority = selectedPriority === 'ALL' || task.priority === selectedPriority;
     return matchesSearch && matchesPriority;
-  });
+  }) || [];
 
   return (
     <div className="kanban-page" style={{ padding: '40px', width: '100%', minHeight: '100vh', overflowY: 'auto' }}>    
       
-      {/* NAGŁÓWEK */}
       <div className="kanban-header">
         <div>
           <h1 className="kanban-title">Kanban</h1>
@@ -112,13 +110,7 @@ export default function Kanban() {
             }}
           >
             <div style={{ padding: '0 0 4px 0', margin: 0 }}>
-              <span style={{ 
-                color: 'var(--accent-primary)', 
-                fontSize: '11px', 
-                fontWeight: '700', 
-                fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: '1px'
-              }}>
+              <span style={{ color: 'var(--accent-primary)', fontSize: '11px', fontWeight: '700', fontFamily: "'JetBrains Mono', monospace", letterSpacing: '1px' }}>
                 // ADD A NEW TASK!
               </span>
             </div>
@@ -130,58 +122,46 @@ export default function Kanban() {
               onChange={(e) => setNewTitle(e.target.value)}
               required
               autoFocus
-              style={{
-                width: '100%',
-                background: 'var(--bg-main)',
-                border: '1px solid var(--border)',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                color: 'var(--text-main)',
-                fontSize: '14px',
-                fontFamily: "'JetBrains Mono', monospace",
-                outline: 'none'
-              }}
+              style={{ width: '100%', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', color: 'var(--text-main)', fontSize: '14px', fontFamily: "'JetBrains Mono', monospace", outline: 'none' }}
             />
+
+            {/* DODANY OPIS */}
+            <div>
+              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DESCRIPTION</label>
+              <textarea 
+                placeholder="Task details..."
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                style={{ width: '100%', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', color: 'var(--text-main)', minHeight: '80px', resize: 'vertical', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none' }}
+              />
+            </div>
+
+            {/* DODANE POLE TAGI */}
+            <div>
+              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>TAGS (COMMA SEPARATED)</label>
+              <input 
+                type="text" 
+                placeholder="e.g. design, frontend, urgent"
+                value={newTags}
+                onChange={(e) => setNewTags(e.target.value)}
+                style={{ width: '100%', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px 16px', color: 'var(--text-main)', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none' }}
+              />
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
                 <input 
-                  type="text" 
-                  value={newProject}
-                  onChange={(e) => setNewProject(e.target.value)}
-                  placeholder="FocusFlow"
-                  style={{
-                    width: '100%',
-                    background: 'var(--bg-main)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    padding: '8px 12px',
-                    color: 'var(--text-main)',
-                    fontSize: '12px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    outline: 'none'
-                  }}
+                  type="text" value={newProject} onChange={(e) => setNewProject(e.target.value)} placeholder="FocusFlow"
+                  style={{ width: '100%', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 12px', color: 'var(--text-main)', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none' }}
                 />
               </div>
 
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PRIORITY</label>
                 <select 
-                  value={newPriority} 
-                  onChange={(e) => setNewPriority(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'var(--bg-main)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    padding: '8px 12px',
-                    color: 'var(--text-main)',
-                    fontSize: '12px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    outline: 'none',
-                    cursor: 'pointer'
-                  }}
+                  value={newPriority} onChange={(e) => setNewPriority(e.target.value)}
+                  style={{ width: '100%', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', padding: '8px 12px', color: 'var(--text-main)', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none', cursor: 'pointer' }}
                 >
                   <option value="LOW">LOW</option>
                   <option value="HIGH">HIGH</option>
@@ -192,51 +172,19 @@ export default function Kanban() {
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DEADLINE DATE</label>
                 <input 
-                  type="date" 
-                  value={newDeadline}
-                  onChange={(e) => setNewDeadline(e.target.value)}
-                  style={{
-                    width: '100%',
-                    background: 'var(--bg-main)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    padding: '7px 12px',
-                    color: 'var(--text-main)',
-                    fontSize: '12px',
-                    fontFamily: "'JetBrains Mono', monospace",
-                    outline: 'none',
-                    cursor: 'text'
-                  }}
+                  type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)}
+                  style={{ width: '100%', background: 'var(--bg-main)', border: '1px solid var(--border)', borderRadius: '8px', padding: '7px 12px', color: 'var(--text-main)', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none', cursor: 'text' }}
                 />
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
-              <button 
-                type="button" 
-                onClick={() => setIsFormOpen(false)}
-                className="icon-btn" 
-                style={{ 
-                  padding: '8px 16px', 
-                  fontSize: '12px', 
-                  fontWeight: '500',
-                  fontFamily: "'JetBrains Mono', monospace" 
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                type="submit" 
-                className="btn-primary" 
-                style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}
-              >
-                ADD TASK
-              </button>
+              <button type="button" onClick={() => setIsFormOpen(false)} className="icon-btn" style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '500', fontFamily: "'JetBrains Mono', monospace" }}>Cancel</button>
+              <button type="submit" className="btn-primary" style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}>ADD TASK</button>
             </div>
           </form>
         )}
 
-      {/* AKCJE I FILTRY */}
       <div className="kanban-actions">
         <div className="search-container">
           <span className="search-icon">
@@ -279,7 +227,6 @@ export default function Kanban() {
         </div>
       )}
 
-      {/* SIATKA TABLICY KANBAN */}
       <div className="kanban-board-grid">
         {columns.map(column => (
           <div 
@@ -319,7 +266,6 @@ export default function Kanban() {
           </div>
         ))}
       </div>
-
     </div>
   );
 }

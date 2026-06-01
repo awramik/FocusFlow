@@ -317,19 +317,21 @@ export default function TaskDetails() {
           {/* ASSIGNEES */}
           <div className="card" style={{ margin: '0' }}>
             <span className="category-tag section-heading-row" style={{ fontSize: '11px' }}>
-              <User size={12} /> ASSIGNEES (1)
+              <User size={12} /> TASK OWNER
             </span>
             <div className="assignees-list">
-              {currentUser && (
+              {currentUser ? (
                 <div className="assignee-item">
                   <div className="assignee-avatar">
                     {currentUser.avatarInitials || currentUser.firstName?.charAt(0) || 'U'}
                   </div>
                   <div>
                     <div className="assignee-name">{currentUser.firstName} {currentUser.lastName || ''}</div>
-                    <div className="assignee-title">{currentUser.title || 'User'}</div>
+                    <div className="assignee-title">FocusFlow Member</div>
                   </div>
                 </div>
+              ) : (
+                <span className="empty-state-text" style={{ fontStyle: 'italic' }}>Loading owner...</span>
               )}
             </div>
           </div>
