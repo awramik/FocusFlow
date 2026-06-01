@@ -47,7 +47,7 @@
 
 .kanban-search-input {
   width: 100%;
-  background-color: #231236;
+  background-color: var(--bg-card);  
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 16px 12px 44px;
@@ -94,7 +94,7 @@
 }
 
 .kanban-column {
-  background-color: #1c0c30;
+  background-color: var(--bg-column);
   border-radius: 16px;
   padding: 24px 16px;
   min-height: 600px;
@@ -134,26 +134,34 @@
   bottom: 0;
   width: 4px;
 }
-.task-indicator-line[data-priority="CRIT"] { background-color: #F2ACD3; }
-.task-indicator-line[data-priority="HIGH"] { background-color: #A855F7; }
-.task-indicator-line[data-priority="LOW"] { background-color: #38BDF8; } 
-
-.priority-tag.critical { 
-  background-color: #2D132C; 
-  color: #F2ACD3; 
-  border: 1px solid #541E4E; 
+.task-indicator-line[data-priority="CRIT"] {
+  background-color: var(--priority-line-critical);
 }
 
-.priority-tag.high { 
-  background-color: #21103A; 
-  color: #C084FC; 
-  border: 1px solid #4C1D95; 
+.task-indicator-line[data-priority="HIGH"] {
+  background-color: var(--priority-line-high);
 }
 
-.priority-tag.low { 
-  background-color: #0F172A; 
-  color: #7DD3FC; 
-  border: 1px solid #1E3A8A; 
+.task-indicator-line[data-priority="LOW"] {
+  background-color: var(--priority-line-low);
+}
+
+.priority-tag.critical {
+  background-color: var(--priority-critical-bg);
+  color: var(--priority-critical-text);
+  border: 1px solid var(--priority-critical-border);
+}
+
+.priority-tag.high {
+  background-color: var(--priority-high-bg);
+  color: var(--priority-high-text);
+  border: 1px solid var(--priority-high-border);
+}
+
+.priority-tag.low {
+  background-color: var(--priority-low-bg);
+  color: var(--priority-low-text);
+  border: 1px solid var(--priority-low-border);
 }
 
 .priority-filters-bar {
@@ -161,7 +169,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
-  background-color: #231236;
+  background-color: var(--bg-card);
   padding: 10px 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -194,6 +202,6 @@
 
 .filter-chip.active {
   background-color: var(--accent-primary);
-  color: #150926;
+  color: var(--accent-text);
   border-color: var(--accent-primary);
 }

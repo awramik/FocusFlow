@@ -99,7 +99,7 @@ export default function Calendar() {
         </div>
         
         <div style={{ 
-          backgroundColor: '#231236', padding: '10px 18px', borderRadius: '12px', 
+          backgroundColor: 'var(--calendar-surface)', padding: '10px 18px', borderRadius: '12px', 
           border: '1px solid var(--border)', fontSize: '13px', fontFamily: "'JetBrains Mono', monospace"
         }}>
           Month tracked tasks: <span style={{ color: 'var(--accent-primary)', fontWeight: '700' }}>{totalDeadlinesCount}</span>
@@ -111,7 +111,7 @@ export default function Calendar() {
         
         {/* LEWA STRONA: ELASTYCZNA SIATKA KALENDARZA */}
         <div style={{ 
-          background: 'rgba(35, 18, 54, 0.4)', 
+          background: 'var(--calendar-surface)', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 
           padding: '24px', 
@@ -151,8 +151,10 @@ export default function Calendar() {
                   key={day}
                   onClick={() => setSelectedDay(day)}
                   style={{
-                    aspectRatio: '1 / 1', // Sprawia, że kafelki są idealnymi kwadratami niezależnie od szerokości ekranu
-                    background: isSelected ? 'var(--accent-primary)' : 'rgba(255, 255, 255, 0.02)',
+                    aspectRatio: '1 / 1',
+                    background: isSelected
+                        ? 'var(--accent-primary)'
+                        : 'var(--calendar-surface-light)',
                     border: isToday && !isSelected ? '2px solid var(--accent-primary)' : '1px solid var(--border)',
                     borderRadius: '10px',
                     padding: '8px',
@@ -162,16 +164,18 @@ export default function Calendar() {
                     transition: 'transform 0.1s ease, background-color 0.2s ease',
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSelected) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
+                    if (!isSelected) e.currentTarget.style.backgroundColor = 'var(--calendar-surface-hover)';
                   }}
                   onMouseLeave={(e) => {
-                    if (!isSelected) e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
+                    if (!isSelected)
+                      e.currentTarget.style.backgroundColor =
+                        'var(--calendar-surface-light)';
                   }}
                 >
                   <span style={{ 
                     fontSize: '14px', 
                     fontWeight: '700', 
-                    color: isSelected ? '#2F1547' : isToday ? 'var(--accent-primary)' : 'var(--text-main)',
+                    color: isSelected ? 'var(--calendar-selected-text)' : isToday ? 'var(--accent-primary)' : 'var(--text-main)',
                     fontFamily: "'JetBrains Mono', monospace",
                     position: 'absolute',
                     top: '8px',
@@ -200,8 +204,7 @@ export default function Calendar() {
                             width: '6px', 
                             height: '6px', 
                             borderRadius: '50%', 
-                            backgroundColor: isSelected 
-                              ? '#2F1547' 
+                            backgroundColor: isSelected ? 'var(--calendar-selected-text)'
                               : t.status === 'Done' ? 'rgba(255,255,255,0.4)' : '#FFAFD7' 
                           }} 
                         />
@@ -216,12 +219,12 @@ export default function Calendar() {
 
         {/* PRAWA STRONA: PANEL Z ZADANIAMI */}
         <div style={{ 
-          background: '#231236', 
+          background: 'var(--calendar-surface)', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 
           padding: '24px', 
           minHeight: '400px',
-          flex: '1', // Panel zadań jest nieco węższy niż siatka
+          flex: '1',
           minWidth: '280px',
           boxSizing: 'border-box'
         }}>
@@ -242,7 +245,7 @@ export default function Calendar() {
                 <div 
                   key={task.id} 
                   style={{ 
-                    padding: '14px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border)', borderRadius: '10px',
+                    padding: '14px', background: 'var(--calendar-surface-light)', border: '1px solid var(--border)', borderRadius: '10px',
                     opacity: task.status === 'Done' ? 0.6 : 1
                   }}
                 >
@@ -263,8 +266,8 @@ export default function Calendar() {
                       
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px', flexWrap: 'wrap' }}>
                         <span style={{ 
-                          backgroundColor: '#170b24', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '700',
-                          border: '1px solid rgba(255,255,255,0.05)', color: 'var(--accent-primary)'
+                          backgroundColor: 'var(--calendar-tag-bg)', padding: '2px 6px', borderRadius: '4px', fontSize: '10px', fontWeight: '700',
+                          border: '1px solid var(--border)', color: 'var(--accent-primary)'
                         }}>
                           {task.project || 'FocusFlow'}
                         </span>

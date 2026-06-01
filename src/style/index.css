@@ -1,18 +1,162 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
-  /* Twoje poprawne kolory ze schematu */
-  --bg-main: #150926;       /* Główny, najciemniejszy granat tła */
-  --bg-sidebar: #150926;    /* Tło paska bocznego */
-  --bg-card: #2A1440;       /* Ciemny fiolet dla kart i widgetów */
-  --accent-primary: #F2ACD3; /* Główny różowy akcent (przyciski, aktywne stany) */
-  --accent-purple: #502D73;  /* Jaśniejszy fiolet */
-  --bg-secondary: #262626;   /* Ciemna szarość dla elementów pomocniczych */
-  
-  /* Tekst */
-  --text-main: #FFFFFF;     
-  --text-muted: #BCA9D3;    /* Delikatny, fioletowy odcień szarości dla opisów */
-  --border: #3A2552;        /* Kolor obramowań pasujący do palety */
+  /* BACKGROUNDS */
+  --bg-main: #150926;
+  --bg-sidebar: #150926;
+  --bg-card: #2A1440;
+  --bg-secondary: #262626;
+
+  /* ACCENTS */
+  --accent-primary: #F2ACD3;
+  --accent-purple: #502D73;
+
+  /* TEXT */
+  --text-main: #FFFFFF;
+  --text-muted: #BCA9D3;
+
+  /* BORDERS */
+  --border: #3A2552;
+
+  --ferdynand-glow: rgba(80, 45, 115, 0.4);
+  --hover-glow: rgba(242, 172, 211, 0.3);
+  --badge-bg: rgba(21, 9, 38, 0.7);
+  --bg-column: #1c0c30;
+  --accent-text: #150926;
+
+  --priority-critical-bg: #2D132C;
+  --priority-critical-text: #F2ACD3;
+  --priority-critical-border: #541E4E;
+
+  --priority-high-bg: #21103A;
+  --priority-high-text: #C084FC;
+  --priority-high-border: #4C1D95;
+
+  --priority-low-bg: #0F172A;
+  --priority-low-text: #7DD3FC;
+  --priority-low-border: #1E3A8A;
+
+  --priority-line-critical: #F2ACD3;
+  --priority-line-high: #A855F7;
+  --priority-line-low: #38BDF8;
+
+  --dashboard-card: #2F1547;
+  --dashboard-card-border: rgba(255, 179, 217, 0.6);
+
+  --dashboard-heading: #FFFFFF;
+  --dashboard-subtitle: #A78BBA;
+
+  --dashboard-pink: #FFB3D9;
+  --dashboard-pink-strong: #FF68A3;
+
+  --dashboard-purple: #D7BAFF;
+  --dashboard-purple-muted: #A78BBA;
+
+  --dashboard-dark-surface: #1A0A2E;
+
+  --tip-bg: #FFB3D9;
+  --tip-title: #FF68A3;
+  --tip-text: #2F1547;
+
+  --dashboard-icon-accent: #FFAFD7;
+  --checkmark-color: #130823;
+  --progress-track: #2F1547;
+  --analytics-icon-bg: #40235B;
+  --focus-progress-track: #1A0A2E;
+  --focus-progress-start: #FFB3D9;
+  --focus-progress-end: #FF9EC4;
+
+  --calendar-surface: #231236;
+  --calendar-surface-light: rgba(255,255,255,0.02);
+  --calendar-surface-hover: rgba(255,255,255,0.06);
+
+  --calendar-tag-bg: #170b24;
+  --calendar-selected-text: #2F1547;
+  --calendar-task-bg: rgba(52, 24, 77, 0.6);
+  --calendar-task-text: #FFAFD7;
+  --calendar-task-border: rgba(255, 175, 215, 0.25);
+  --analytics-chart-average: #39ff88;
+  --analytics-chart-average-glow: rgba(57,255,136,0.18);
+}
+
+body.theme-light {
+  /* BACKGROUNDS */
+  --bg-main: #EAF4EE;
+  --bg-sidebar: #DCEDE2;
+  --bg-card: #FFFFFF;
+  --bg-secondary: #F5F8F6;
+
+  /* ACCENTS */
+  --accent-primary: #E8AFC4;
+  --accent-purple: #6E9F8A;
+
+  /* TEXT */
+  --text-main: #31433A;
+  --text-muted: #6D7D75;
+
+  /* BORDERS */
+  --border: #BFD5C8;
+
+  --ferdynand-glow: rgba(110, 159, 138, 0.3);
+  --hover-glow: rgba(110, 159, 138, 0.35);
+  --badge-bg: rgba(255, 255, 255, 0.8);
+  --bg-column: #f7faf8;
+  --accent-text: #2B3A33;
+
+  --priority-critical-bg: #FCE7F0;
+  --priority-critical-text: #B24F7A;
+  --priority-critical-border: #E8AFC4;
+
+  --priority-high-bg: #E8F2EC;
+  --priority-high-text: #4D7C67;
+  --priority-high-border: #8DB6A0;
+
+  --priority-low-bg: #EEF5F2;
+  --priority-low-text: #5D8572;
+  --priority-low-border: #BFD5C8;
+
+  --priority-line-critical: #E8AFC4;
+  --priority-line-high: #6E9F8A; 
+  --priority-line-low: #A8D5C2;
+
+  --dashboard-card: #FFFFFF;
+  --dashboard-card-border: #D7E5DD;
+
+  --dashboard-heading: #31433A;
+  --dashboard-subtitle: #6D7D75;
+
+  --dashboard-pink: #E8AFC4;
+  --dashboard-pink-strong: #C77D9B;
+
+  --dashboard-purple: #6E9F8A;
+  --dashboard-purple-muted: #7C9588;
+
+  --dashboard-dark-surface: #EEF5F2;
+
+  --tip-bg: #F6D8E4;
+  --tip-title: #C77D9B;
+  --tip-text: #31433A;
+
+  --dashboard-icon-accent: #C77D9B;
+  --checkmark-color: #31433A;
+  --progress-track: #DCEDE2;
+  --analytics-icon-bg: #EAF4EE;
+  --focus-progress-track: #DCEDE2;
+  --focus-progress-start: #E8AFC4;
+  --focus-progress-end: #C77D9B;
+
+  --calendar-surface: #FFFFFF;
+  --calendar-surface-light: #F5F8F6;
+  --calendar-surface-hover: #EAF4EE;
+
+  --calendar-tag-bg: #EEF5F2;
+  --calendar-selected-text: #31433A;
+  --calendar-task-bg: #EAF4EE;
+  --calendar-task-text: #6E9F8A;
+  --calendar-task-border: #BFD5C8;
+  --analytics-chart-average: #C77D9B;
+  --analytics-chart-average-glow: rgba(199, 125, 155, 0.18);
+
 }
 
 * {
@@ -53,7 +197,7 @@ body {
 .sidebar-logo {
   box-sizing: border-box;
   margin-bottom: 40px;
-  border-bottom: 1px solid #582E7E;
+  border-bottom: 1px solid var(--border);
   margin-right: -24px;
   margin-left: -24px;
   padding-right: 24px;
@@ -110,12 +254,16 @@ body {
 
 .nav-item:hover {
   color: var(--text-main);
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: color-mix(
+    in srgb,
+    var(--accent-primary) 20%,
+    transparent
+  );
 }
 
 .nav-item.active {
   background-color: var(--accent-primary);
-  color: var(--bg-main);
+  color: #2B3A33;
   font-weight: 600;
 }
 
@@ -138,14 +286,14 @@ body {
   justify-content: center;
   position: relative;
   cursor: pointer;
-  box-shadow: 0 0 30px rgba(80, 45, 115, 0.4);
+  box-shadow: 0 0 30px var(--ferdynand-glow);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   overflow: hidden;
 }
 
 .ferdynand-container:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 40px rgba(242, 172, 211, 0.3);
+  box-shadow: 0 0 40px var(--hover-glow);
 }
 
 /* Stylizacja samego obrazka PNG */
@@ -167,7 +315,7 @@ body {
   font-weight: 800;
   color: var(--accent-primary);
   letter-spacing: 1px;
-  background: rgba(21, 9, 38, 0.7);
+  background: var(--badge-bg);
   padding: 2px 6px;
   border-radius: 4px;
   pointer-events: none;
@@ -202,7 +350,7 @@ body {
 /* --- KOMPONENTY --- */
 .btn-primary {
   background-color: var(--accent-primary);
-  color: #150926;
+  color: #2B3A33;
   border: none;
   padding: 10px 20px;
   border-radius: 12px;

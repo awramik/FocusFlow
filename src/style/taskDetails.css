@@ -83,14 +83,14 @@
 }
 
 .readme-container {
-  background-color: #130823;
+  background-color: var(--bg-main);
   border-radius: 16px;
   border: 1px solid var(--border);
   overflow: hidden;
 }
 
 .readme-header {
-  background-color: #1c0c30;
+  background-color: var(--bg-column);
   padding: 12px 20px;
   display: flex;
   justify-content: space-between;
@@ -131,11 +131,12 @@
 }
 
 .code-string {
-  color: #38BDF8;
+  color: var(--priority-line-high);
 }
 
 .code-comment {
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--text-muted);
+  opacity: 0.55;
 }
 
 .readme-text-content {
@@ -218,7 +219,7 @@
 }
 
 .comment-block {
-  background-color: #130823;
+  background-color: var(--bg-main);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
@@ -273,7 +274,7 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  background-color: #1c0c30;
+  background-color: var(--bg-column);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 8px 12px 8px 16px;
@@ -315,6 +316,7 @@
   height: 36px;
   border-radius: 50%;
   background-color: var(--accent-purple);
+  color: var(--text-main);
   border: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -375,7 +377,8 @@
 }
 
 .tag-item.even {
-  background: #111827;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
 }
 
 .close-panel-row {
