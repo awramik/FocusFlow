@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTasks } from '../context/TaskContext';
-import { Plus, X, Folder, ShieldAlert, Calendar } from 'lucide-react';
+import { Plus, X, Folder, ShieldAlert, Calendar, Trash2 } from 'lucide-react';
 import '../style/kanban.css';
 
 const columns = ['To do', 'Doing', 'Done'];
 
 export default function Kanban() {
-  const { tasks, updateTaskStatus, addTask } = useTasks();
+  const { tasks, updateTaskStatus, addTask, deleteTask } = useTasks();
   const navigate = useNavigate(); 
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,6 +66,13 @@ export default function Kanban() {
     
     if (updateTaskStatus) {
       updateTaskStatus(id, targetStatus);
+    }
+  };
+
+  const handleDeleteTask = (event, taskId) => {
+    event.stopPropagation();
+    if (deleteTask) {
+      deleteTask(taskId);
     }
   };
 
@@ -259,6 +266,14 @@ export default function Kanban() {
                       <span className="category-tag">
                         {task.project || 'FocusFlow'}
                       </span>
+                      <button
+                        className="icon-btn task-delete-btn"
+                        onClick={(event) => handleDeleteTask(event, task.id)}
+                        title="Delete task"
+                        aria-label={`Delete ${task.title}`}
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}

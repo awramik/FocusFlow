@@ -12,12 +12,13 @@ import {
   Folder,
   Calendar,
   Layers,
+  Trash2,
   ArrowUp // Importujemy strzałkę do obsługi FAB
 } from 'lucide-react';
 import RightAnalytics from '../components/RightAnalytics';
 
 export default function AllTasks() {
-  const { tasks, updateTaskStatus, addTask } = useTasks();
+  const { tasks, updateTaskStatus, addTask, deleteTask } = useTasks();
   const navigate = useNavigate();
   
   // Referencja do przewijanego kontenera środkowego
@@ -91,6 +92,12 @@ export default function AllTasks() {
     if (updateTaskStatus) {
       const newStatus = currentStatus === 'Done' ? 'To do' : 'Done';
       updateTaskStatus(taskId, newStatus);
+    }
+  };
+
+  const handleDeleteTask = (taskId) => {
+    if (deleteTask) {
+      deleteTask(taskId);
     }
   };
 
@@ -187,7 +194,7 @@ export default function AllTasks() {
   const shouldShowReset = selectedPriority !== 'ALL' || selectedProject !== 'ALL' || selectedDate !== '' || searchQuery !== '';
 
   return (
-    <div className="dashboard-layout" style={{ position: 'relative' }}>
+    <div className="dashboard-layout all-tasks-page" style={{ position: 'relative' }}>
       
       {/* GŁÓWNY KONTENER ŚRODKOWY - Dodano ref oraz onScroll */}
       <main 
@@ -198,12 +205,12 @@ export default function AllTasks() {
       >
         
         {/* NAGŁÓWEK */}
-        <div className="flex-between" style={{ marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
+        <div className="page-header">
+          <div className="page-header__main">
+            <h1>
               All tasks
             </h1>
-            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+            <p>
               You can do it ALL, but focus on one thing at a time :)
               <br />
               Use filters to find the most relevant tasks and crush them!
@@ -563,6 +570,14 @@ export default function AllTasks() {
                     title="View task details"
                   >
                     <MoreHorizontal size={18} />
+                  </button>
+                  <button
+                    className="icon-btn task-delete-btn"
+                    onClick={() => handleDeleteTask(task.id)}
+                    title="Delete task"
+                    aria-label={`Delete ${task.title}`}
+                  >
+                    <Trash2 size={16} />
                   </button>
                 </div>
               ))

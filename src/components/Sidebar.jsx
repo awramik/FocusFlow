@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   Zap, 
   LayoutDashboard, 
@@ -29,6 +29,18 @@ export default function Sidebar() {
   const { currentUser } = useAuth();
 
   const faza = currentUser?.ferdynand?.stage || 1;
+  const currentXP = currentUser?.ferdynand?.currentXP || 0;
+
+  const getUnlockedStage = (xp) => {
+    if (xp > 1000) return 5;
+    if (xp > 600) return 4;
+    if (xp > 300) return 3;
+    if (xp > 100) return 2;
+    return 1;
+  };
+
+  const unlockedStage = getUnlockedStage(currentXP);
+  const visibleStage = Math.min(faza, unlockedStage);
 
   const ferdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
 
@@ -43,13 +55,12 @@ export default function Sidebar() {
 
   const handleFerdynandClick = async () => {
     if (!currentUser) return;
-    
-    const nextStage = faza === 5 ? 1 : faza + 1;
+    if (faza === unlockedStage) return;
     
     try {
       const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, {
-        "ferdynand.stage": nextStage
+        "ferdynand.stage": unlockedStage
       });
     } catch (error) {
       console.error("Błąd ewolucji Ferdynanda:", error);
@@ -61,30 +72,14 @@ export default function Sidebar() {
   
 
   return (
-    <nav
-      className="left-sidebar"
-      style={{
-        height: '100vh',
-        overflowY: 'auto',
-        position: 'relative'
-      }}
-    >
+    <nav className="left-sidebar">
       
       {/* SEKCJA 1: Logo (Przypięte na stałe do góry, z tłem panelu, żeby menu pod nim znikało) */}
-      <div
-        className="sidebar-top"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 10,
-          backgroundColor: 'var(--bg-sidebar)',
-          paddingBottom: '4px'
-        }}
-      >
+      <div className="sidebar-top">
         <div className="sidebar-logo-container">
           <Link to="/dashboard" className="sidebar-logo-link" style={{ textDecoration: 'none' }}>
             {/* Wyśrodkowanie loga i tekstu bez zmieniania właściwości dzieci (zwiększony gap do 10px) */}
-            <div className="sidebar-logo" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+            <div className="sidebar-logo">
               <div className="logo-icon"><Zap size={24} /></div> {/* Zmiana: size z 20 na 24 */}
               <h2
                 style={{
@@ -146,12 +141,12 @@ export default function Sidebar() {
           title="Click to evolve Ferdinand!"
         >
           <img 
-            src={ferdynandStages[faza - 1]} 
-            alt={`Mr Ferdynand - Phase ${faza}`} 
+            src={ferdynandStages[visibleStage - 1]}
+            alt={`Mr Ferdynand - Phase ${visibleStage}`}
             className="ferdynand-img"
           />
           <div className="ferdynand-badge">
-            STAGE {faza}
+            STAGE {visibleStage}
           </div>
         </div>
       </div>
@@ -170,7 +165,7 @@ export default function Sidebar() {
               to={isFocusMode ? "/all" : "/focus"} 
               className={({isActive}) => isActive ? "nav-item active" : "nav-item"}
             >
-              <Focus size={20} /> {isFocusMode ? "Exit Focus Mode" : "No distractions"}
+              <Focus size={20} /> {isFocusMode ? "Exit focus mode" : "No distractions"}
             </NavLink>
           </li>
 

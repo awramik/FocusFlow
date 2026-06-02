@@ -44,6 +44,15 @@
   padding: 6px;
 }
 
+.task-details-delete-btn {
+  border: 1px solid var(--border);
+  background: color-mix(
+    in srgb,
+    #ff6b7a 8%,
+    transparent
+  );
+}
+
 .task-title-large {
   font-size: 36px;
   margin-bottom: 16px;

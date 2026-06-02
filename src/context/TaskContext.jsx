@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, increment } from 'firebase/firestore'; 
+import { collection, query, where, onSnapshot, doc, updateDoc, addDoc, deleteDoc, increment } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 
@@ -129,6 +129,16 @@ export const TaskProvider = ({ children }) => {
     }
   };
 
+  const deleteTask = async (taskId) => {
+    try {
+      if (!currentUser || !taskId) return;
+      const taskRef = doc(db, 'tasks', String(taskId));
+      await deleteDoc(taskRef);
+    } catch (error) {
+      console.error("BĹ‚Ä…d podczas usuwania zadania:", error);
+    }
+  };
+
   // --- POMODORO TIMER, CHMURA, DŹWIĘK I POWIADOMIENIA ---
   const timerSetting = currentUser?.settings?.timerDuration || 25;
   const breakSetting = currentUser?.settings?.breakInterval || 5;
@@ -252,6 +262,7 @@ export const TaskProvider = ({ children }) => {
     loadingTasks,
     updateTaskStatus,
     addTask,
+    deleteTask,
     currentUser,
     statsData,       
     hoursData,       

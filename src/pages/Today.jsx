@@ -9,12 +9,13 @@ import {
   MoreHorizontal,
   Folder,
   X,
+  Trash2,
   ArrowUp
 } from 'lucide-react';
 import RightAnalytics from '../components/RightAnalytics';
 
 export default function Today() {
-  const { tasks, updateTaskStatus, addTask } = useTasks();
+  const { tasks, updateTaskStatus, addTask, deleteTask } = useTasks();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
@@ -92,6 +93,12 @@ export default function Today() {
     if (updateTaskStatus) {
       const newStatus = currentStatus === 'Done' ? 'To do' : 'Done';
       updateTaskStatus(taskId, newStatus);
+    }
+  };
+
+  const handleDeleteTask = (taskId) => {
+    if (deleteTask) {
+      deleteTask(taskId);
     }
   };
 
@@ -201,20 +208,28 @@ export default function Today() {
       >
         <MoreHorizontal size={18} />
       </button>
+      <button
+        className="icon-btn task-delete-btn"
+        onClick={() => handleDeleteTask(task.id)}
+        title="Delete task"
+        aria-label={`Delete ${task.title}`}
+      >
+        <Trash2 size={16} />
+      </button>
     </div>
   );
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout today-page">
       
       {/* Podpięta referencja mainContentRef pod kontener ze scrollem */}
       <main ref={mainContentRef} className="center-content" style={{ padding: '40px', overflowY: 'auto' }}>
-        <div className="flex-between" style={{ marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
+        <div className="page-header">
+          <div className="page-header__main">
+            <h1>
               Today's tasks
             </h1>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'var(--text-muted)' }}>
+            <p>
               {formattedDate}
             </p>
           </div>
