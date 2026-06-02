@@ -14,17 +14,18 @@ import {
 import RightAnalytics from '../components/RightAnalytics';
 
 export default function Today() {
-  const { tasks, updateTaskStatus } = useTasks();
+  const { tasks, updateTaskStatus, addTask } = useTasks();
   const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   // STAN DLA WIZUALIZACJI NOWYCH ZADAŃ ORAZ FORMULARZA
-  const [localTasks, setLocalTasks] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newPriority, setNewPriority] = useState('LOW');
   const [newProject, setNewProject] = useState('FocusFlow');
   const [newDeadline, setNewDeadline] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newTags, setNewTags] = useState('');
 
   // STAN I LOGIKA DLA INTELIGENTNEGO PRZYCISKU FAB
   const [scrollDirection, setScrollDirection] = useState('down');
@@ -88,18 +89,9 @@ export default function Today() {
   });
 
   const handleToggleComplete = (taskId, currentStatus) => {
-    if (String(taskId).startsWith('local-')) {
-      setLocalTasks(prev => prev.map(t => 
-        t.id === taskId ? { ...t, status: t.status === 'Done' ? 'To do' : 'Done' } : t
-      ));
-      return;
-    }
-
     if (updateTaskStatus) {
       const newStatus = currentStatus === 'Done' ? 'To do' : 'Done';
       updateTaskStatus(taskId, newStatus);
-    } else {
-      console.error("Nie znaleziono funkcji updateTaskStatus w TaskContext!");
     }
   };
 
@@ -109,22 +101,22 @@ export default function Today() {
     return 'priority-tag low';
   };
 
-  const allCombinedTasks = [...localTasks, ...tasks];
 
-  const filteredTasks = allCombinedTasks.filter(task =>
+  const filteredTasks = tasks?.filter(task =>
     task.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const activeTasks = filteredTasks.filter(task => task.status !== 'Done');
   const completedTasks = filteredTasks.filter(task => task.status === 'Done');
 
-  const handleCreateTask = (e) => {
+  const handleCreateTask = async (e) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
     const newTaskObj = {
-      id: `local-${Date.now()}`,
       title: newTitle.trim(),
+      description: newDescription.trim(),
+      tags: newTags ? newTags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
       priority: newPriority,
       project: newProject || 'FocusFlow',
       deadline: newDeadline ? newDeadline.replace('T', ' ') : '',
@@ -133,9 +125,11 @@ export default function Today() {
       attachments: []
     };
 
-    setLocalTasks([newTaskObj, ...localTasks]);
-    
+    await addTask(newTaskObj);
+
     setNewTitle('');
+    setNewDescription('');
+    setNewTags('');
     setNewDeadline('');
     setNewPriority('LOW');
     setIsFormOpen(false);
@@ -280,6 +274,36 @@ export default function Today() {
                 outline: 'none'
               }}
             />
+            {/* OPIS */}
+            <div>
+              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>DESCRIPTION</label>
+              <textarea 
+                placeholder="Task details..."
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                style={{
+                  width: '100%', background: 'var(--calendar-tag-bg)', border: '1px solid var(--border)',
+                  borderRadius: '8px', padding: '12px 16px', color: 'var(--text-main)', minHeight: '80px',
+                  resize: 'vertical', fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none'
+                }}
+              />
+            </div>
+
+            {/* TAGI */}
+            <div>
+              <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>TAGS (COMMA SEPARATED)</label>
+              <input 
+                type="text" 
+                placeholder="e.g. design, frontend, urgent"
+                value={newTags}
+                onChange={(e) => setNewTags(e.target.value)}
+                style={{
+                  width: '100%', background: 'var(--calendar-tag-bg)', border: '1px solid var(--border)',
+                  borderRadius: '8px', padding: '10px 16px', color: 'var(--text-main)',
+                  fontSize: '12px', fontFamily: "'JetBrains Mono', monospace", outline: 'none'
+                }}
+              />
+            </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
               <div>

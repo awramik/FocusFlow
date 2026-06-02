@@ -116,7 +116,7 @@ export const tasksData = [
     status: "ongoing",
     priority: "high",
     category: "RESEARCH",
-    deadline: "2026-05-18 12:00 PM",
+    deadline: "2026-05-31 12:00 PM",
     description: "Analyze the feedback from the first round of user testing and prepare a summary report.",
     attachments: [
       { id: 102, name: "user_feedback_Q1.xlsx", size: "1.1 MB" }
@@ -135,7 +135,7 @@ export const tasksData = [
     status: "planned",
     priority: "medium",
     category: "DESIGN",
-    deadline: "2026-05-22 3:00 PM",
+    deadline: "2026-05-31 3:00 PM",
     description: "Adjust the sidebar layout based on the new user requirements analysis.",
     attachments: [],
     comments: [],
@@ -152,7 +152,7 @@ export const tasksData = [
     status: "planned",
     priority: "high",
     category: "UI/UX",
-    deadline: "2026-05-25 6:00 PM",
+    deadline: "2026-05-31 6:00 PM",
     description: "Code the main dashboard view in React using the provided Tailwind/CSS classes.",
     attachments: [],
     comments: [],
@@ -169,7 +169,7 @@ export const tasksData = [
     status: "done",
     priority: "low",
     category: "FRONTEND",
-    deadline: "2026-05-16 7:30 PM",
+    deadline: "2026-05-31 7:30 PM",
     description: "Fix the drag and drop glitch happening on Safari browsers.",
     attachments: [
       { id: 103, name: "error_log.txt", size: "12 KB" }
