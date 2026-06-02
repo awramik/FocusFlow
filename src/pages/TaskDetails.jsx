@@ -15,6 +15,7 @@ import {
   Plus, 
   Download, 
   User,
+  Trash2,
   X 
 } from 'lucide-react';
 import '../style/taskDetails.css';
@@ -22,7 +23,7 @@ import '../style/taskDetails.css';
 export default function TaskDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { tasks, currentUser } = useTasks();
+  const { tasks, currentUser, deleteTask } = useTasks();
   const task = tasks?.find(t => t.id?.toString() === id?.toString());
 
   const [comments, setComments] = useState([]);
@@ -143,6 +144,12 @@ export default function TaskDetails() {
     }
   };
 
+  const handleDeleteTask = async () => {
+    if (!deleteTask) return;
+    await deleteTask(task.id);
+    navigate('/dashboard');
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleAddComment();
@@ -185,6 +192,9 @@ export default function TaskDetails() {
         
         <div className="action-header-group">
           <button className="btn-primary share-btn"><Share2 size={14} /> SHARE</button>
+          <button className="icon-btn task-delete-btn task-details-delete-btn" onClick={handleDeleteTask} title="Delete task">
+            <Trash2 size={16} />
+          </button>
           <button className="icon-btn more-btn"><MoreHorizontal size={18} /></button>
         </div>
       </div>

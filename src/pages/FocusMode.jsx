@@ -138,21 +138,21 @@ export default function FocusMode() {
   const shouldShowReset = selectedPriority !== 'ALL' || selectedProject !== 'ALL' || selectedDate !== '' || searchQuery !== '';
 
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout focus-page">
       
       {/* GLÓWNY KONTENER (niezablurrowany) */}
       <main className="center-content" style={{ padding: '40px', overflowY: 'auto', position: 'relative', zIndex: 10 }}>
         
         {/* NAGŁÓWEK FOCUS MODE */}
-        <div className="flex-between" style={{ marginBottom: '24px' }}>
-          <div>
-            <h1 style={{ fontSize: '36px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              Deep Focus
+        <div className="page-header">
+          <div className="page-header__main">
+            <h1 style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              Deep focus
               <span style={{ fontSize: '12px', background: '#FFB3D9', color: '#1A0A2E', padding: '4px 8px', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <EyeOff size={14} /> Distractions hidden
               </span>
             </h1>
-            <p style={{ margin: '8px 0 0 0', fontSize: '12px', color: 'var(--accent-purple)', lineHeight: '1.4' }}>
+            <p>
               Zero distractions. Just you and your tasks. Let's get things done.
             </p>
           </div>

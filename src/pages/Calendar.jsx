@@ -50,10 +50,10 @@ export default function Calendar() {
     : 0;
 
   return (
-    <div style={{ padding: '24px', color: 'var(--text-main)', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+    <div className="calendar-page-shell">
       
       {/* NAGŁÓWEK Z RETURN BUTTONEM */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', width: '100%', flexWrap: 'wrap', gap: '16px' }}>
+      <div className="page-header page-header--calendar" style={{ flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           
           {/* PRZYCISK POWROTU (Return Button) */}
@@ -86,13 +86,13 @@ export default function Calendar() {
           </button>
 
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="page-header__title-row">
               <CalendarIcon size={26} style={{ color: 'var(--accent-primary)' }} />
-              <h1 style={{ fontSize: '32px', fontWeight: '700', margin: 0, letterSpacing: '-0.5px' }}>
+              <h1>
                 Calendar View
               </h1>
             </div>
-            <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', fontSize: '14px' }}>
+            <p>
               Schedule tracker • <span style={{ color: 'var(--accent-primary)', fontWeight: '600' }}>{currentMonth} {currentYear}</span>
             </p>
           </div>
@@ -107,10 +107,10 @@ export default function Calendar() {
       </div>
 
       {/* GŁÓWNY KONTENER (ELASTYCZNY REAKTYWNY UKŁAD) */}
-      <div style={{ display: 'flex', gap: '24px', width: '100%', alignItems: 'start', flexWrap: 'wrap' }}>
+      <div className="calendar-page-layout">
         
         {/* LEWA STRONA: ELASTYCZNA SIATKA KALENDARZA */}
-        <div style={{ 
+        <div className="calendar-month-card" style={{
           background: 'var(--calendar-surface)', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 
@@ -121,7 +121,7 @@ export default function Calendar() {
         }}>
           
           {/* Nazwy dni tygodnia */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center', marginBottom: '16px' }}>
+          <div className="calendar-weekdays">
             {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d, idx) => (
               <div key={idx} style={{ color: 'var(--text-muted)', fontWeight: '700', fontSize: '12px', textTransform: 'uppercase' }}>
                 {d}
@@ -130,8 +130,8 @@ export default function Calendar() {
           </div>
 
           {/* Dni miesiąca dopasowujące się do szerokości (1fr) */}
-          <div style={{ 
-            display: 'grid', 
+          <div className="calendar-days-grid" style={{
+            display: 'grid',
             gridTemplateColumns: 'repeat(7, 1fr)', // Każda kolumna ma identyczny procent szerokości
             gridAutoRows: 'minmax(75px, auto)', // Wysokość dopasowuje się, ale ma bezpieczne minimum
             gap: '8px',
@@ -149,6 +149,7 @@ export default function Calendar() {
               return (
                 <div
                   key={day}
+                  className="calendar-day-cell"
                   onClick={() => setSelectedDay(day)}
                   style={{
                     aspectRatio: '1 / 1',
@@ -218,7 +219,7 @@ export default function Calendar() {
         </div>
 
         {/* PRAWA STRONA: PANEL Z ZADANIAMI */}
-        <div style={{ 
+        <div className="calendar-day-panel" style={{
           background: 'var(--calendar-surface)', 
           borderRadius: '16px', 
           border: '1px solid var(--border)', 

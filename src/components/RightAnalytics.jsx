@@ -158,7 +158,7 @@ const RightAnalytics = () => {
         </div>
 
         <div className="focus-progress-info">
-          <span className="focus-completed-label">High/Crit Completed</span>
+          <span className="focus-completed-label">High/Crit completed</span>
           <span className="focus-ratio">{completedPriority}/{totalPriority}</span>
         </div>
 

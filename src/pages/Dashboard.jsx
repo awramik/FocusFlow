@@ -5,23 +5,26 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import RightAnalytics from '../components/RightAnalytics';
-import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder } from 'lucide-react';
+import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder, Trash2 } from 'lucide-react';
 import '../style/Dashboard.css';
+import yodaGif from '../assets/yoda_star_wars.gif';
+import carsGif from '../assets/cars.gif';
 
 const SETTINGS_STORAGE_KEY = 'focusflow-settings';
 
 
 const Dashboard = () => {
-  const { 
-    tasks, 
-    currentUser, 
+  const {
+    tasks,
+    currentUser,
     updateTaskStatus,
+    deleteTask,
     timeLeft,
     isRunning,
     handleStartPause,
     handleReset,
-    hoursData 
-  } = useTasks(); 
+    hoursData
+  } = useTasks();
 
   const { currentUser: authUser, loading } = useAuth();
   const navigate = useNavigate();
@@ -29,6 +32,7 @@ const Dashboard = () => {
   const [proTips, setProTips] = useState([]);
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const [loadingTips, setLoadingTips] = useState(true);
+  const [activeDashboardGif, setActiveDashboardGif] = useState(null);
 
   // POBIERANIE PRO TIPÓW Z BAZY DANYCH
   useEffect(() => {
@@ -36,7 +40,7 @@ const Dashboard = () => {
       try {
         const tipsCollection = collection(db, 'tips');
         const tipsSnapshot = await getDocs(tipsCollection);
-        
+
         const tipsList = [];
         tipsSnapshot.forEach((doc) => {
           tipsList.push({ id: doc.id, ...doc.data() });
@@ -59,7 +63,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (loading) return; 
+    if (loading) return;
     if (!authUser) {
       navigate('/');
     }
@@ -74,7 +78,7 @@ const Dashboard = () => {
 
   const totalTasks = tasks?.length || 0;
   const completedTasks = tasks?.filter(t => t.status === 'done' || t.status === 'Done').length || 0;
-  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 75;
+  const completionPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -98,8 +102,14 @@ const Dashboard = () => {
   const handleTaskToggle = (taskId, currentStatus) => {
     if (updateTaskStatus) {
       const isCurrentlyDone = currentStatus === 'done' || currentStatus === 'Done';
-      const newStatus = isCurrentlyDone ? 'To do' : 'Done'; 
+      const newStatus = isCurrentlyDone ? 'To do' : 'Done';
       updateTaskStatus(taskId, newStatus);
+    }
+  };
+
+  const handleDeleteTask = (taskId) => {
+    if (deleteTask) {
+      deleteTask(taskId);
     }
   };
 
@@ -113,12 +123,12 @@ const Dashboard = () => {
     return deadline.split(' ')[0];
   };
 
-  const workHoursPercentage = hoursData?.workHours?.goal 
-    ? Math.min(100, Math.round((hoursData.workHours.current / hoursData.workHours.goal) * 100)) 
+  const workHoursPercentage = hoursData?.workHours?.goal
+    ? Math.min(100, Math.round((hoursData.workHours.current / hoursData.workHours.goal) * 100))
     : 0;
 
-  const focusedHoursPercentage = hoursData?.focusedHours?.goal 
-    ? Math.min(100, Math.round((hoursData.focusedHours.current / hoursData.focusedHours.goal) * 100)) 
+  const focusedHoursPercentage = hoursData?.focusedHours?.goal
+    ? Math.min(100, Math.round((hoursData.focusedHours.current / hoursData.focusedHours.goal) * 100))
     : 0;
 
   const workCurrent = hoursData?.workHours?.current ?? 0;
@@ -159,10 +169,10 @@ const Dashboard = () => {
     if (completed.length === 0) return 0;
 
     const uniqueDates = [...new Set(completed.map(t => t.completedAt.split('T')[0]))].sort((a,b) => new Date(b) - new Date(a));
-    
+
     let streak = 0;
     const todayStr = getTodayDate();
-    
+
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
@@ -177,7 +187,7 @@ const Dashboard = () => {
     for (let i = 0; i < uniqueDates.length; i++) {
       let taskDate = new Date(uniqueDates[i]);
       taskDate.setHours(0,0,0,0);
-      
+
       const diffTime = checkDate - taskDate;
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
@@ -199,8 +209,12 @@ const Dashboard = () => {
 
   const activeTip = proTips[currentTipIndex] || {};
 
+  const toggleDashboardGif = (gifName) => {
+    setActiveDashboardGif((current) => current === gifName ? null : gifName);
+  };
+
   return (
-    <div className="dashboard-layout">
+    <div className="dashboard-layout dashboard-page">
       <main className="center-content">
         <header className="dashboard-header">
           <h1>Welcome back, {activeUser.firstName}</h1>
@@ -249,10 +263,10 @@ const Dashboard = () => {
                 const isChecked = task.status === 'done' || task.status === 'Done';
                 return (
                   <div key={task.id} className={`task-card-new ${getCardPriorityClass(task.priority)} ${isChecked ? 'completed' : ''}`}>
-                    <div 
+                    <div
                       className={`task-checkbox ${isChecked ? 'checked' : ''}`}
                       onClick={() => handleTaskToggle(task.id, task.status || 'To do')}
-                      style={{ 
+                      style={{
                         cursor: 'pointer', width: '20px', height: '20px', borderRadius: '50%',
                         border: '2px solid var(--accent-primary)', display: 'flex', alignItems: 'center',
                         justifyContent: 'center', flexShrink: 0, marginLeft: '4px'
@@ -260,7 +274,7 @@ const Dashboard = () => {
                     >
                       {isChecked && <Check size={12} strokeWidth={4} color="var(--checkmark-color)" />}
                     </div>
-                    
+
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-main)' }}>{task.title}</div>
                       <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
@@ -269,7 +283,7 @@ const Dashboard = () => {
                           <Folder size={10} /> {task.project || task.category || 'FocusFlow'}
                         </span>
                         <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '4px' }}>
-                          <Clock3 size={13} style={{ color: 'var(--text-muted)' }} /> 
+                          <Clock3 size={13} style={{ color: 'var(--text-muted)' }} />
                           {task.deadline ? `deadline ${task.deadline}` : 'no deadline'}
                         </span>
                       </div>
@@ -278,6 +292,14 @@ const Dashboard = () => {
                     <div className="task-options">
                       <button className="icon-btn" style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: 'inherit' }} onClick={() => navigate(`/kanban/${task.id}`)} title="View task details">
                         <MoreHorizontal size={18} />
+                      </button>
+                      <button
+                        className="icon-btn task-delete-btn"
+                        onClick={() => handleDeleteTask(task.id)}
+                        title="Delete task"
+                        aria-label={`Delete ${task.title}`}
+                      >
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
@@ -291,7 +313,7 @@ const Dashboard = () => {
 
           <div className="summary-column" style={{ display: 'flex', flexDirection: 'column', gap: '54px', paddingTop: '12px' }}>
             <div className="glass-card progress-card transparent-card">
-              
+
               <div className="progress-item">
                 <div className="progress-text-row">
                   <span className="progress-label-pink">Hours of work</span>
@@ -313,42 +335,59 @@ const Dashboard = () => {
               </div>
 
             </div>
-            
-            <div className="velocity-card" style={{ flex: 'none', height: 'auto' }}>
+
+            <div className="insight-cards-row">
+            <div
+              className="velocity-card dashboard-gif-card"
+              onClick={() => toggleDashboardGif('cars')}
+              title="Show Cars boost"
+            >
               <div className="velocity-icon-wrapper"><Zap size={28} color="#FFAFD7" /></div>
               <div className="velocity-content">
-                <h3>Peak Velocity</h3>
+                <h3>Peak velocity</h3>
                 <p>{peakVelocityText}</p>
               </div>
+              {activeDashboardGif === 'cars' && (
+                <img src={carsGif} alt="Cars boost" className="dashboard-card-gif dashboard-card-gif--velocity" />
+              )}
+            </div>
+
+              <div
+                className="bottom-card-streak dashboard-gif-card"
+                onClick={() => toggleDashboardGif('yoda')}
+                title="Show Yoda focus boost"
+              >
+                <Flame size={16} className="streak-icon" />
+                <div className="streak-title-wrapper">
+                  <h3>Focus streak</h3>
+                </div>
+                <div className="streak-text-wrapper">
+                  <p>
+                    {currentStreak === 0
+                      ? "Finish a task today to start your streak!"
+                      : `${currentStreak} consecutive days of hitting your targets! You are locked in :)`}
+                  </p>
+                </div>
+                {activeDashboardGif === 'yoda' && (
+                  <img src={yodaGif} alt="Yoda focus boost" className="dashboard-card-gif dashboard-card-gif--streak" />
+                )}
+              </div>
+
             </div>
           </div>
         </section>
 
         {/* DOLNY RZĄD */}
         <section className="bottom-row">
-          
-          <div className="bottom-card-streak">
-            <Flame size={16} className="streak-icon" />
-            <div className="streak-title-wrapper">
-              <h3>Focus streak</h3>
-            </div>
-            <div className="streak-text-wrapper">
-              <p>
-                {currentStreak === 0 
-                  ? "Finish a task today to start your streak!" 
-                  : `${currentStreak} consecutive days of hitting your targets! You’re locked in :)`}
-              </p>
-            </div>
-          </div>
-          
-          <div 
-            className="bottom-card-tip" 
+
+          <div
+            className="bottom-card-tip"
             onClick={() => {
               if (!loadingTips && proTips.length > 0) {
                 setCurrentTipIndex((prev) => (prev + 1) % proTips.length);
               }
             }}
-            style={{ 
+            style={{
               cursor: loadingTips || proTips.length <= 1 ? 'default' : 'pointer',
               transition: 'transform 0.15s ease, box-shadow 0.15s ease'
             }}
@@ -364,22 +403,22 @@ const Dashboard = () => {
               {loadingTips ? "Fetching tips..." : activeTip.text}
             </p>
             {!loadingTips && proTips.length > 1 && (
-              <span style={{ fontSize: '10px', color: 'var(--accent-primary)', marginTop: '8px', display: 'block', opacity: 0.7 }}>
+              <span className="tip-next-hint">
                 Click for next tip
               </span>
             )}
           </div>
-          
+
           <div className="bottom-card-recap">
             <div className="recap-title-wrapper">
-              <h3>Weekly Recap</h3>
+              <h3>Weekly recap</h3>
             </div>
             <div className="recap-text-wrapper">
               <p>Your automated performance report is ready for review.</p>
             </div>
             <button className="generate-pdf-btn" onClick={handleGeneratePDF}>GENERATE PDF</button>
           </div>
-          
+
         </section>
 
       </main>

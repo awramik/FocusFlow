@@ -31,17 +31,18 @@
 
 .settings-header h1 {
   margin: 0 0 4px;
-  color: var(--text-main);
+  color: var(--dashboard-heading);
   font-size: 36px;
   line-height: 44px;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .settings-header p {
   margin: 0;
-  color: var(--text-muted);
+  color: var(--dashboard-subtitle);
   font-size: 13px;
-  line-height: 18px;
+  line-height: 17px;
+  font-weight: 500;
 }
 
 .settings-section {
@@ -372,17 +373,9 @@
 }
 
 .settings-status.settings-status--active {
-  color: var(--dashboard-pink-strong);
-  border-color: color-mix(
-    in srgb,
-    var(--dashboard-pink) 40%,
-    transparent
-  );
-  background: color-mix(
-    in srgb,
-    var(--dashboard-pink) 12%,
-    transparent
-  );
+  color: var(--settings-active);
+  border-color: var(--settings-active-border);
+  background: var(--settings-active-bg);
 }
 
 .settings-data-row--danger span {
