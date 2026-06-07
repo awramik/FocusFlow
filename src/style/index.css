@@ -329,8 +329,17 @@ body {
   transition: transform 0.2s ease;
 }
 
+body.theme-light .ferdynand-img {
+  width: 195px;
+  height: 195px;
+}
+
 .ferdynand-container:active .ferdynand-img {
   transform: scale(0.9);
+}
+
+body.theme-light .ferdynand-container:active .ferdynand-img {
+  transform: scale(0.92);
 }
 
 .ferdynand-badge {

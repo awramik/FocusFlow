@@ -13,6 +13,7 @@ import { NavLink, useLocation, Link, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { LogOut } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
 
@@ -22,11 +23,17 @@ import ferdynand2 from '../assets/baby.png';
 import ferdynand3 from '../assets/with_book.png';
 import ferdynand4 from '../assets/graduate.png';
 import ferdynand5 from '../assets/adult.png';
+import ferdynand1Light from '../assets/egg_light.png';
+import ferdynand2Light from '../assets/baby_light.png';
+import ferdynand3Light from '../assets/with_book_light.png';
+import ferdynand4Light from '../assets/graduate_light.png';
+import ferdynand5Light from '../assets/adult_light.png';
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation(); 
   const { currentUser } = useAuth();
+  const { theme } = useTheme();
 
   const faza = currentUser?.ferdynand?.stage || 1;
   const currentXP = currentUser?.ferdynand?.currentXP || 0;
@@ -42,7 +49,9 @@ export default function Sidebar() {
   const unlockedStage = getUnlockedStage(currentXP);
   const visibleStage = Math.min(faza, unlockedStage);
 
-  const ferdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
+  const darkFerdynandStages = [ferdynand1, ferdynand2, ferdynand3, ferdynand4, ferdynand5];
+  const lightFerdynandStages = [ferdynand1Light, ferdynand2Light, ferdynand3Light, ferdynand4Light, ferdynand5Light];
+  const ferdynandStages = theme === 'light' ? lightFerdynandStages : darkFerdynandStages;
 
   const handleLogout = async () => {
     try {
