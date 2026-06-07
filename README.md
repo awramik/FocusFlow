@@ -10,7 +10,7 @@ FocusFlow to aplikacja wspierająca **organizację pracy i koncentrację**. Łą
 
 ## Demo
 
-[![Demo aplikacji](./public/demo-thumbnail.png)](LINK_DO_FILMU)
+[🎬 Demo FocusFlow](https://1drv.ms/v/c/c12cc8192df5b9d1/IQBpYgujHR4-SJqVk1yTPrd-ASzRKiBa-6I8E_VDVhQqYPI?e=3kAFdv)
 
 ## Stack technologiczny
 
