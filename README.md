@@ -112,7 +112,7 @@ Aplikacja wykorzystuje bibliotekę `react-router-dom` do obsługi nawigacji i de
 
 | Widok (komponent) | Ścieżka (URL) | Opis funkcjonalności |
 | --- | --- | --- |
-| `Auth` | `/auth` | Panel logowania i rejestracji. Posiada wbudowany efekt (`useEffect`), który automatycznie przekierowuje zalogowanego użytkownika (`currentUser`) na pulpit. |
+| `Auth` | `/auth` | Panel logowania i rejestracji. Posiada wbudowany efekt (`useEffect`), który automatycznie przekierowuje zalogowanego użytkownika (`currentUser`) na pulpit po wykryciu aktywnej sesji. |
 | `Dashboard` | `/dashboard` |Główny pulpit agregujący statystyki wykonania celu (completionPercentage), zsynchronizowany mini-timer Pomodoro oraz listę 3 najbliższych zadań. Wykorzystuje `useMemo` do kalkulacji Focus Streak oraz Peak Velocity (inteligentna analiza efektywności). Dynamicznie pobiera porady z lokalnego pliku konfiguracyjnego oraz zawiera ukryte interaktywne elementy wyzwalające motywacyjne pliki GIF. Umożliwia wywołanie natywnego okna drukowania raportu wydajności do PDF. |
 | `AllTasks` | `/tasks` | Centralna lista wszystkich aktywnych zadań z zaawansowanym systemem filtrowania (priorytet, projekt, data), wyszukiwarką oraz formularzem szybkiego dodawania zadań. |
 | `Today` | `/today` | Widok zadań na bieżący dzień, podzielony na przejrzyste sekcje dla pozycji aktywnych i ukończonych wraz z ich licznikiem. Oferuje wysuwany formularz do szybkiego dodawania nowych zadań z priorytetami i tagami, inteligentny przycisk ułatwiający przewijanie długiej listy oraz boczny panel analityczny. Z poziomu listy można błyskawicznie zmieniać status zadań, usuwać je lub przechodzić do ich szczegółów. |
@@ -138,5 +138,15 @@ W projekcie wydzielono trzy wyspecjalizowane konteksty:
 
 ### 2. TaskContext (`useTasks`)
 
+Centralny menedżer stanów aplikacji, który realnie integruje operacje na bazie danych z logiką biznesową interfejsu. Odpowiada m.in. za:
+
+* **Synchronizację zadań (real-time)**, tj. odbiera zadania z kolekcji `tasks` w Firestore, filtrując je po unikalnym `userId` zalogowanego użytkownika. Zastosowanie metody `onSnapshot` sprawia, że jakakolwiek zmiana w bazie (dodanie, usunięcie, `drag&drop` na Kanbanie) natychmiast i bez przeładowania strony odświeża interfejs.
+* **Zarządzanie cyklem życia zadań** odpowiadając za asynchroniczne metody `addTask` (`addDoc`), `deleteTask` (`deleteDoc`) oraz `updateTaskStatus` (`updateDoc`).
+* **Ewolucję Pana Ferdynanda**, jako iż śledzi punkty doświadczenia użytkownika (`currentXP`). Specjalny efekt automatycznie przelicza próg punktowy i w przypadku awansu (etapy 1-5) modyfikuje pole w bazie danych, zmieniając wygląd maskotki projektu.
+* **Obsługę timera Pomodoro** zarządzając odliczaniem czasu skupienia, odtwarzaniem dźwięków oraz natywnymi powiadomieniami (Web Notifications API). Po skończonej sesji automatycznie dopisuje sekundy i punkty XP do profilu użytkownika w Firestore. Dodatkowo licznik w tle co minutę aktualizuje bieżący czas pracy, dbając o automatyczny reset celów wraz z nowym dniem.
 
 ### 3. ThemeContext (`useTheme`)
+
+* odpowiada za globalne przełączanie motywów wizualnych (ciemny/jasny).
+* zapisuje preferencje użytkownika lokalnie w `LocalStorage`, dzięki czemu interfejs zachowuje spójność przy ponownym otwarciu przeglądarki.
+* bezpośrednio manipuluje drzewem DOM poprzez dynamiczne wstrzykiwanie odpowiedniej klasy do elementu `document.body` oraz podmianę plików ikon (favicon-light.svg / favicon-dark.svg) w nagłówku strony `index.html`.
