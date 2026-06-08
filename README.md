@@ -150,3 +150,15 @@ Centralny menedżer stanów aplikacji, który realnie integruje operacje na bazi
 * odpowiada za globalne przełączanie motywów wizualnych (ciemny/jasny).
 * zapisuje preferencje użytkownika lokalnie w `LocalStorage`, dzięki czemu interfejs zachowuje spójność przy ponownym otwarciu przeglądarki.
 * bezpośrednio manipuluje drzewem DOM poprzez dynamiczne wstrzykiwanie odpowiedniej klasy do elementu `document.body` oraz podmianę plików ikon (favicon-light.svg / favicon-dark.svg) w nagłówku strony `index.html`.
+
+## Raport Google Analytics
+
+[Przegląd_raportów.pdf](https://github.com/user-attachments/files/28717996/Przeglad_raportow.pdf)
+
+<img width="1189" height="724" alt="image" src="https://github.com/user-attachments/assets/20264577-e1a9-4973-a6a3-8be9443eec9c" />
+<img width="1057" height="594" alt="image" src="https://github.com/user-attachments/assets/644fb21d-428d-4824-bbb2-46c6125dbf89" />
+
+## Raport Hotjar
+
+
+
