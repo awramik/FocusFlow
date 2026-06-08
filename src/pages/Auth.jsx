@@ -10,8 +10,11 @@ import '../style/Auth.css';
 export default function Auth() {
   const [regData, setRegData] = useState({ email: '', password: '' });
   const [loginData, setLoginData] = useState({ email: '', password: '' });
+  
+  // NOWOŚĆ: Stan kontrolujący, który formularz wyświetlić (domyślnie logowanie)
+  const [isLogin, setIsLogin] = useState(true); 
+  
   const navigate = useNavigate();
-
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -23,11 +26,9 @@ export default function Auth() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      // Tworzy konto w module Authentication
       const userCredential = await createUserWithEmailAndPassword(auth, regData.email, regData.password);
       const user = userCredential.user;
 
-      // Automatycznie tworzy dokument użytkownika w Firestore (Kolekcja "users")
       await setDoc(doc(db, "users", user.uid), {
         email: regData.email,
         firstName: regData.email.split('@')[0],
@@ -35,16 +36,8 @@ export default function Auth() {
         title: "New User",
         plan: "Free Tier",
         avatarInitials: regData.email.substring(0, 2).toUpperCase(),
-        
-        ferdynand: {
-          stage: 1,
-          currentXP: 0
-        },
-        settings: {
-          deepWork: true,
-          timerDuration: 25,
-          breakInterval: 5
-        },
+        ferdynand: { stage: 1, currentXP: 0 },
+        settings: { deepWork: true, timerDuration: 25, breakInterval: 5 },
         stats: {
           focusTimeSeconds: 0,
           workHoursCurrent: 0,
@@ -71,7 +64,6 @@ export default function Auth() {
 
   return (
     <div className="auth-page">
-      {/* Logo i Nazwa */}
       <div className="auth-logo">
         <Zap size={40} color="#FFAFD7" />
         <h1>FocusFlow</h1>
@@ -80,19 +72,48 @@ export default function Auth() {
       <p className="auth-hero-text">Unlock your peak productivity.</p>
 
       <div className="auth-container">
-        <form className="auth-card" onSubmit={handleRegister}>
-          <h2>Register</h2>
-          <input type="email" placeholder="e-mail:" onChange={(e) => setRegData({...regData, email: e.target.value})} />
-          <input type="password" placeholder="password:" onChange={(e) => setRegData({...regData, password: e.target.value})} />
-          <button type="submit">sign up</button>
-        </form>
-
-        <form className="auth-card" onSubmit={handleLogin}>
-          <h2>Log in</h2>
-          <input type="email" placeholder="e-mail:" onChange={(e) => setLoginData({...loginData, email: e.target.value})} />
-          <input type="password" placeholder="password:" onChange={(e) => setLoginData({...loginData, password: e.target.value})} />
-          <button type="submit">log in</button>
-        </form>
+        {/* WARUNKOWE RENDEROWANIE FORMULARZA */}
+        {isLogin ? (
+          <form className="auth-card" onSubmit={handleLogin}>
+            <h2>Log in</h2>
+            <input 
+              type="email" 
+              placeholder="e-mail:" 
+              onChange={(e) => setLoginData({...loginData, email: e.target.value})} 
+            />
+            <input 
+              type="password" 
+              placeholder="password:" 
+              onChange={(e) => setLoginData({...loginData, password: e.target.value})} 
+            />
+            <button type="submit">log in</button>
+            
+            {/* PRZYCISK ZMIANY TRYBU */}
+            <p className="auth-toggle-text">
+              Don't have an account? <span onClick={() => setIsLogin(false)}>Sign up</span>
+            </p>
+          </form>
+        ) : (
+          <form className="auth-card" onSubmit={handleRegister}>
+            <h2>Register</h2>
+            <input 
+              type="email" 
+              placeholder="e-mail:" 
+              onChange={(e) => setRegData({...regData, email: e.target.value})} 
+            />
+            <input 
+              type="password" 
+              placeholder="password:" 
+              onChange={(e) => setRegData({...regData, password: e.target.value})} 
+            />
+            <button type="submit">sign up</button>
+            
+            {/* PRZYCISK ZMIANY TRYBU */}
+            <p className="auth-toggle-text">
+              Already have an account? <span onClick={() => setIsLogin(true)}>Log in</span>
+            </p>
+          </form>
+        )}
       </div>
     </div>
   );

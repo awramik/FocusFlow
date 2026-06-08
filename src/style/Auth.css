@@ -74,3 +74,46 @@
 .auth-card button:hover {
   opacity: 0.9;
 }
+
+/* =========================================
+   PRZEŁĄCZNIK LOGOWANIE / REJESTRACJA
+   ========================================= */
+.auth-toggle-text {
+  margin-top: 24px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.auth-toggle-text span {
+  color: var(--dashboard-pink);
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.auth-toggle-text span:hover {
+  color: var(--accent-primary);
+}
+
+/* Subtelna linia pojawiająca się po najechaniu (efekt underline z animacją) */
+.auth-toggle-text span::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--accent-primary);
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.auth-toggle-text span:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
