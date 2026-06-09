@@ -160,5 +160,16 @@ Centralny menedżer stanów aplikacji, który realnie integruje operacje na bazi
 
 ## Raport Hotjar
 
+| Nazwa podstrony | Link | Raport |
+| :--- | :--- | :--- |
+| Today | https://fokusflow.up.railway.app/today | [Raport Today](https://github.com/user-attachments/files/28746335/Contentsquare-report-92825755-5b13-4970-93e1-30a0798c7eda.pdf) |
+| All tasks | https://fokusflow.up.railway.app/all | [Raport All Tasks](https://github.com/user-attachments/files/28746370/Contentsquare-report-2ba4ad31-64fb-4731-ad26-c7693973e3cd.pdf) |
+| Analytics | https://fokusflow.up.railway.app/analytics | [Raport Analytics](https://github.com/user-attachments/files/28746414/Contentsquare-report-7aaab861-2a62-44a2-a36b-f9de2775b919.pdf) |
+| Kanban | https://fokusflow.up.railway.app/kanban | [Raport Kanban](https://github.com/user-attachments/files/28746442/Contentsquare-report-2b43aad6-5349-4e9d-9a7f-27464ced08a6.pdf) |
+| Settings | https://fokusflow.up.railway.app/settings | [Raport Settings](https://github.com/user-attachments/files/28746468/Contentsquare-report-971c8ece-8de6-445d-8b38-b2a77cc68fd8.pdf) |
+| No distractions | https://fokusflow.up.railway.app/focus | [Raport No distractions](https://github.com/user-attachments/files/28746506/Contentsquare-report-61b768c1-2903-4f61-8e2c-fb7c0bf60a2d.pdf) |
+| Dashboard | https://fokusflow.up.railway.app/dashboard | [Raport Dashboard](https://github.com/user-attachments/files/28746306/Contentsquare-report-9989a171-2a0a-4729-8b8c-bec623e542ce.pdf) |
+| Log in page | https://fokusflow.up.railway.app/ | [Raport Main page](https://github.com/user-attachments/files/28746555/Contentsquare-report-ecd51825-4e6a-442d-9354-9013ec049340.pdf) |
 
+<img width="1778" height="798" alt="image" src="https://github.com/user-attachments/assets/402efee2-819a-470a-bcea-f119a020d16b" />
 
