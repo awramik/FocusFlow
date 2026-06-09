@@ -173,3 +173,7 @@ Centralny menedżer stanów aplikacji, który realnie integruje operacje na bazi
 
 <img width="1778" height="798" alt="image" src="https://github.com/user-attachments/assets/402efee2-819a-470a-bcea-f119a020d16b" />
 
+### KPI metrics
+
+<img width="980" height="630" alt="image" src="https://github.com/user-attachments/assets/0460fad0-d359-4e94-8f1a-4a6ef4a22d9e" />
+<img width="967" height="579" alt="image" src="https://github.com/user-attachments/assets/142e3d24-1c29-435a-940c-4459449436dd" />
