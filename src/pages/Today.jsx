@@ -6,7 +6,6 @@ import {
   Search, 
   Circle, 
   Clock, 
-  MoreHorizontal,
   Folder,
   X,
   Trash2,
@@ -96,9 +95,9 @@ export default function Today() {
     }
   };
 
-  const handleDeleteTask = (taskId) => {
+  const handleDeleteTask = async (taskId) => {
     if (deleteTask) {
-      deleteTask(taskId);
+      await deleteTask(taskId);
     }
   };
 
@@ -144,7 +143,16 @@ export default function Today() {
 
   const TaskRow = ({ task, isCompleted }) => (
     <div 
-      className="card" 
+      className="card today-task-row"
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/kanban/${task.id}`)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          navigate(`/kanban/${task.id}`);
+        }
+      }}
       style={{ 
         margin: 0, 
         display: 'flex', 
@@ -153,6 +161,7 @@ export default function Today() {
         padding: '24px',
         position: 'relative',
         overflow: 'hidden',
+        cursor: 'pointer',
         opacity: isCompleted ? 0.45 : 1
       }}
     >
@@ -164,7 +173,10 @@ export default function Today() {
 
       <Circle 
         size={20} 
-        onClick={() => handleToggleComplete(task.id, task.status)}
+        onClick={(event) => {
+          event.stopPropagation();
+          handleToggleComplete(task.id, task.status);
+        }}
         style={{ 
           color: isCompleted ? 'var(--text-muted)' : 'var(--accent-primary)', 
           cursor: 'pointer', 
@@ -174,7 +186,7 @@ export default function Today() {
         }} 
       />
       
-      <div style={{ flex: 1 }}>
+      <div className="today-task-row__content" style={{ flex: 1, minWidth: 0 }}>
         <div style={{ 
           fontSize: '15px', 
           fontWeight: '600', 
@@ -184,7 +196,7 @@ export default function Today() {
           {task.title}
         </div>
 
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
+        <div className="today-task-row__meta" style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '8px' }}>
           <span className={getPriorityClass(task.priority)}>
             [{task.priority || 'LOW'}]
           </span>
@@ -200,22 +212,19 @@ export default function Today() {
         </div>
       </div>
 
-      <button 
-        className="icon-btn" 
-        style={{ padding: '4px' }}
-        onClick={() => navigate(`/kanban/${task.id}`)}
-        title="View task details"
-      >
-        <MoreHorizontal size={18} />
-      </button>
-      <button
-        className="icon-btn task-delete-btn"
-        onClick={() => handleDeleteTask(task.id)}
-        title="Delete task"
-        aria-label={`Delete ${task.title}`}
-      >
-        <Trash2 size={16} />
-      </button>
+      <div className="today-task-row__actions">
+        <button
+          className="icon-btn task-delete-btn"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleDeleteTask(task.id);
+          }}
+          title="Delete task"
+          aria-label={`Delete ${task.title}`}
+        >
+          <Trash2 size={16} />
+        </button>
+      </div>
     </div>
   );
 

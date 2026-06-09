@@ -38,6 +38,8 @@
 /* GÓRNY RZĄD */
 .top-row {
   display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
   gap: 24px;
   margin-bottom: 32px;
 }
@@ -53,7 +55,9 @@
 
 /* 1. Daily Status Card */
 .daily-status-card {
+  flex: 0 1 246px;
   width: 246px;
+  max-width: 246px;
   display: flex;
   flex-direction: column;
 }
@@ -119,20 +123,26 @@
 
 /* 2. Active Session Card */
 .active-session-card {
-  flex: 1;
+  flex: 1 1 420px;
+  min-width: 0;
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
+  gap: 18px;
 }
 
 .active-session-left {
   display: flex;
   align-items: center;
   gap: 24px;
+  min-width: 0;
+  flex: 1 1 240px;
 }
 
 .timer-circle {
+  flex: 0 0 64px;
   width: 64px;
   height: 64px;
   border-radius: 9999px;
@@ -149,6 +159,7 @@
 .active-session-info {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .active-session-label {
@@ -177,16 +188,24 @@
   line-height: 12px;
   color: var(--dashboard-subtitle);
   margin: 4px 0 0 0;
+  overflow-wrap: anywhere;
 }
 
 .active-session-actions {
   display: flex;
   gap: 8px;
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .action-btn {
+  flex: 0 0 40px;
+  min-width: 40px;
   width: 40px;
   height: 40px;
+  padding: 0;
   background: var(--dashboard-dark-surface);
   border-radius: 8px;
   display: flex;
@@ -208,11 +227,13 @@
   display: flex;
   gap: 32px; /* Zwiększony odstęp między listą a prawą stroną */
   margin-bottom: 32px;
+  min-width: 0;
 }
 
 /* --- LEWA KOLUMNA ZADAŃ --- */
 .tasks-column {
   flex: 1; /* Pozwala liście zająć całe wolne miejsce! */
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
@@ -234,13 +255,16 @@
 
 .task-card-new {
   box-sizing: border-box;
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
   padding: 16px;
+  padding-right: 56px;
   gap: 16px;
   width: 100%;
-  height: 79px;
+  min-height: 79px;
+  height: auto;
   background: var(--dashboard-card);
   border: 1px solid var(--border);
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
@@ -292,6 +316,7 @@
   flex-direction: column;
   gap: 4px;
   flex: 1;
+  min-width: 0;
 }
 
 .task-title-new {
@@ -301,6 +326,7 @@
   line-height: 24px;
   color: var(--text-main);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .task-tags {
@@ -308,6 +334,8 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .task-tag-priority {
@@ -335,16 +363,23 @@
 }
 
 .task-options {
+  position: absolute;
+  top: 50%;
+  right: 16px;
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  gap: 4px;
+  transform: translateY(-50%);
 }
 
 /* --- PRAWA KOLUMNA WIDŻETÓW (Ze sztywną szerokością) --- */
 .summary-column {
   flex: 0 0 258px; /* Sztywna szerokość z Figmy */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -878,6 +913,57 @@
   }
 }
 
+@media (max-width: 980px) {
+  .top-row {
+    align-items: flex-start;
+  }
+
+  .top-row .glass-card {
+    padding: 20px;
+  }
+
+  .daily-status-card {
+    flex-basis: 246px;
+    max-width: 246px;
+  }
+
+  .active-session-card {
+    align-items: center;
+    flex-direction: row;
+    flex: 1 1 360px;
+    max-width: 560px;
+    gap: 14px;
+  }
+
+  .active-session-left {
+    gap: 14px;
+  }
+
+  .timer-circle {
+    flex-basis: 52px;
+    width: 52px;
+    height: 52px;
+    font-size: 13px;
+  }
+
+  .active-session-title {
+    font-size: 18px;
+    line-height: 24px;
+  }
+
+  .active-session-actions {
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .action-btn {
+    flex-basis: 34px;
+    min-width: 34px;
+    width: 34px;
+    height: 34px;
+  }
+}
+
 @media (max-width: 720px) {
   .dashboard-page .center-content {
     padding: 28px 20px 34px;
@@ -896,12 +982,80 @@
 
   .daily-status-card,
   .active-session-card {
+    flex-basis: auto;
+    max-width: none;
     width: 100%;
   }
 
   .active-session-card {
+    align-items: center;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .active-session-left {
+    gap: 10px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .active-session-info {
+    overflow: hidden;
+  }
+
+  .active-session-label,
+  .active-session-title,
+  .active-session-task {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .timer-circle {
+    flex-basis: 46px;
+    width: 46px;
+    height: 46px;
+    font-size: 12px;
+  }
+
+  .active-session-label,
+  .active-session-task {
+    font-size: 9px;
+    line-height: 11px;
+  }
+
+  .active-session-title {
+    font-size: 16px;
+    line-height: 21px;
+  }
+
+  .active-session-actions {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .action-btn {
+    flex-basis: 30px;
+    min-width: 30px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .task-card-new {
     align-items: flex-start;
-    flex-direction: column;
-    gap: 18px;
+    gap: 12px;
+  }
+
+  .task-card-new > div[style*="flex: 1"] {
+    min-width: 0;
+  }
+
+  .task-card-new > div[style*="flex: 1"] > div:last-child {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+
+  .task-options {
+    margin-left: auto;
   }
 }

@@ -94,12 +94,13 @@
 
 .kanban-board-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
   align-items: start;
 }
 
 .kanban-column {
+  min-width: 0;
   background-color: var(--bg-column);
   border-radius: 16px;
   padding: 24px 16px;
@@ -124,9 +125,42 @@
 }
 
 .task-card {
+  min-width: 0;
   position: relative;
   overflow: hidden;
   cursor: grab;
+  padding-right: 48px;
+}
+
+.kanban-page .task-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kanban-page .task-card-footer {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.kanban-page .task-card-footer .category-tag,
+.kanban-page .task-card-footer .priority-tag {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.kanban-page .task-card-footer .task-delete-btn {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  flex: 0 0 auto;
+  margin-left: 0;
+  transform: translateY(-50%);
 }
 
 .task-card:active {
@@ -173,12 +207,14 @@
 .priority-filters-bar {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
   background-color: var(--bg-card);
   padding: 10px 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
+  min-width: 0;
 }
 
 .filter-label {
@@ -186,9 +222,11 @@
   color: var(--text-muted);
   font-weight: 700;
   text-transform: uppercase;
+  flex: 0 0 auto;
 }
 
 .filter-chip {
+  min-width: 0;
   background: none;
   border: 1px solid var(--border);
   color: var(--text-muted);
@@ -210,4 +248,67 @@
   background-color: var(--accent-primary);
   color: var(--accent-text);
   border-color: var(--accent-primary);
+}
+
+@media (max-width: 980px) {
+  .kanban-board-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kanban-column {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .kanban-page {
+    padding: 24px 14px !important;
+  }
+
+  .kanban-header,
+  .kanban-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kanban-header .btn-primary {
+    margin-top: 12px;
+    align-self: flex-start;
+  }
+
+  .priority-filters-bar {
+    align-items: stretch;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .priority-filters-bar .filter-label {
+    flex: 1 1 100%;
+    min-width: 0 !important;
+  }
+
+  .priority-filters-bar .filter-chip {
+    flex: 1 1 calc(50% - 8px);
+    padding: 7px 8px;
+    text-align: center;
+  }
+
+  .priority-filters-bar > div {
+    flex: 1 1 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .priority-filters-bar input {
+    flex: 1 1 140px;
+    width: 100% !important;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 380px) {
+  .priority-filters-bar .filter-chip {
+    flex-basis: 100%;
+  }
 }

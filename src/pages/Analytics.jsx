@@ -72,6 +72,7 @@ export default function Analytics() {
       const dateStr = `${yyyy}-${mm}-${dd}`; 
       
       const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+      const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
       const tasksDone = completedTasks.filter(t => {
         if (!t.completedAt) return false;
@@ -88,6 +89,7 @@ export default function Analytics() {
       last7Days.push({
         id: dateStr,
         day: dayName,
+        dateLabel,
         tasksDone,
         value: 0,
         featured: false
@@ -193,6 +195,14 @@ export default function Analytics() {
                   style={{ height: `${item.value}%`, '--bar-hover-shift': index < 4 ? -0.5 : 0.5 }}
                 >
                   <span className="analytics-page__bar-value">{item.tasksDone}</span>
+                </div>
+              ))}
+            </div>
+            <div className="analytics-page__chart-labels">
+              {weeklyStats.data.map((item) => (
+                <div className="analytics-page__chart-label" key={`${item.id}-label`}>
+                  <small>{item.day}</small>
+                  <span>{item.dateLabel}</span>
                 </div>
               ))}
             </div>

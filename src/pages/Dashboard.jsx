@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import RightAnalytics from '../components/RightAnalytics';
-import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, MoreHorizontal, Check, Folder, Trash2 } from 'lucide-react';
+import { Clock3, Zap, Flame, Lightbulb, Pause, Play, Square, Check, Folder, Trash2 } from 'lucide-react';
 import '../style/Dashboard.css';
 import yodaGif from '../assets/yoda_star_wars.gif';
 import carsGif from '../assets/cars.gif';
@@ -203,8 +203,7 @@ const Dashboard = () => {
 
   // GENEROWANIE RAPORTU PDF
   const handleGeneratePDF = () => {
-    alert("Opening print dialog. Save it as PDF to review your FocusFlow report!");
-    window.print();
+    window.open('/report/weekly', '_blank');
   };
 
   const activeTip = proTips[currentTipIndex] || {};
@@ -290,9 +289,6 @@ const Dashboard = () => {
                     </div>
 
                     <div className="task-options">
-                      <button className="icon-btn" style={{ background: 'none', border: 'none', padding: '4px', cursor: 'pointer', color: 'inherit' }} onClick={() => navigate(`/kanban/${task.id}`)} title="View task details">
-                        <MoreHorizontal size={18} />
-                      </button>
                       <button
                         className="icon-btn task-delete-btn"
                         onClick={() => handleDeleteTask(task.id)}
@@ -414,9 +410,9 @@ const Dashboard = () => {
               <h3>Weekly recap</h3>
             </div>
             <div className="recap-text-wrapper">
-              <p>Your automated performance report is ready for review.</p>
+              <p>Your automated performance tale is ready for review.</p>
             </div>
-            <button className="generate-pdf-btn" onClick={handleGeneratePDF}>GENERATE PDF</button>
+            <button className="generate-pdf-btn" onClick={handleGeneratePDF}>GENERATE REPORT</button>
           </div>
 
         </section>

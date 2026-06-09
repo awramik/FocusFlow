@@ -16,7 +16,7 @@ import {
   Download, 
   User,
   Trash2,
-  X 
+  LogOut,
 } from 'lucide-react';
 import '../style/taskDetails.css';
 
@@ -29,6 +29,9 @@ export default function TaskDetails() {
   const [comments, setComments] = useState([]);
   const [newCommentText, setNewCommentText] = useState('');
   const [attachments, setAttachments] = useState([]);
+  const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [descriptionDraft, setDescriptionDraft] = useState('');
 
   const fileInputRef = useRef(null);
 
@@ -36,6 +39,7 @@ export default function TaskDetails() {
     if (task) {
       setComments(task.comments || []);
       setAttachments(task.attachments || []);
+      setDescriptionDraft(task.description || '');
     }
   }, [task]);
 
@@ -150,6 +154,17 @@ export default function TaskDetails() {
     navigate('/dashboard');
   };
 
+  const handleSaveDescription = async () => {
+    try {
+      const cleanDescription = descriptionDraft.trim();
+      const taskRef = doc(db, 'tasks', task.id);
+      await updateDoc(taskRef, { description: cleanDescription });
+      setIsEditingDescription(false);
+    } catch (error) {
+      console.error("BĹ‚Ä…d zapisu opisu:", error);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
       handleAddComment();
@@ -195,11 +210,30 @@ export default function TaskDetails() {
           <button className="icon-btn task-delete-btn task-details-delete-btn" onClick={handleDeleteTask} title="Delete task">
             <Trash2 size={16} />
           </button>
-          <button className="icon-btn more-btn"><MoreHorizontal size={18} /></button>
+          <div className="task-details-menu">
+            <button
+              type="button"
+              className="icon-btn more-btn"
+              onClick={() => setIsActionsMenuOpen((isOpen) => !isOpen)}
+              aria-expanded={isActionsMenuOpen}
+              aria-haspopup="menu"
+              title="More actions"
+            >
+              <MoreHorizontal size={18} />
+            </button>
+            {isActionsMenuOpen && (
+              <div className="task-details-menu__popover" role="menu">
+                <button type="button" role="menuitem" onClick={() => navigate(-1)}>
+                  <LogOut size={14} />
+                  Close details
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="kanban-board-grid" style={{ gridTemplateColumns: '1fr 320px', gap: '40px' }}>
+      <div className="task-details-grid">
         
         <div className="column-tasks-container" style={{ gap: '32px' }}>
           
@@ -221,11 +255,43 @@ export default function TaskDetails() {
 
           {/* NAPRAWIONY CZYSTY OPIS */}
           <div>
-            <h2 className="category-tag section-heading-row">
-              <FileText size={14} /> Description
-            </h2>
-            <div className="card" style={{ margin: 0, padding: '20px', backgroundColor: 'var(--bg-card-dark)', borderRadius: '12px' }}>
-              {task.description ? (
+            <div className="task-details-section-header">
+              <h2 className="category-tag section-heading-row">
+                <FileText size={14} /> Description
+              </h2>
+            </div>
+            <div
+              className={`card description-card ${!isEditingDescription ? 'description-card--clickable' : ''}`}
+              onClick={() => {
+                if (!isEditingDescription) setIsEditingDescription(true);
+              }}
+              style={{ margin: 0, padding: '20px', backgroundColor: 'var(--bg-card-dark)', borderRadius: '12px' }}
+            >
+              {isEditingDescription ? (
+                <div className="description-editor">
+                  <textarea
+                    value={descriptionDraft}
+                    onChange={(event) => setDescriptionDraft(event.target.value)}
+                    placeholder="Task details..."
+                    autoFocus
+                  />
+                  <div className="description-editor__actions">
+                    <button
+                      type="button"
+                      className="icon-btn"
+                      onClick={() => {
+                        setDescriptionDraft(task.description || '');
+                        setIsEditingDescription(false);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button type="button" className="btn-primary" onClick={handleSaveDescription}>
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ) : task.description ? (
                 <p style={{ color: 'var(--text-main)', lineHeight: '1.6', fontSize: '14px', margin: 0 }}>
                   {task.description}
                 </p>
@@ -322,7 +388,7 @@ export default function TaskDetails() {
 
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="task-details-sidebar">
           
           {/* ASSIGNEES */}
           <div className="card" style={{ margin: '0' }}>
@@ -373,15 +439,9 @@ export default function TaskDetails() {
               )}
             </div>
           </div>
-
-          <div className="close-panel-row">
-            <button onClick={() => navigate(-1)} className="close-details-btn">
-              <X size={12} /> Close details
-            </button>
-          </div>
-
         </div>
       </div>
+
     </div>
   );
 }

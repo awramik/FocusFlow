@@ -435,6 +435,25 @@ body.theme-light .ferdynand-container:active .ferdynand-img {
   width: 100%;
   gap: 24px;
   flex-wrap: wrap;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent-purple) 55%, transparent) transparent;
+}
+
+.calendar-page-shell::-webkit-scrollbar,
+.calendar-page-layout::-webkit-scrollbar {
+  height: 2px;
+  width: 2px;
+}
+
+.calendar-page-shell::-webkit-scrollbar-track,
+.calendar-page-layout::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.calendar-page-shell::-webkit-scrollbar-thumb,
+.calendar-page-layout::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent-purple) 55%, transparent);
+  border-radius: 999px;
 }
 
 .calendar-month-card {
@@ -715,4 +734,62 @@ body.theme-light .ferdynand-container:active .ferdynand-img {
 .task-delete-btn:hover {
   color: #ff8a96;
   background: rgba(255, 107, 122, 0.12);
+}
+
+.main-area:has(.calendar-page-shell),
+.center-content:has(.calendar-page-shell),
+.calendar-page-shell {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent-purple) 45%, transparent) transparent;
+}
+
+.main-area:has(.calendar-page-shell)::-webkit-scrollbar,
+.center-content:has(.calendar-page-shell)::-webkit-scrollbar,
+.calendar-page-shell::-webkit-scrollbar {
+  height: 2px;
+}
+
+.main-area:has(.calendar-page-shell)::-webkit-scrollbar-thumb,
+.center-content:has(.calendar-page-shell)::-webkit-scrollbar-thumb,
+.calendar-page-shell::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent-purple) 45%, transparent);
+  border-radius: 999px;
+}
+
+.today-task-row {
+  transition: border-color 0.18s ease, transform 0.18s ease, background-color 0.18s ease;
+}
+
+.today-task-row:hover,
+.today-task-row:focus-visible {
+  border-color: var(--accent-purple);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.today-task-row__content {
+  min-width: 0;
+}
+
+.today-task-row__meta {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.today-task-row__actions {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .today-task-row {
+    gap: 12px !important;
+    padding: 18px !important;
+  }
+
+  .today-task-row__meta {
+    gap: 8px !important;
+  }
 }

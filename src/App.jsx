@@ -14,6 +14,7 @@ import Settings from './pages/Settings';
 import FocusMode from './pages/FocusMode';
 import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
+import WeeklyReport from './pages/WeeklyReport';
 
 import './style/index.css';
 import './style/kanban.css';
@@ -27,6 +28,7 @@ function App() {
           <Routes>
             {/* Strona logowania */}
             <Route path="/" element={<Auth />} />
+            <Route path="/report/weekly" element={<WeeklyReport />} />
 
             {/* Wszystkie inne strony */}
             <Route path="/*" element={
