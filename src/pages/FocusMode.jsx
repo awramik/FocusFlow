@@ -170,7 +170,7 @@ export default function FocusMode() {
         {isFormOpen && (
           <form 
             onSubmit={handleCreateTask}
-            className="card animate-fade-in" 
+            className="card animate-fade-in quick-task-form" 
             style={{ 
               margin: '0 0 32px 0', padding: '24px', backgroundColor: '#1c0c30', 
               border: '1px solid var(--accent-purple)', display: 'flex', flexDirection: 'column', gap: '16px'
@@ -187,7 +187,7 @@ export default function FocusMode() {
               style={{ width: '100%', background: '#130823', border: '1px solid var(--border)', borderRadius: '8px', padding: '12px 16px', color: 'var(--text-main)', fontSize: '14px', fontFamily: "'JetBrains Mono', monospace", outline: 'none' }}
             />
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+            <div className="quick-task-form__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
                 <input 
@@ -217,7 +217,7 @@ export default function FocusMode() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
+            <div className="quick-task-form__actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
               <button type="button" onClick={() => setIsFormOpen(false)} className="icon-btn" style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '500', fontFamily: "'JetBrains Mono', monospace" }}>Cancel</button>
               <button type="submit" className="btn-primary" style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}>ADD TASK</button>
             </div>

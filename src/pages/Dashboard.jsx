@@ -261,10 +261,25 @@ const Dashboard = () => {
               {todaysTasks && todaysTasks.map((task) => {
                 const isChecked = task.status === 'done' || task.status === 'Done';
                 return (
-                  <div key={task.id} className={`task-card-new ${getCardPriorityClass(task.priority)} ${isChecked ? 'completed' : ''}`}>
+                  <div
+                    key={task.id}
+                    className={`task-card-new dashboard-task-card ${getCardPriorityClass(task.priority)} ${isChecked ? 'completed' : ''}`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/kanban/${task.id}`)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        navigate(`/kanban/${task.id}`);
+                      }
+                    }}
+                  >
                     <div
                       className={`task-checkbox ${isChecked ? 'checked' : ''}`}
-                      onClick={() => handleTaskToggle(task.id, task.status || 'To do')}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleTaskToggle(task.id, task.status || 'To do');
+                      }}
                       style={{
                         cursor: 'pointer', width: '20px', height: '20px', borderRadius: '50%',
                         border: '2px solid var(--accent-primary)', display: 'flex', alignItems: 'center',
@@ -291,7 +306,10 @@ const Dashboard = () => {
                     <div className="task-options">
                       <button
                         className="icon-btn task-delete-btn"
-                        onClick={() => handleDeleteTask(task.id)}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteTask(task.id);
+                        }}
                         title="Delete task"
                         aria-label={`Delete ${task.title}`}
                       >

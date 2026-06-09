@@ -105,7 +105,7 @@ export default function Kanban() {
       {isFormOpen && (
           <form 
             onSubmit={handleCreateTask}
-            className="card animate-fade-in" 
+            className="card animate-fade-in quick-task-form" 
             style={{ 
               margin: '0 0 32px 0', 
               padding: '24px', 
@@ -155,7 +155,7 @@ export default function Kanban() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+            <div className="quick-task-form__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
                 <input 
@@ -185,7 +185,7 @@ export default function Kanban() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
+            <div className="quick-task-form__actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
               <button type="button" onClick={() => setIsFormOpen(false)} className="icon-btn" style={{ padding: '8px 16px', fontSize: '12px', fontWeight: '500', fontFamily: "'JetBrains Mono', monospace" }}>Cancel</button>
               <button type="submit" className="btn-primary" style={{ padding: '8px 20px', borderRadius: '8px', fontSize: '12px', fontWeight: '700' }}>ADD TASK</button>
             </div>

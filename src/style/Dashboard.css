@@ -271,6 +271,17 @@
   border-radius: 8px;
 }
 
+.dashboard-task-card {
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-task-card:hover {
+  border-color: var(--accent-purple);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+
 .task-card-new.priority-critical { border-left: 4px solid #FFAFD7; }
 .task-card-new.priority-high     { border-left: 4px solid rgba(255, 175, 215, 0.4); }
 .task-card-new.priority-low      { border-left: 4px solid #4B3D54; }

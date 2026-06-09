@@ -229,7 +229,7 @@ export default function AllTasks() {
         {isFormOpen && (
           <form 
             onSubmit={handleCreateTask}
-            className="card animate-fade-in" 
+            className="card animate-fade-in quick-task-form" 
             style={{ 
               margin: '0 0 32px 0', 
               padding: '24px', 
@@ -304,7 +304,7 @@ export default function AllTasks() {
             </div>
 
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+            <div className="quick-task-form__grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
               <div>
                 <label className="category-tag" style={{ display: 'block', marginBottom: '6px', fontSize: '10px', paddingLeft: 0, marginLeft: 0 }}>PROJECT</label>
                 <input 
@@ -372,7 +372,7 @@ export default function AllTasks() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
+            <div className="quick-task-form__actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '4px' }}>
               <button 
                 type="button" 
                 onClick={() => setIsFormOpen(false)}

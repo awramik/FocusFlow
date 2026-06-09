@@ -358,11 +358,15 @@ export default function TaskDetails() {
                       
                       <div className="comment-meta-right">
                         <span className="comment-date">{comment.date}</span>
-                        {(comment.author === "Dev Stranger" || comment.author === currentUser?.firstName) && (
-                          <button onClick={() => handleDeleteComment(comment.id)} className="comment-delete-action">
-                            DELETE
-                          </button>
-                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteComment(comment.id)}
+                          className="comment-delete-action"
+                          title="Delete comment"
+                          aria-label="Delete comment"
+                        >
+                          <Trash2 size={13} />
+                        </button>
                       </div>
                     </div>
                     <p className="comment-body-text">{comment.text}</p>
